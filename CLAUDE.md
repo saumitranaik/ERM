@@ -47,6 +47,7 @@ relying on specifics, it evolves:
 | Layering & determinism | ArchUnit-enforced `api → service → persistence`, no `controller` package, closed-world routing, deterministic rebuild from source of truth | Any implementation-ready ERM API/module spec must respect this layering so it is directly buildable in PRSMTD without translation. |
 | Data platform | PostgreSQL + Liquibase (immutable baseline from `release-1.0`, new changes as new changesets only) | ERM data model specs (§06) are Liquibase-changeset-ready, not raw ERDs. |
 | Stack | Spring Boot / Java 21 backend, Next.js 14 / TypeScript frontend, Docker Compose + `platformctl` orchestration | API and UI specs should target this stack directly. |
+| Frontend/UI shell | Next.js App Router (`frontend/app`, `frontend/src`); dynamic module navigation built from `GET /api/v1/modules` — module codes are never hardcoded (Frontend Hardcoding Guard, system.md §5b15); closed-world UI/BFF route enumeration (system.md §4.1 T4/T5); a shared component library (`src/components/{ui,common,module}`); existing `approvals` and `dashboard` feature areas (`src/features/`) | `27-user-experience` specs must reuse this shell, navigation model, and component structure — not design a competing frontend architecture. A new UI pattern is introduced only where no PRSMTD equivalent exists, explicitly flagged as such. |
 | Governance/ADR process | §16 Governance Program Board Doctrine, §17 Runtime Validator Harness Doctrine, §20 ADR Traceability Matrix | ERM's own ADRs (§20-adr) should be written so they could be adopted into PRSMTD's ADR Traceability Matrix without rework. |
 
 When a needed capability is **not** in this table, treat it as a genuine gap — design it in
@@ -118,7 +119,8 @@ docs/
     02-business-architecture/   Capability maps, value streams, stakeholder/persona models
     03-enterprise-architecture/ Target-state architecture, C4 views, principles application
     04-domain-model/            Bounded contexts, ubiquitous language, aggregates
-    05-modules/                 Per-capability module specs (maps to PRSMTD modules/)
+    05-modules/                 Module index/registry only — one entry per module, pointing to
+                                 its authoritative spec elsewhere; never module content itself
     06-data-model/              Entity models, Liquibase-changeset-ready schemas
     07-workflows/               State machines, maker-checker flows, BPMN/sequence diagrams
     08-api/                     API contracts (REST/event), versioning, error contracts
@@ -136,11 +138,35 @@ docs/
     20-adr/                     Architecture Decision Records
     21-standards/               Naming, documentation, and modeling standards
     22-traceability/            Cross-cutting traceability matrices
+    23-policy/                  Policy taxonomy, governed lifecycle, policy-to-control/obligation mapping
+    24-incident-issue-capa/     Incident intake, issue tracking, corrective/preventive action (CAPA)
+    25-third-party-risk/        Vendor/third-party inventory, due diligence, ongoing risk monitoring
+    26-business-continuity/     Business impact analysis, continuity/DR plans, RTO/RPO targets
+    27-user-experience/         Presentation-layer specs: screens, navigation, dashboards, forms,
+                                 maker-checker UX, notifications, accessibility, responsive behavior
     reference/                  Primary source material (regulatory PDFs, external inputs) — not authored here
 ```
 
 Preserve this structure. If a new top-level section seems necessary, propose it to the user
-explicitly rather than inventing one silently.
+explicitly rather than inventing one silently. Sections `23`–`26` extend the numbering beyond
+the original `01`–`22` scaffold, following the same one-section-per-bounded-context precedent
+`09`–`13` already established for business-domain modules; `27` is the shared presentation
+layer for all business-domain sections (`09`–`13`, `23`–`26`), not a bounded context of its
+own.
+
+`05-modules/` is a module index/registry only — one entry per module (code, manifest summary,
+dependencies, and a pointer to that module's authoritative spec in its own dedicated section).
+It must never duplicate or own module content; a module's domain model, data model, workflows,
+security model, and API contract live exclusively under that module's own numbered section.
+
+`27-user-experience/` owns presentation-layer specifications only — screens, navigation,
+dashboards-as-UI, forms, maker-checker UX, notifications, accessibility, and responsive
+behavior. It must not redefine or own business rules, workflows, domain models, APIs, or data
+ownership; those remain owned by their respective domain sections. Every UX specification must
+reuse PRSMTD's existing frontend conventions (see the Frontend/UI shell row in the capability
+inventory above) rather than redefine them — a new UI pattern is introduced only where no
+PRSMTD equivalent exists, and must be explicitly identified and justified as a new capability
+requirement, per the Traceability Rules.
 
 ## Traceability rules
 

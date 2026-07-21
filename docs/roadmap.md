@@ -1,14 +1,23 @@
 # ERM Roadmap & Progress Tracker
 
 This is the single source of truth for **progress tracking** across work sessions in this
-repository — completed work, current status, the next milestone, and the live register of
-assumptions, risks, and open decisions. It is updated at the end of every work session.
+repository — completed work, current status, and the live register of assumptions, risks, and
+open decisions. It is updated at the end of every work session.
 
-This document is distinct from [`19-roadmap/`](19-roadmap/), which holds the
-**phasing/release-plan specification** (sequencing of capabilities toward the long-term
-vision, per `CLAUDE.md`'s documentation hierarchy). `roadmap.md` tracks session-by-session
-execution against that plan; `19-roadmap/` defines the plan itself once authored. Read
-`CLAUDE.md` first in every session, then this file, before doing new work.
+**As of Session 8**, this document also carries the
+[**Master Execution Plan for Remaining Work**](#master-execution-plan-for-remaining-work) —
+the phase-by-phase sequencing of everything not yet authored in this repository. Previously
+(Sessions 1–7), this file described itself as distinct from [`19-roadmap/`](19-roadmap/),
+treating the latter as the eventual home of the phasing/release-plan specification. Session 8
+consolidates that plan into this file instead, per explicit session instruction, because the
+progress tracker and the execution plan are the same living artifact in practice — every
+completed-work entry below already *is* a record of one phase's execution, and forking the
+plan into a second document would only create a second place for drift. `19-roadmap/README.md`
+itself is unchanged by this session (only `docs/roadmap.md` was in scope) — updating its
+`Status` line to point back here is folded into Phase 21 (Cross-Module REST API Catalog,
+Event Contracts & Integration Contracts) of the plan below, as one of that phase's minor
+cross-reference cleanups, not a separate effort. Read `CLAUDE.md` first in every session, then
+this file, before doing new work.
 
 ## Current Status
 
@@ -42,6 +51,32 @@ Enterprise Domain Model's own Bounded Context Map names all five business-domain
 ten total, all cross-references internally consistent. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
+
+**Session 8** made no change to any of the six frozen authoritative specs, to
+`22-traceability/`, or to any section README — it authored no new spec, per explicit
+instruction not to. Its sole output is this file's new
+[Master Execution Plan for Remaining Work](#master-execution-plan-for-remaining-work) section:
+a 29-phase, dependency-ordered sequencing of every piece of work named in `CLAUDE.md`'s
+long-term vision, the six existing specs' own Future Extension Points/Assumptions, and this
+session's explicit brief (Reporting, Analytics, AI Governance, Integrations, Deployment, the
+full UX/screen/navigation/dashboard/forms/validation/notification/maker-checker-UX
+specification suite, cross-module API/event/workflow/integration-contract consolidation,
+PRSMTD module-framework alignment, packaging standards, and the repository's eventual
+architecture review, consistency review, release-readiness assessment, and final
+certification) that is not already covered by an existing Next Milestone item. The prior
+Next Milestone list (Sessions 6–7) is preserved below and folded into the plan as its first
+five phases, not discarded.
+
+**Session 9** validated the Master Execution Plan's sequencing (confirmed sound) and resolved
+Phase 1 (Repository Structure Extension Decision) with explicit owner approval: `docs/`
+gained five new top-level sections — `23-policy`, `24-incident-issue-capa`,
+`25-third-party-risk`, `26-business-continuity` (business-domain modules, numbering extended
+per the `09`–`13` precedent) and `27-user-experience` (the shared presentation layer for all
+business-domain sections) — plus binding refinements to `CLAUDE.md` making `05-modules/` an
+index-only section and constraining `27-user-experience` to presentation content that must
+reuse PRSMTD's existing frontend architecture. This was governance-only: no business
+specification was authored in any of the five new sections, and Phases 2–29 remain not
+started. See the Session 9 log entry and each phase's own updated status below.
 
 ## Completed Work
 
@@ -443,7 +478,150 @@ incrementally updated (not regenerated) each session.
 - Updated this file with Session 7 progress, refreshed assumptions/risks/open decisions, and
   the next recommended milestone.
 
+### Session 8 — 2026-07-21
+
+- **Recovered from an interrupted prior session** with no committed or uncommitted trace of
+  work: `git status` was clean, `git log` showed only the single initial commit, and
+  `docs/roadmap.md` was byte-for-byte the Session 7 close-out — confirming the interrupted
+  session had not yet written anything toward this session's brief. Proceeded as a fresh start
+  on this specific task (producing a master execution plan) without re-doing Sessions 1–7's
+  own work, per explicit instruction to determine actual progress from repository state rather
+  than assume any.
+- Re-read `CLAUDE.md` in full, this file (all seven prior session entries, Assumptions, Risks,
+  Open Decisions), all 22 `docs/NN-*/README.md` section indexes (confirming which remain "Not
+  yet authored" and what each one's own "What belongs here" scope commits to), and both
+  traceability artifacts (`22-traceability/01-master-traceability-matrix.md`,
+  `22-traceability/02-compliance-coverage-assessment.md`) in full. Did **not** re-read the six
+  authoritative specs' full bodies line-by-line (they were re-read in full as recently as
+  Session 7 and remain frozen; this session's own instruction was explicitly not to author or
+  redesign any spec) — instead relied on the Session 1–7 log, the traceability matrices, and
+  the compliance coverage assessment, all three of which already aggregate each spec's
+  Assumptions, Future Extension Points, and gap rows at the precision this session's planning
+  work needed. No architectural inconsistency was found or claimed; nothing in any frozen spec
+  was touched.
+- **Identified one structural fact none of Sessions 1–7 had named explicitly**: `CLAUDE.md`'s
+  22-section repository organization has no numbered section for any of the four still-reserved
+  business-domain bounded contexts (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
+  `BUSINESS CONTINUITY`) the way `09-security` through `13-audit` already occupy dedicated
+  numbers for `SECURITY`/`RISK`/`COMPLIANCE`/`CONTROLS`/`AUDIT`. Sections 14–22 are already
+  claimed by cross-cutting categories (Reporting, Analytics, AI, Integrations, Deployment,
+  Roadmap, ADR, Standards, Traceability), so no free number exists for a fifth domain module
+  without extending the numbering — a genuine scoping gap, previously only partially named
+  (Session 7's Next Milestone item 2 flagged it for `POLICY` alone, as "which `docs/NN-*/`
+  section owns it"). Made this Phase 1 of the plan below rather than silently assigning
+  numbers, per `CLAUDE.md`'s explicit-proposal rule for new top-level sections and the
+  Session 5 precedent for exactly this kind of structural question.
+- **Identified a second, larger structural gap**: none of the 22 sections is scoped for
+  UX/frontend specification content (screens, navigation, dashboards-as-UI, forms, validation
+  rules, notifications, maker-checker approval UI) — `15-analytics/README.md` explicitly scopes
+  itself to "dashboard *specs* (composition of metrics, not pixel-level UI design)", and no
+  other section claims this territory either. This session's brief explicitly requires this
+  content, so it cannot be silently dropped; also folded into Phase 1's decision gate rather
+  than resolved unilaterally.
+- Authored the **Master Execution Plan for Remaining Work** (new section below,
+  `#master-execution-plan-for-remaining-work`) — 29 phases across 7 tiers, each carrying
+  Objective, Scope, Deliverables, Inputs, Outputs, Dependencies, Estimated Complexity, Success
+  Criteria, New-Spec/Extends-Spec flags, and required Traceability/Compliance
+  Assessment/Roadmap updates, sequenced by actual dependency (not just by `CLAUDE.md`'s section
+  numbering) so a future session can pick up any phase and know exactly what must already be
+  true before starting it.
+- Updated this file's opening framing (this document now explicitly carries the execution plan
+  `19-roadmap/` was originally scoped to hold, per this session's explicit instruction — see
+  the note at the top of this file) and Current Status.
+- **Did not modify** `22-traceability/01-master-traceability-matrix.md` or
+  `22-traceability/02-compliance-coverage-assessment.md` this session — no new Traceability
+  block was added anywhere (no spec was authored), so neither aggregation document had
+  anything new to absorb. Each phase in the plan below states explicitly what future update
+  each of those two documents will need once that phase actually executes.
+
+### Session 9 — 2026-07-21
+
+- Re-read `CLAUDE.md`, this file in full (all eight prior session entries, the complete
+  29-phase Master Execution Plan, Assumptions, Risks, Open Decisions), the repository
+  hierarchy, and the relevant section READMEs (`05-modules`, `15-analytics`,
+  `03-enterprise-architecture`, `21-standards`, `19-roadmap`) per this session's explicit
+  instruction to validate the plan and resolve Phase 1 before any further authoring.
+- **Validated the Master Execution Plan's sequencing and dependency graph**: confirmed no
+  cycles, no phase depending on something sequenced later, and Phase 1 correctly gating every
+  phase that needs a section to write into (5, 6–9, 15–18). Found one minor documentation gap,
+  not a sequencing defect: Phase 26's Mermaid diagram omits edges from Phases 10, 12, and 14
+  even though Phase 26's own prose Dependencies ("every phase in Tiers 0–6 that the release
+  scope requires") already correctly covers them — the prose is authoritative; the diagram is
+  just incomplete. Flagged for a one-line fix whenever Phase 26 is actually executed; not
+  acted on this session (out of this session's scope).
+- **Produced and presented a decision package** for Phase 1's two questions (business-domain
+  module section placement; UX/frontend specification placement), each with Option A/Option B
+  analysis, advantages/disadvantages, a recommendation, and long-term impact, per this
+  session's explicit brief — see this session's conversation record for the full package (not
+  duplicated here; this file records the resolution, not the deliberation, consistent with
+  every other resolved Open Decision in this register).
+- **Owner approved both recommendations**, with three governance refinements to Decision 2
+  that this session folded directly into `CLAUDE.md` (not just recorded here) so they bind
+  every future session, not only this one:
+  1. `05-modules/` is a **module index/registry only** — one entry per module pointing to its
+     authoritative spec in its own dedicated section; it must never duplicate or own module
+     content. This sharpens (does not contradict) this file's own Decision 1 analysis, which
+     had already identified that Phase 21's planned `05-modules/01-module-index.md` is a thin
+     index, not a content fork.
+  2. `27-user-experience` owns **presentation layer only** — it must not redefine or own
+     business rules, workflows, domain models, APIs, or data ownership; those remain owned by
+     each domain section. Every screen/form/dashboard spec authored under `27-user-experience`
+     must trace to a named entity/state/role already defined in its owning domain section.
+  3. UX specifications must **reuse PRSMTD's existing frontend architecture** (Next.js App
+     Router shell, dynamic module navigation via `GET /api/v1/modules`, the
+     `src/components/{ui,common,module}` component library, and the existing `approvals`/
+     `dashboard` feature-area conventions in `frontend/src/features/`) rather than design a
+     competing one. A new UI pattern may be introduced only where no PRSMTD equivalent exists,
+     explicitly identified and justified as a new capability requirement.
+  - Read `PRSMTD/frontend/` (`app/`, `src/`) directly to ground refinement 3 in what actually
+    exists today, rather than assume: confirmed PRSMTD already has `approvals` and `dashboard`
+    feature areas under `frontend/src/features/`, a shared component library under
+    `frontend/src/components/{ui,common,module}`, dynamic (non-hardcoded) module navigation
+    from `GET /api/v1/modules` (Frontend Hardcoding Guard, `system.md` §5b15), and closed-world
+    UI/BFF route enumeration (`system.md` §4.1 T4/T5) — none of this was previously named in
+    this repository's PRSMTD capability inventory.
+- **Executed Phase 1 as a governance-only phase**, per the owner's explicit scoping
+  ("update the repository hierarchy, CLAUDE.md, README files, roadmap.md, and create the
+  required section stubs; no business specifications authored"):
+  - Updated [`../../CLAUDE.md`](../../CLAUDE.md): added a **Frontend/UI shell** row to the
+    PRSMTD capability inventory (grounding refinement 3 above); extended the Repository
+    organization listing with `23-policy/`, `24-incident-issue-capa/`, `25-third-party-risk/`,
+    `26-business-continuity/`, `27-user-experience/`; corrected the `05-modules/` line to
+    describe it as an index/registry, not per-capability specs; added binding prose stating
+    the `05-modules/` index-only rule and the `27-user-experience/` presentation-only boundary
+    plus its reuse-before-redesign requirement, so both bind every future session from
+    `CLAUDE.md` itself, not only from this file's log.
+  - Updated [`05-modules/README.md`](05-modules/README.md) to match — Purpose and "What
+    belongs here" now describe an index/registry pointing at each module's own dedicated
+    section, with an explicit "does not belong here" callout for domain content.
+  - Created five new section stub READMEs — `23-policy/README.md`,
+    `24-incident-issue-capa/README.md`, `25-third-party-risk/README.md`,
+    `26-business-continuity/README.md`, `27-user-experience/README.md` — each following the
+    existing unauthored-section README shape (Purpose, What belongs here, Cross-references,
+    Status: Not yet authored), each cross-referencing `04-domain-model`'s existing reservation
+    (for 23–26) or this session's own boundary/reuse rules (for 27), and each pointing at its
+    corresponding Master Execution Plan phase. **No business specification (module domain
+    model, data model, workflow, security model, or API contract) was authored in any of the
+    five new sections** — that remains Phases 6–9 and 15–18's work, unchanged.
+  - Marked Phase 1 **Complete — Session 9** below (Phase Summary table and its own detail
+    entry) and closed the two corresponding Session 8 Open Decisions.
+- **Did not modify** `22-traceability/01-master-traceability-matrix.md` or
+  `22-traceability/02-compliance-coverage-assessment.md` this session — Phase 1 is a
+  governance/structure decision, not a spec; per its own "Traceability updates required: None
+  (no spec changes yet)" entry, neither aggregation document has anything new to absorb.
+- Per the owner's explicit instruction, the remaining Master Execution Plan phases (2 onward)
+  are not started this session — continuing into Phase 2 (Vision Specification) or later is
+  deferred to a future session/turn, so each can be scoped and reviewed on its own rather than
+  begun as a side effect of closing out Phase 1.
+
 ## Next Milestone
+
+**Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
+as of Session 8.** The items immediately below are preserved verbatim as the Session 6–7
+historical record and map directly onto the plan's first five phases (item 1 → Phase 5; item 2
+→ Phases 1, 6; item 3 → Phase 7; item 4 → tracked as a named PRSMTD-capability gap in the plan's
+Assumptions carryover, not a phase of its own, since neither is an ERM spec). Nothing below was
+edited to produce that mapping — read the plan for the authoritative current sequencing.
 
 With `RISK`, `CONTROLS`, the Domain Model, `COMPLIANCE`, `AUDIT`, and `SECURITY` all authored,
 and (Session 7) `SECURITY` fully folded into the Domain Model's own bounded-context map with
@@ -475,6 +653,1297 @@ all three of its proposed additive changes applied, Session 6's Next Milestone i
 Current recommendation is **item 1** first (low-effort ADR consolidation over conventions
 already confirmed five times), then item 2 or item 3 depending on whether a seventh bounded
 context is preferred next — see Open Decisions below for the reasoning trade-off.
+
+## Master Execution Plan for Remaining Work
+
+**Status**: Authored Session 8 (2026-07-21). This is the authoritative, dependency-ordered
+sequencing for everything in this repository not yet authored — it supersedes the informal
+Next Milestone list above as the thing to consult first. It does not re-plan or reopen any of
+the six frozen specs (`04-domain-model`, `10-risk`, `12-controls`, `11-compliance`, `13-audit`,
+`09-security`); those remain complete unless a genuine architectural inconsistency is found in
+a future session.
+
+### How to read this plan
+
+- **Phase** numbers here (`Phase 1`–`Phase 29`) are a new, plan-wide sequence — distinct from
+  the "Phase 1 / Phase 2" sub-steps used inside individual Session 6 and Session 7 log entries
+  above, which were internal structuring for a single session's work, not part of this
+  numbering. Do not conflate the two.
+- **Tiers** group phases that share a dependency horizon; phases within a tier are not
+  necessarily sequential with each other (see each phase's own Dependencies), but no phase in
+  Tier *N+1* should start before its named dependencies in Tier *N* (or earlier) are satisfied.
+- **"New authoritative spec?"** — whether the phase's primary deliverable is a new document
+  meeting `CLAUDE.md`'s full Documentation Standards checklist (Purpose, Scope, Business
+  Context, Assumptions, Dependencies, Architecture, Functional Specification, Non-Functional
+  Requirements, Security Considerations, Compliance Considerations, Traceability, Future
+  Enhancements).
+- **"Extends existing spec?"** — whether the phase adds an additive amendment to one of the six
+  frozen specs (in the same disciplined way `11-compliance` and `09-security` each proposed,
+  and later sessions applied, their own additive changes) rather than authoring something new.
+  A phase can be both, neither (a decision/ADR/review phase produces no spec at all), or extend
+  more than one frozen spec.
+- **Estimated Complexity** is relative to the six already-authored specs (600–1,200 lines each,
+  8–14 tables, full API/workflow/security surface) as the reference point for "High."
+- Every phase that touches a frozen spec, adds a new spec, or closes/opens a gap **must** update
+  `22-traceability/01-master-traceability-matrix.md` in the same session it executes in, per
+  `CLAUDE.md`'s Traceability Rules — restated per-phase below so no future session has to infer
+  it.
+- Required **Compliance Assessment** updates follow
+  `22-traceability/02-compliance-coverage-assessment.md`'s own stated method: **incremental**
+  update of only the sections a phase's changes affect, never a full regeneration.
+- Required **Roadmap** updates means: add a new `### Session N` entry to Completed Work here,
+  and mark the corresponding phase below `**Complete — Session N**` in both the summary table
+  and its own detail entry, the same convention Sessions 1–7 already established for the
+  original six specs.
+
+### Phase Summary
+
+| # | Tier | Phase | New Spec? | Extends? | Complexity | Key Dependency |
+|---|---|---|---|---|---|---|
+| 1 | 0 — Decisions | Repository Structure Extension Decision — **Complete, Session 9** | No | No | Low | None — must run first |
+| 2 | 0 — Foundational Backfill | Vision Specification (`01-vision`) | Yes | No | Medium | None |
+| 3 | 0 — Foundational Backfill | Business Architecture Specification (`02-business-architecture`) | Yes | No | Medium | Phase 2 |
+| 4 | 0 — Foundational Backfill | Enterprise Architecture Specification (`03-enterprise-architecture`) | Yes | No | Medium | Phase 3; six frozen specs |
+| 5 | 0 — Decisions | Governance ADR Backfill (`20-adr`) | Yes (ADRs) | No | Low | Phase 1 |
+| 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) | Yes | Yes (`04-domain-model`) | High | Phase 1 |
+| 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`, `09-security`) | High | Phase 1 |
+| 8 | 1 — Remaining Modules | Third-Party Risk Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
+| 9 | 1 — Remaining Modules | Business Continuity Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
+| 10 | 1 — Remaining Modules | Records Retention Schedule Capability | No | Yes (five frozen specs) | Medium | None |
+| 11 | 2 — Reporting/AI/Integration/Deployment | Reporting & Analytics Module (`14-reporting`, `15-analytics`) | Yes | No | High | All six frozen specs; Phases 6–9 (partial) |
+| 12 | 2 — Reporting/AI/Integration/Deployment | AI Governance Specification (`16-ai`) | Yes | No | Medium | Phase 11 (metric catalog) |
+| 13 | 2 — Reporting/AI/Integration/Deployment | Integrations Specification (`17-integrations`) | Yes | No | Medium-High | Phase 11 (reporting content) |
+| 14 | 2 — Reporting/AI/Integration/Deployment | Deployment Specification (`18-deployment`) | Yes | No | Medium | Phase 4 |
+| 15 | 3 — UX Suite | UX Foundational Framework & Persona-to-Screen Mapping | Yes | No | Medium | Phase 1, Phase 3 |
+| 16 | 3 — UX Suite | Screen, Navigation & Dashboard Specifications | Yes | No | Very High | Phase 15 |
+| 17 | 3 — UX Suite | Forms, Validation Rules & Maker-Checker UX Specifications | Yes | No | High | Phase 15, Phase 16 |
+| 18 | 3 — UX Suite | Notifications Specification | Yes | No | Medium | Phase 15 |
+| 19 | 4 — Cross-Module Consolidation | Cross-Module Data Model Consolidation (`06-data-model`) | Yes (thin index) | No | Medium | Phases 6–11 |
+| 20 | 4 — Cross-Module Consolidation | Cross-Module Workflow & Event Catalog (`07-workflows`) | Yes (thin index) | No | Medium | Phases 6–11 |
+| 21 | 4 — Cross-Module Consolidation | Cross-Module REST API Catalog, Event Contracts & Integration Contracts (`08-api`, `05-modules`) | Yes (thin index) | No | Medium | Phases 6–13, 19, 20 |
+| 22 | 5 — Platform Alignment | PRSMTD Module Development Framework Alignment | No | No | Medium | Phase 21 |
+| 23 | 5 — Platform Alignment | Module Packaging Standards (`21-standards`) | Yes (expansion) | No | Low-Medium | Phase 22 |
+| 24 | 6 — Regulatory Extensions | Regulatory Content Extension: DPDP Act & CERT-In Directions | No | Yes (`11-compliance`) | Medium | None (can start any time after `11-compliance`) |
+| 25 | 6 — Regulatory Extensions | International Standards Crosswalk (ISO/COBIT/NIST) | Yes (crosswalk artifact) | No | Medium | Phases 6–9 recommended, not required |
+| 26 | 7 — Certification | Repository-Wide Architecture Review | No | No | Medium | All prior phases |
+| 27 | 7 — Certification | Repository-Wide Consistency Review | No | No | Medium | Phase 26 |
+| 28 | 7 — Certification | Release Readiness Assessment | No | No | Medium | Phase 27 |
+| 29 | 7 — Certification | Final Architecture Certification | No | No | Low | Phase 28 |
+
+### Dependency Flow
+
+```mermaid
+flowchart TD
+    P1[Phase 1: Structure Decision] --> P6[Phase 6: POLICY]
+    P1 --> P7[Phase 7: INCIDENT/ISSUE/CAPA]
+    P1 --> P8[Phase 8: THIRD-PARTY RISK]
+    P1 --> P9[Phase 9: BUSINESS CONTINUITY]
+    P1 --> P5[Phase 5: ADR Backfill]
+    P1 --> P15[Phase 15: UX Framework]
+
+    P2[Phase 2: Vision] --> P3[Phase 3: Business Architecture]
+    P3 --> P4[Phase 4: Enterprise Architecture]
+    P3 --> P15
+    P4 --> P14[Phase 14: Deployment]
+
+    P6 --> P11[Phase 11: Reporting & Analytics]
+    P7 --> P11
+    P8 --> P11
+    P9 --> P11
+    P10[Phase 10: Retention Schedule] -.additive.-> P6
+    P10 -.additive.-> P7
+    P10 -.additive.-> P8
+    P10 -.additive.-> P9
+
+    P11 --> P12[Phase 12: AI Governance]
+    P11 --> P13[Phase 13: Integrations]
+
+    P6 --> P19[Phase 19: Data Model Consolidation]
+    P7 --> P19
+    P8 --> P19
+    P9 --> P19
+    P11 --> P19
+    P19 --> P20[Phase 20: Workflow & Event Catalog]
+    P20 --> P21[Phase 21: API Catalog & Integration Contracts]
+    P13 --> P21
+    P21 --> P22[Phase 22: PRSMTD Framework Alignment]
+    P22 --> P23[Phase 23: Packaging Standards]
+
+    P15 --> P16[Phase 16: Screens/Nav/Dashboards]
+    P16 --> P17[Phase 17: Forms/Validation/Maker-Checker UX]
+    P15 --> P18[Phase 18: Notifications]
+
+    P23 --> P26[Phase 26: Architecture Review]
+    P17 --> P26
+    P18 --> P26
+    P24[Phase 24: DPDP/CERT-In] -.parallel, independent.-> P26
+    P25[Phase 25: Intl Crosswalk] -.parallel, independent.-> P26
+    P26 --> P27[Phase 27: Consistency Review]
+    P27 --> P28[Phase 28: Release Readiness]
+    P28 --> P29[Phase 29: Final Certification]
+```
+
+---
+
+### Tier 0 — Decisions & Foundational Backfill
+
+#### Phase 1 — Repository Structure Extension Decision
+
+**Status: Complete — Session 9 (2026-07-21).** Resolved with explicit owner sign-off; executed
+as a governance-only phase. See the Session 9 log entry above for the full decision package
+(Option A/B analysis) and exactly what was changed.
+
+- **Resolution actually applied (Session 9)**: both questions resolved as the "Recommended
+  resolution" below anticipated, with three binding refinements the owner added to Decision 2:
+  (1) `05-modules/` is a module index/registry only, never a content home; (2)
+  `27-user-experience` owns presentation content only — never business rules, workflows,
+  domain models, APIs, or data ownership, which stay with each domain section; (3) UX
+  specifications must reuse PRSMTD's existing frontend architecture (Next.js App Router shell,
+  dynamic module navigation, the `src/components/{ui,common,module}` library, and the existing
+  `approvals`/`dashboard` feature-area conventions) rather than design a competing one, with a
+  new UI pattern permitted only where no PRSMTD equivalent exists and explicitly justified as a
+  new capability requirement. All three refinements are now recorded directly in `CLAUDE.md`
+  (Repository organization section and PRSMTD capability inventory), not only here, so they
+  bind every future session automatically.
+- **Objective**: Resolve, with explicit user sign-off, where the four remaining reserved
+  bounded contexts (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
+  `BUSINESS CONTINUITY`) and the net-new UX/frontend specification content will live in the
+  `docs/NN-section-name/` hierarchy, before any phase that needs to write into either location
+  begins.
+- **Scope**: A decision memo, not a spec. Covers exactly two questions: (1) how do future
+  domain-module bounded contexts get a numbered section, now that 14–22 are fully claimed by
+  cross-cutting categories and 09–13 are fully claimed by the five authored modules; (2) does
+  UX/frontend specification content get its own new top-level section, or nest inside an
+  existing one (candidates: extend `05-modules/` per module, extend `03-enterprise-architecture`,
+  or a new section).
+- **Deliverables**: An Open Decision entry recorded in this file (see below) with the two
+  questions resolved; if new section numbers are approved, a one-line addition to `CLAUDE.md`'s
+  Repository organization list (out of this session's scope to edit, but named here as the
+  follow-on action) and creation of the corresponding `docs/NN-*/README.md` stub(s) by whichever
+  session executes Phase 6–9/15.
+- **Recommended resolution — approved and applied, Session 9**: extend the numbering —
+  `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`, `26-business-continuity`,
+  `27-user-experience` — continuing the precedent that `09`–`13` already set (a domain module
+  gets its own top-level number, not a subsection of `05-modules/`). This kept every existing
+  cross-reference (`14`–`22`) untouched and required no renumbering. All five section stub
+  READMEs now exist; `CLAUDE.md`'s Repository organization listing and `05-modules/README.md`
+  were updated to match (see Session 9 log entry).
+- **Inputs**: `CLAUDE.md` Repository organization + naming standards; this file's Session 7
+  Next Milestone item 2; the Session 5 precedent (compliance assessment placement) for how this
+  repository resolves this exact class of question.
+- **Outputs**: A recorded decision unblocking Phases 5, 6, 7, 8, 9, 15.
+- **Dependencies**: None. Must run before Phases 5–9 and 15–18.
+- **Estimated Complexity**: Low (one decision, no content authoring).
+- **Success Criteria**: Both questions have an explicit, user-confirmed answer recorded in this
+  file's Open Decisions register; no phase downstream is left guessing which section a
+  deliverable belongs in.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: None (no spec changes yet).
+- **Compliance Assessment updates required**: None.
+- **Roadmap updates required**: Record the decision under Open Decisions; mark this phase
+  complete in the Phase Summary table.
+
+#### Phase 2 — Vision Specification (`01-vision`)
+
+- **Objective**: Author the platform vision/mission/thesis document `01-vision/README.md`
+  itself anticipates — the document every later section (`02`, `19`) is supposed to expand on,
+  currently only summarized inline in `CLAUDE.md`.
+- **Scope**: Platform vision and mission statement; target-market sequencing (SEBI AMC first,
+  then Banking/Insurance/Healthcare/Government/Manufacturing/Technology/Critical Infrastructure);
+  the configuration-over-forking platform thesis; success criteria per phase; explicit
+  non-goals.
+- **Deliverables**: `01-vision/01-platform-vision.md`, meeting the full Documentation Standards
+  checklist.
+- **Inputs**: `CLAUDE.md` (Vision, long-term vision, architecture principles sections); the six
+  frozen specs' own framing of "why this module exists" (each already states a business
+  rationale that should roll up consistently here, not be restated, only cross-referenced).
+- **Outputs**: A citable vision document every future spec's Business Context section can link
+  to instead of restating `CLAUDE.md` prose inline (a genuine, if modest, de-duplication win —
+  every one of the six existing specs currently paraphrases `CLAUDE.md`'s vision language
+  slightly differently in its own Business Context section).
+- **Dependencies**: None — can start immediately, in parallel with Phase 1.
+- **Estimated Complexity**: Medium (narrower surface than a module spec — no data model, no API
+  — but must not merely restate `CLAUDE.md`, and must give later sections something genuinely
+  new to cross-reference).
+- **Success Criteria**: No content duplicates `CLAUDE.md` verbatim; every later phase's Business
+  Context section can cite this document instead of `CLAUDE.md` directly for vision-level
+  claims; passes the Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Add a Business ↔ Regulatory row only if this document
+  makes a new regulatory claim (unlikely — vision documents are typically regulation-agnostic);
+  otherwise no matrix row is needed, only a note in that matrix's Status narrative that
+  `01-vision` now exists.
+- **Compliance Assessment updates required**: None expected (vision documents don't change
+  what's built or specified).
+- **Roadmap updates required**: New Session entry; update `01-vision/README.md`'s own Status
+  line; mark Phase 2 complete.
+
+#### Phase 3 — Business Architecture Specification (`02-business-architecture`)
+
+- **Objective**: Author the business capability map, value streams, and stakeholder/persona
+  models `02-business-architecture/README.md` scopes — the formal home for personas
+  (`RISK_OWNER`, `COMPLIANCE_OFFICER`, `INTERNAL_AUDITOR`, `CISO`, `BOARD_RISK_COMMITTEE`,
+  etc.) that all six frozen specs already use informally in their own Authorization sections.
+- **Scope**: Business capability map (cross-referencing each of the ten bounded contexts to a
+  named business capability); value streams (e.g. "Identify risk → Assess → Treat → Monitor →
+  Report"); the full persona/stakeholder catalog with a canonical name per persona; the three
+  lines of defense organizational model as it constrains system roles.
+- **Deliverables**: `02-business-architecture/01-business-capability-model.md`.
+- **Inputs**: Phase 2's vision document; each of the six frozen specs' own Authorization
+  section (source of truth for which personas already exist in practice, since this document
+  must not invent personas the specs don't use); `04-domain-model`'s Ownership Responsibilities.
+- **Outputs**: A canonical persona catalog every future module spec's Authorization section
+  should reference by name, the same non-invasive "supersede without editing" relationship
+  `04-domain-model`'s glossary already has to `10-risk`'s/`12-controls`' inline glossaries.
+- **Dependencies**: Phase 2 (should cite the vision document, not restate it).
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every persona named in any of the six frozen specs' Authorization
+  sections appears in this document's catalog under a consistent name; no new persona is
+  invented without a traceable reason; passes the Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No (a consolidation, in the same read-only, cross-referencing
+  sense `04-domain-model`'s glossary and `09-security`'s Data Classification Scheme already
+  established — it names what exists, it does not edit any frozen spec's own inline persona
+  list).
+- **Traceability updates required**: Update `01-master-traceability-matrix.md`'s Capability ↔
+  PRSMTD Matrix narrative to note the persona catalog now has one authoritative source; no new
+  gap rows expected.
+- **Compliance Assessment updates required**: None expected.
+- **Roadmap updates required**: New Session entry; update `02-business-architecture/README.md`
+  Status; mark Phase 3 complete.
+
+#### Phase 4 — Enterprise Architecture Specification (`03-enterprise-architecture`)
+
+- **Objective**: Author the C4-style target-state technical architecture document
+  `03-enterprise-architecture/README.md` scopes — the first document to draw the *whole*
+  platform (all ten bounded contexts, PRSMTD substrate, and, once Phase 15 exists, the UX
+  layer) as one coherent system view, rather than each module spec's own narrower
+  "Architecture" section.
+- **Scope**: C4 Context/Container/Component views of the ERM platform layered on PRSMTD; a
+  single application of Hexagonal/DDD/Event-Driven/API-First/Zero-Trust principles across all
+  modules (not restated per-module); a module boundary diagram assembling `05-modules/`
+  (post-Phase 21) entries into the whole; non-functional concerns spanning modules
+  (multi-tenancy topology, scalability, resilience) that don't belong to any single module
+  spec; an explicit PRSMTD-reuse-vs-net-new statement per the `CLAUDE.md` capability inventory,
+  now updated with everything the six frozen specs plus Phases 6–14 add.
+- **Deliverables**: `03-enterprise-architecture/01-target-state-architecture.md`.
+- **Inputs**: `CLAUDE.md` capability inventory; all six frozen specs' own Architecture sections;
+  PRSMTD `system.md` (full re-read, since this is the first document to synthesize the whole
+  platform view rather than one module's slice of it); Phase 3's business capability map.
+- **Outputs**: The reusable C4 diagram set every future integration/deployment/UX phase should
+  reference rather than redraw.
+- **Dependencies**: Phase 3 (capability map feeds the Container/Component decomposition); should
+  ideally run after Phases 6–9 exist so the module boundary diagram is complete, but can be
+  drafted earlier with the five remaining modules shown as "planned" — recommend running once
+  after Phase 3 (skeleton) and revisiting once after Phase 21 (final, complete module list).
+- **Estimated Complexity**: Medium (diagram-heavy, but every fact it synthesizes already exists
+  in the six frozen specs — no new domain decisions).
+- **Success Criteria**: Every module (authored and planned) appears in the module boundary
+  diagram; every PRSMTD capability reuse claim cites `system.md §N` precisely, the same
+  discipline every module spec's own Architecture section already uses; passes the
+  Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Update the Capability ↔ PRSMTD Matrix narrative to note a
+  single consolidated architecture view now exists; no new gap rows expected unless the
+  synthesis surfaces one (if it does, treat that as a genuine finding and add a gap row, the
+  same way Session 7's Phase 2 consistency review did).
+- **Compliance Assessment updates required**: Update the Repository Maturity table's
+  "Architecture maturity" row to reflect a consolidated (not just per-module) architecture view
+  now exists.
+- **Roadmap updates required**: New Session entry (likely two — an initial pass after Phase 3,
+  a revision pass after Phase 21); update `03-enterprise-architecture/README.md` Status; mark
+  Phase 4 complete.
+
+#### Phase 5 — Governance ADR Backfill (`20-adr`)
+
+- **Objective**: Close the two ADR-shaped Open Decisions this file has carried since Session
+  6–7 without further deferral: the persona-to-module-role mapping convention (confirmed five
+  times, never formalized) and the `system.md §18` Product Framework reconciliation question
+  (narrowed by `04-domain-model` in Session 3, still open).
+- **Scope**: Two ADRs, each following the standard shape (Status, Context, Decision,
+  Consequences): `0001-persona-to-module-role-mapping-convention.md` (records the pattern as
+  binding for all future modules, citing the five specs that already prove it),
+  `0002-erm-product-framework-manifest-reconciliation.md` (a decision, not new architecture — it
+  either adopts `module.code = ERM`/`productClass: PRODUCT_FRAMEWORK` for the whole `RISK`
+  family per `system.md §18`, or explicitly declines to and records why, but does not leave the
+  question open a third time). A third ADR, `0003-repository-structure-extension.md`, records
+  Phase 1's decision formally (an ADR is the natural permanent home for that decision, not just
+  a line in this file's Open Decisions register).
+- **Deliverables**: Three ADRs under `20-adr/`.
+- **Inputs**: This file's Assumption 8, Risk register row on `system.md §18`, and Open Decisions
+  register (persona-role mapping, `§18` reconciliation); Phase 1's decision; `system.md §18`,
+  §20 (ADR Traceability Matrix doctrine) re-read to confirm these ADRs stay adoptable into
+  PRSMTD's own ADR matrix without rework, per `CLAUDE.md`'s ADR naming standard.
+  and `10-risk`/`12-controls`'s own citations of §18.
+- **Outputs**: Two long-standing Open Decisions closed; one new decision (Phase 1) given a
+  permanent record.
+- **Dependencies**: Phase 1 (for ADR-0003's content).
+- **Estimated Complexity**: Low (each ADR is a short, decision-focused document — not a full
+  spec; no Documentation Standards checklist applies to ADRs, per `20-adr/README.md`'s own
+  narrower shape).
+- **Success Criteria**: Both long-standing Open Decisions marked Resolved in this file; each ADR
+  references the spec(s) it decides on and is cross-referenced back from at least one of them
+  (`CLAUDE.md`'s ADR cross-reference rule).
+- **New authoritative spec?**: Yes (ADRs count as authoritative decision records, distinct from
+  the Documentation Standards checklist that governs `NN-*.md` specs).
+- **Extends existing spec?**: No (ADR-0002 may trigger a follow-on additive change to `10-risk`'s
+  and `12-controls`' manifest declarations if it adopts `§18`'s Product Framework designation —
+  that follow-on, if triggered, is a separate, explicitly-scoped additive change at the time
+  ADR-0002 is decided, not pre-authorized here).
+- **Traceability updates required**: Add an ADR ↔ capability row to
+  `01-master-traceability-matrix.md` for each of the three ADRs, per `20-adr/README.md`'s own
+  cross-reference rule.
+- **Compliance Assessment updates required**: None expected unless ADR-0002 triggers the
+  manifest follow-on above, in which case treat it as its own small additive-change entry the
+  next time either matrix is touched.
+- **Roadmap updates required**: New Session entry; close both Open Decisions; update
+  `20-adr/README.md` Status; mark Phase 5 complete.
+
+---
+
+### Tier 1 — Remaining Business-Domain Modules
+
+Each of Phases 6–9 follows the same authoring discipline every one of the six frozen specs
+already used: read `04-domain-model` and every frozen spec's own forward reference to the
+context being authored first; treat all frozen specs as inputs, not editable surfaces; propose
+(don't apply) any additive change a frozen spec needs; author strictly within the shared-kernel
+patterns `04-domain-model` names (taxonomy shape, governed-lifecycle shape,
+immediate-raise/governed-closure exception shape, opaque-reference shape, code-sequence shape).
+
+#### Phase 6 — Policy Management Module (`POLICY`)
+
+- **Objective**: Author the `POLICY` bounded context — named as an Open Host Service dependency
+  by `12-controls`, `11-compliance`'s "Integration with Future Policy Management", and
+  `09-security`'s `SecurityPolicyDomain` taxonomy (which explicitly anticipates a future formal
+  policy lifecycle it does not itself own).
+- **Scope**: Policy taxonomy (mirroring the regulatory-profile-seeded taxonomy shape); the
+  `Policy` aggregate's governed lifecycle (draft → review → approve → publish → periodic
+  re-attestation → retire, via `pending_action`); policy-to-control mapping (activating
+  `12-controls`' own forward reference); policy-to-security-policy-domain mapping (activating
+  `09-security`'s `SecurityPolicyDomain.governing_policy_id` forward reference, if that field
+  exists — verify against the frozen spec, do not assume); full
+  security/authorization/audit/reporting/API surface.
+- **Deliverables**: `{section}/01-policy-management.md` (section path per Phase 1's decision).
+- **Inputs**: `04-domain-model`'s `POLICY` reservation (relationship type, dependency rules);
+  every frozen spec's own forward reference to `POLICY`; Phase 3's persona catalog.
+- **Outputs**: The seventh authoritative spec; closes three long-standing forward references
+  simultaneously (from `CONTROLS`, `COMPLIANCE`, `SECURITY`).
+- **Dependencies**: Phase 1 (section placement).
+- **Estimated Complexity**: High (comparable to `11-compliance` — a governed-lifecycle taxonomy
+  module with three inbound integration points to activate).
+- **Success Criteria**: Passes the Documentation Standards checklist; every inbound forward
+  reference from `CONTROLS`/`COMPLIANCE`/`SECURITY` is either activated (with a proposed,
+  not-applied additive change back to the frozen spec, per established convention) or explicitly
+  deferred with a stated reason; no redesign of any frozen spec's domain model.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: Yes — proposes (does not apply) additive changes to
+  `04-domain-model` (status label, same as `SECURITY`'s own onboarding in Session 7), and
+  potentially `12-controls`/`11-compliance`/`09-security` (activating their own forward
+  references), following the propose-in-the-new-spec / apply-in-a-later-approved-session
+  pattern this repository has used five times running.
+- **Traceability updates required**: New Business ↔ Regulatory row, new Capability ↔ PRSMTD row,
+  new/closed Requirement ↔ Spec gap rows in `01-master-traceability-matrix.md`.
+- **Compliance Assessment updates required**: Platform Capability Matrix (`Policy Management`
+  row: Not Started → Planned); Specification Progress Matrix; Percentage Completion recount
+  (numerator +1); Enterprise Capability Matrix.
+- **Roadmap updates required**: New Session entry; update the owning section's README Status;
+  mark Phase 6 complete.
+
+#### Phase 7 — Incident / Issue / CAPA Module
+
+- **Objective**: Author the most cross-referenced still-reserved bounded context in the
+  repository — named as a forward reference by five of the six frozen specs
+  (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`).
+- **Scope**: Resolve the module-code naming question `04-domain-model`'s own Future
+  Enhancements left open (candidates, to decide at authoring time, not here: one combined
+  `INCIDENT` module code with `Issue` and `CAPA` as sub-aggregates sharing one governed
+  lifecycle shape; or three separate, related contexts — `04-domain-model`'s existing
+  Customer-Supplier relationship shape for this context does not itself force either answer).
+  Incident intake and classification; Issue tracking (a generalization of Finding/Exception
+  follow-up already partially duplicated per-module in `12-controls`/`11-compliance`/`13-audit`/
+  `09-security`'s own Finding/Exception entities — this module should state explicitly whether
+  it *replaces* those with one shared entity or *complements* them, since replacing would be a
+  breaking change to four frozen specs and complementing would not); CAPA (Corrective and
+  Preventive Action) governed lifecycle; full security/authorization/audit/reporting/API
+  surface.
+- **Deliverables**: `{section}/01-incident-issue-capa-management.md`.
+- **Inputs**: `04-domain-model`'s reservation and Future Enhancements naming question; every
+  frozen spec's own Finding/Exception entity (to determine complement-vs-replace, the single
+  highest-risk design decision in this phase); Phase 3's persona catalog.
+- **Outputs**: The eighth authoritative spec (or seventh, depending on Phase 6/7 authoring
+  order — order between them is not fixed by this plan).
+- **Dependencies**: Phase 1 (section placement). Recommend authoring after Phase 6 so the
+  `POLICY` module's own governed-lifecycle shape is available as one more precedent, but not a
+  hard dependency.
+- **Estimated Complexity**: High — the complement-vs-replace decision above makes this the
+  highest-risk of the four remaining module phases; budget extra review time versus Phases 6, 8,
+  9.
+- **Success Criteria**: The complement-vs-replace decision is made explicitly, with a stated
+  reason, and does not silently redefine any of the four frozen specs' own Finding/Exception
+  entities without an explicit, proposed (not applied) additive change; passes the Documentation
+  Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: Yes — likely proposes additive changes to `10-risk`
+  (`Risk.source` may need an `INCIDENT` value), `12-controls`, `13-audit`, and `09-security`
+  (cross-references from their own Finding/Exception entities), plus `04-domain-model` (status
+  label).
+- **Traceability updates required**: Same shape as Phase 6.
+- **Compliance Assessment updates required**: Same shape as Phase 6 (`Incident / Issue / CAPA`
+  row).
+- **Roadmap updates required**: Same shape as Phase 6.
+
+#### Phase 8 — Third-Party Risk Management Module
+
+- **Objective**: Author the `THIRD-PARTY RISK` bounded context — reserved in `04-domain-model`,
+  named in `CLAUDE.md`'s long-term vision, not yet a forward reference from any frozen spec's
+  own body (unlike `POLICY` and `INCIDENT`, no frozen spec currently blocks on this one, which
+  lowers its integration risk relative to Phase 7).
+- **Scope**: Vendor/third-party inventory and risk classification (mirroring the
+  regulatory-profile-seeded taxonomy shape); due-diligence and onboarding assessment governed
+  lifecycle; ongoing monitoring and periodic reassessment; third-party risk contribution to the
+  enterprise risk register (a new `Risk.source = THIRD_PARTY` value, proposed not applied, on
+  `10-risk`); full security/authorization/audit/reporting/API surface.
+- **Deliverables**: `{section}/01-third-party-risk-management.md`.
+- **Inputs**: `04-domain-model`'s reservation; SEBI Master Circular Annexures (re-check for a
+  vendor/outsourcing-risk section not yet cited by any frozen spec — `12-controls` and
+  `11-compliance` each cited different Annexure sections; verify no section addressing
+  outsourcing/vendor risk was left uncited before assuming none exists).
+- **Outputs**: A ninth authoritative spec.
+- **Dependencies**: Phase 1 (section placement).
+- **Estimated Complexity**: High (comparable to `10-risk`/`12-controls` in shape — a
+  taxonomy-plus-governed-lifecycle module — but with a genuinely new regulatory-citation task,
+  since no frozen spec has yet mined the Annexures for outsourcing-specific text).
+- **Success Criteria**: Passes the Documentation Standards checklist; regulatory citation is at
+  least as precise as `11-compliance`'s §2.6 citation, or explicitly scoped-level with a stated
+  reason if the source material doesn't support clause-level precision (mirroring `12-controls`
+  Assumption 5's honest scope-level citation for the Cyber Security Framework PDF).
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: Yes — proposes (does not apply) `Risk.source = THIRD_PARTY` on
+  `10-risk`, a `Control.source` addition on `12-controls` if third-party controls need their own
+  source tag, and a `04-domain-model` status-label update.
+- **Traceability updates required**: Same shape as Phase 6.
+- **Compliance Assessment updates required**: Same shape as Phase 6 (`Third-Party Risk` row).
+- **Roadmap updates required**: Same shape as Phase 6.
+
+#### Phase 9 — Business Continuity Management Module
+
+- **Objective**: Author the `BUSINESS CONTINUITY` bounded context — the *plan* side of the
+  SEBI DR/BCP mandate first flagged by `10-risk` (Session 1) and repeatedly named since; note
+  this is explicitly **not** duplicate work against `12-controls`' existing BCP/DR control
+  family, which tests a plan, not defines one (the Compliance Coverage Assessment's Gap
+  Assessment table already draws this exact distinction).
+- **Scope**: Business Impact Analysis (BIA) aggregate; continuity/DR plan governed lifecycle
+  (draft → approved → tested → active); RTO/RPO target definitions per critical business
+  process; DR test scheduling and results (cross-referencing, not duplicating,
+  `12-controls`' `ControlTest` for the actual test execution — this module owns the plan and
+  target, `CONTROLS` owns the test); full security/authorization/audit/reporting/API surface.
+- **Deliverables**: `{section}/01-business-continuity-management.md`.
+- **Inputs**: `04-domain-model`'s reservation; `10-risk`'s original DR/BCP flag; the SEBI *Risk
+  Management System* circular (re-check for BCP-specific text beyond what `10-risk` already
+  cited); `12-controls`' BCP/DR control family (for the plan-vs-test boundary statement this
+  module must state explicitly).
+- **Outputs**: A tenth authoritative spec.
+- **Dependencies**: Phase 1 (section placement).
+- **Estimated Complexity**: High.
+- **Success Criteria**: The plan-vs-test boundary against `12-controls`' existing BCP/DR control
+  family is stated explicitly in this module's own Integration with Controls section, mirroring
+  `13-audit`'s explicit boundary statements against `CONTROLS`/`COMPLIANCE` evidence; passes the
+  Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: Yes — proposes (does not apply) a `04-domain-model` status-label
+  update and, if the DR test result needs to flow back into `12-controls`' `ControlTest` as
+  corroborating evidence, a small additive cross-reference on `12-controls` (mirroring exactly
+  how `13-audit` and `09-security` already corroborate `CONTROLS`/`COMPLIANCE` exceptions via
+  opaque reference).
+- **Traceability updates required**: Same shape as Phase 6; also closes the "Disaster Recovery /
+  Business Contingency Plan" gap row already named in `01-master-traceability-matrix.md`'s
+  Requirement ↔ Spec Matrix.
+- **Compliance Assessment updates required**: Same shape as Phase 6 (`Business Continuity` row);
+  also updates the Compliance Coverage Matrix's System Audit Program Checklist row (BCP/DR),
+  which currently reads "still needed for the plan/RTO-RPO side."
+- **Roadmap updates required**: Same shape as Phase 6.
+
+#### Phase 10 — Records Retention Schedule Capability
+
+- **Objective**: Close the general-purpose, cross-module Records Retention Schedule gap this
+  file has carried since Session 4 (`10-risk` Assumption 7, `12-controls` Assumption 7,
+  `11-compliance` Assumption 10 — each deferred it, none designed it).
+- **Scope**: A single retention-schedule reference table (record type → statutory retention
+  period → source citation → owning module), populated for every record type across all five
+  authored modules plus Phases 6–9's four new modules; **no change to any module's own
+  append-only/status-transitioned table design** (every frozen spec's Assumption already
+  confirms its own tables are retention-agnostic by design — this phase adds the schedule that
+  governs *when* archival/purge policy applies operationally, not a schema change).
+- **Deliverables**: A retention schedule reference document — placement to be decided at
+  authoring time between `11-compliance` (as a new reference table, additive) or
+  `21-standards` (as a repository-wide convention document); recommend `11-compliance`, since
+  retention periods are themselves regulatory citations, the same kind of content that module
+  already owns for the `module_compliance_profile` registry.
+- **Inputs**: Every frozen spec's own retention-deferral Assumption; SEBI Master Circular
+  Annexures and the *Risk Management System* circular (re-check for explicit retention-period
+  text, since none of the five frozen specs found any at authoring time — confirm that finding
+  still holds rather than assume it).
+- **Outputs**: One authoritative retention schedule every module's evidence/record tables can
+  reference by record-type code.
+- **Dependencies**: None strictly, but most useful once Phases 6–9's record types exist too —
+  recommend running after Phase 9, before Phase 11 (so Reporting's own audit-trail/retention
+  claims have something to cite).
+- **Estimated Complexity**: Medium (a reference table plus governance narrative, not a full
+  module — no new aggregate root, no new lifecycle).
+- **Success Criteria**: Every evidence/record-bearing table across all ten modules (five frozen,
+  four from Phases 6–9, one new reference table) has an explicit retention-period citation or an
+  explicit "no statutory period found — tenant-configurable" statement; no module's own frozen
+  data model is changed, only a new cross-referencing table is added.
+- **New authoritative spec?**: No (a reference-data addition to an existing spec, not a new
+  bounded context).
+- **Extends existing spec?**: Yes — additive reference table on `11-compliance` (or
+  `21-standards`, per the placement decision above), cross-referenced (not duplicated) from
+  every other module's own evidence tables.
+- **Traceability updates required**: Close the "General-purpose Records Retention Schedule" gap
+  row in `01-master-traceability-matrix.md`.
+- **Compliance Assessment updates required**: Close the corresponding Gap Assessment row
+  ("Records Retention Schedule ... unspecified").
+- **Roadmap updates required**: New Session entry; mark Phase 10 complete; update Assumption
+  14/17's carried status to Resolved.
+
+---
+
+### Tier 2 — Reporting, AI Governance, Integrations, Deployment
+
+#### Phase 11 — Reporting & Analytics Module (`14-reporting`, `15-analytics`)
+
+- **Objective**: Author the `REPORTING` bounded context `04-domain-model` reserves as a
+  Conformist consumer of every other context — the aggregation layer every one of the ten
+  modules already exposes source views for for but that no spec yet assembles.
+- **Scope**: Split across the two existing sections per their own README scoping — regulator/
+  executive report *content* specs (field-level provenance back to source modules, SEBI filing
+  formats, approval-before-submission governance) in `14-reporting`; the KPI/metric catalog and
+  dashboard composition specs (explicitly distinct from `10-risk`'s KRIs, which stay
+  risk-specific leading indicators owned by `RISK`) in `15-analytics`. Both share one
+  `REPORTING` bounded-context data model (report definitions, report instances, dashboard
+  definitions) — author it once, referenced from both section documents, not duplicated between
+  them.
+- **Deliverables**: `14-reporting/01-regulatory-executive-reporting.md`,
+  `15-analytics/01-kpi-metric-catalog.md`.
+- **Inputs**: All six frozen specs' own Reporting sections (each already has one — this phase
+  consolidates and formalizes, the same relationship `09-security` had to the five prior specs'
+  inline security content); Phases 6–9's modules if authored by this point (partial dependency —
+  this phase can start once RISK/CONTROLS/COMPLIANCE/AUDIT/SECURITY-sourced reports are enough
+  to justify authoring, and extend additively as Phases 6–9 land).
+- **Outputs**: The eleventh (or later, depending on authoring order) authoritative spec pair;
+  closes the "Reporting/Analytics aggregation layer" gap named in the Compliance Coverage
+  Assessment's Gap Assessment table.
+- **Dependencies**: All six frozen specs (source data); Phases 6–9 recommended but not
+  required — can extend additively once each lands, the same way this repository has extended
+  cross-module integrations five times already.
+- **Estimated Complexity**: High (a genuine aggregation layer across up to ten source contexts,
+  plus SEBI filing-format research this session's predecessors have not yet done — none of the
+  six frozen specs designed an actual export/filing mechanism, only named it as a future
+  extension point).
+- **Success Criteria**: Every report/dashboard traces every field back to a named source
+  module's table (field-level provenance, per `14-reporting/README.md`'s own scope); no source
+  module's frozen data model is duplicated, only referenced; passes the Documentation Standards
+  checklist for both documents.
+- **New authoritative spec?**: Yes (two documents, one shared underlying bounded-context model).
+- **Extends existing spec?**: No (Conformist relationship — reads from all ten, is not read
+  from, per `04-domain-model`'s own relationship-type assignment).
+- **Traceability updates required**: New Business ↔ Regulatory row (SEBI filing requirements);
+  new Capability ↔ PRSMTD row; closes the Reporting/Analytics gap row in both matrices.
+- **Compliance Assessment updates required**: Platform Capability Matrix (`Reporting &
+  Analytics` row → Planned); closes the corresponding Gap Assessment row; updates several
+  Compliance Coverage Matrix rows whose "Remaining Roadmap Work" column currently reads "wire
+  actual SEBI filing/export mechanism (not designed)."
+- **Roadmap updates required**: New Session entry; update both section READMEs' Status; mark
+  Phase 11 complete.
+
+#### Phase 12 — AI Governance Specification (`16-ai`)
+
+- **Objective**: Author the AI-assisted risk analytics governance document `16-ai/README.md`
+  scopes — where and how AI augments (never silently replaces) governed risk/compliance
+  decisions, with explicit human-in-the-loop and model-risk-management requirements.
+- **Scope**: Candidate AI use cases (risk narrative summarization, KRI anomaly detection,
+  control-testing sample selection, regulatory-change impact triage), each routed through
+  `pending_action` maker-checker for any output feeding a governed decision; model risk
+  management (explainability, bias, audit requirements) for regulatory/executive-facing AI
+  output; data governance boundaries citing `09-security`'s Data Classification Scheme and
+  `11-compliance`'s obligation content for what data may be processed.
+- **Deliverables**: `16-ai/01-ai-governance.md`.
+- **Inputs**: `10-risk` (KRI data AI features would consume); `13-audit` (auditability
+  requirement); `09-security` (data classification); Phase 11's metric catalog (AI features
+  plausibly build on it, per `16-ai/README.md`'s own cross-reference).
+- **Outputs**: The AI governance spec that must exist before any AI feature could be
+  implementation-planned in PRSMTD, per this repository's Security-by-Design/Compliance-by-
+  Design principles.
+- **Dependencies**: Phase 11 (metric catalog it builds on).
+- **Estimated Complexity**: Medium (a governance-and-guardrails document, not a model-building
+  spec — no ML architecture, no training data pipeline; that would be out of scope for a
+  specification-only repository in any case).
+- **Success Criteria**: Every named AI use case has an explicit human-in-the-loop governance
+  statement; no use case bypasses `pending_action` for a decision that would otherwise require
+  it; passes the Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: New Capability ↔ PRSMTD row (likely naming genuine PRSMTD
+  gaps — no AI/ML platform capability is named anywhere in `system.md` as of the last read in
+  this file; verify at authoring time rather than assume).
+- **Compliance Assessment updates required**: Platform Capability Matrix (`AI-Assisted Risk
+  Analytics` row: Not Started → Planned).
+- **Roadmap updates required**: New Session entry; update `16-ai/README.md` Status; mark
+  Phase 12 complete.
+
+#### Phase 13 — Integrations Specification (`17-integrations`)
+
+- **Objective**: Author the external-system integration specs `17-integrations/README.md`
+  scopes — regulator portal submissions, market/fund data providers, and internal AMC system
+  integrations (fund accounting, portfolio management, HRMS) relevant to risk/compliance data
+  sourcing.
+- **Scope**: Per-integration spec (direction, protocol, data contract, auth model,
+  failure/retry handling) for: SEBI filing/regulator portal submission (the actual mechanism
+  `13-audit` and `11-compliance` each named as a future extension point but did not design);
+  market/fund data provider ingestion (as a `RISK`/`CONTROLS` data source, if in scope — verify
+  against `10-risk`'s own Assumptions before assuming this is needed); internal AMC system
+  integrations feeding risk/compliance data.
+- **Deliverables**: `17-integrations/01-external-integrations.md`.
+- **Inputs**: Phase 11's reporting content (regulator submission format); PRSMTD `system.md §5`
+  (execution context/request binding for inbound integration auth); `docs/reference/` SEBI
+  filing requirements.
+- **Outputs**: The integration spec that finally closes the "export/filing mechanism not
+  designed" note repeated across `11-compliance`, `13-audit`, and now Phase 11's own Compliance
+  Coverage Matrix updates.
+- **Dependencies**: Phase 11 (regulator submission content this phase's SEBI filing integration
+  needs as its data contract source).
+- **Estimated Complexity**: Medium-High (external-facing auth/protocol design is a new kind of
+  surface for this repository — no frozen spec has designed an outbound-to-regulator
+  integration yet).
+- **Success Criteria**: The SEBI filing integration spec is concrete enough to be
+  implementation-ready (protocol, auth, retry/failure handling, not just "submit to SEBI");
+  passes the Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: New Business ↔ Regulatory row (closes the "wire actual
+  SEBI filing/export mechanism" note in multiple existing rows); new Capability ↔ PRSMTD row.
+- **Compliance Assessment updates required**: Updates every Compliance Coverage Matrix row whose
+  "Remaining Roadmap Work" column names an unwired filing/export mechanism — likely 3–4 rows.
+- **Roadmap updates required**: New Session entry; update `17-integrations/README.md` Status;
+  mark Phase 13 complete.
+
+#### Phase 14 — Deployment Specification (`18-deployment`)
+
+- **Objective**: Author the platform deployment/operations spec `18-deployment/README.md`
+  scopes — environment topology, tenant onboarding, and the *platform's own* DR/BCP posture (as
+  distinct from Phase 9's BCP/DR as a product capability sold to tenants).
+- **Scope**: Environment topology (dev/UAT/production/DR) mapped to PRSMTD's `platformctl`
+  environments; tenant (AMC) onboarding/provisioning model, and later other regulatory-profile
+  tenants; platform-level DR/BCP requirements (RTO/RPO for the ERM platform itself, not a
+  tenant's plan); capacity/scale assumptions per module.
+- **Deliverables**: `18-deployment/01-deployment-operations.md`.
+- **Inputs**: Phase 4's C4 architecture views; `PRSMTD/docs/guides/platform_operations_guide.md`,
+  `PRSMTD/docs/guides/rollback_and_disaster_recovery_guide.md`.
+- **Outputs**: The deployment spec needed before any real environment provisioning could begin.
+- **Dependencies**: Phase 4 (architecture views this spec maps onto infrastructure).
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every module named in Phase 4's architecture has an explicit
+  capacity/scale assumption; the platform-level DR/BCP requirement is explicitly distinguished
+  from Phase 9's tenant-facing BCP module in this document's own Scope section (avoiding the
+  same confusion `18-deployment/README.md` already anticipates); passes the Documentation
+  Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: New Capability ↔ PRSMTD row (PRSMTD operational tooling
+  reuse, per the two `PRSMTD/docs/guides/` inputs above).
+- **Compliance Assessment updates required**: None expected (deployment specs don't change
+  regulatory coverage ratings).
+- **Roadmap updates required**: New Session entry; update `18-deployment/README.md` Status;
+  mark Phase 14 complete.
+
+---
+
+### Tier 3 — UX Specification Suite
+
+Gated entirely on Phase 1's structure decision (where this content lives) — none of Phases
+15–18 should start until that decision is recorded.
+
+#### Phase 15 — UX Foundational Framework & Persona-to-Screen Mapping
+
+- **Objective**: Establish the UX specification conventions (screen taxonomy, navigation model,
+  interaction patterns for maker-checker approval flows) once, before any per-module screen spec
+  is authored — the same "shared kernel first" discipline `04-domain-model` established for the
+  domain layer, applied to the UX layer.
+- **Scope**: Screen taxonomy (list/detail/form/dashboard/approval-queue as recurring shapes
+  across every module, since every module already shares the governed-lifecycle and
+  maker-checker patterns); navigation model (how a user moves between modules — a single
+  cross-module navigation shell, not ten independent ones); the maker-checker approval UI
+  pattern once, generically (approve/reject/return-with-comments against a `pending_action`
+  item), referenced by every module's own screens rather than redesigned per module; persona-to-
+  screen-set mapping (which of Phase 3's personas sees which screen taxonomy entries).
+- **Deliverables**: `{ux-section}/01-ux-foundational-framework.md`.
+- **Inputs**: Phase 1's decision (section placement); Phase 3's persona catalog; every frozen
+  spec's own Authorization/role tables (source of truth for which role needs which screen
+  category).
+- **Outputs**: The screen taxonomy, navigation model, and maker-checker UI pattern every Phase
+  16/17/18 deliverable will reference instead of re-deriving.
+- **Dependencies**: Phase 1, Phase 3.
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every persona in Phase 3's catalog is mapped to at least one screen
+  taxonomy category; the maker-checker UI pattern is specified exactly once and is generic
+  enough that Phase 17 does not need to redefine it per module; passes the Documentation
+  Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: New Capability ↔ PRSMTD row (PRSMTD's Next.js/TypeScript
+  frontend stack as the reuse target, per `CLAUDE.md`'s stack table).
+- **Compliance Assessment updates required**: None directly (UX specs don't change regulatory
+  coverage ratings, though they may later support an implementation-readiness claim).
+- **Roadmap updates required**: New Session entry; update the new section's README Status; mark
+  Phase 15 complete.
+
+#### Phase 16 — Screen, Navigation & Dashboard Specifications
+
+- **Objective**: Apply Phase 15's screen taxonomy and navigation model to every authored module
+  (the six frozen specs plus Phases 6–11's new ones) to produce the actual per-module screen
+  inventories and dashboard compositions.
+- **Scope**: For each module: list/detail/form/approval-queue screen specs (composition, not
+  pixel-level visual design — consistent with `15-analytics/README.md`'s own "not pixel-level UI
+  design" scoping); the module's navigation entry points within Phase 15's shell; dashboard
+  screens consuming Phase 11's metric/KPI catalog.
+- **Deliverables**: One screen-specification document per module (or one consolidated document
+  spanning all modules, decided at authoring time based on which stays more maintainable — this
+  plan does not pre-decide document granularity, the same way `CLAUDE.md` doesn't mandate one
+  file per concept everywhere).
+- **Inputs**: Phase 15's taxonomy/navigation/maker-checker pattern; every module's own Data
+  Model, Workflows, and API sections (a screen spec must be traceable to the underlying entity
+  and state machine it renders — no screen invents data the module spec doesn't already define).
+- **Outputs**: The largest single deliverable in this plan by page count — full screen coverage
+  across up to eleven modules.
+- **Dependencies**: Phase 15.
+- **Estimated Complexity**: Very High — by far the largest phase in this plan; strongly
+  recommend splitting across multiple sessions, one module (or module cluster) at a time, the
+  same incremental cadence Sessions 1–7 already used for the domain specs themselves.
+- **Success Criteria**: Every screen traces to a named entity/state/role in its module's frozen
+  spec; no screen requires data or a transition the module spec doesn't define; passes the
+  Documentation Standards checklist per document produced.
+- **New authoritative spec?**: Yes (potentially many documents).
+- **Extends existing spec?**: No.
+- **Traceability updates required**: One Capability ↔ PRSMTD row update per module covered (UX
+  layer now specified, not just backend).
+- **Compliance Assessment updates required**: None directly.
+- **Roadmap updates required**: Likely several Session entries, one per module or module
+  cluster covered; mark Phase 16 complete only once every authored module (as of the session
+  that closes it) has screen coverage.
+
+#### Phase 17 — Forms, Validation Rules & Maker-Checker UX Specifications
+
+- **Objective**: Specify the form-level detail Phase 16's screen inventory references but does
+  not itself define — field-level validation rules, error messaging, and the concrete
+  maker-checker approval interaction (what a checker actually sees and can do) per governed
+  entity.
+- **Scope**: Per governed entity across every module (risk, control, obligation, audit finding,
+  security finding, and Phases 6–9's new governed entities): field-level validation rules
+  (required/format/range/cross-field, each traceable to a constraint already named in the
+  module's own Data Model section — this phase must not invent new business rules, only make
+  existing ones UI-explicit); error-state messaging conventions (one consistent pattern, not
+  per-module bespoke copy); the maker-checker approval screen's concrete behavior per entity
+  (which fields are visible to a checker, what "return with comments" does to workflow state,
+  referencing each module's own Workflows section).
+- **Deliverables**: A validation-rules and maker-checker-UX document, scoped per module or
+  consolidated (same document-granularity latitude as Phase 16).
+- **Inputs**: Phase 15's generic maker-checker UI pattern; Phase 16's screen inventory; every
+  module's own Data Model constraints and Workflow state machines.
+- **Outputs**: The last piece of UI-facing detail needed before a frontend implementation
+  engagement could begin without further design work.
+- **Dependencies**: Phase 15, Phase 16.
+- **Estimated Complexity**: High.
+- **Success Criteria**: Every validation rule cites the module Data Model constraint it makes
+  UI-explicit (no new business rule invented); every maker-checker screen's behavior is
+  traceable to its module's own Workflows state machine; passes the Documentation Standards
+  checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Note in Capability ↔ PRSMTD Matrix narrative that
+  UI-level validation is now specified, not just backend constraints.
+- **Compliance Assessment updates required**: None directly.
+- **Roadmap updates required**: New Session entry (or several); mark Phase 17 complete.
+
+#### Phase 18 — Notifications Specification
+
+- **Objective**: Specify what triggers a notification, to whom, and through what channel,
+  across every governed workflow — a cross-cutting concern every module's own Workflows section
+  already gestures at ("overdue control test escalates to Compliance Officer") but none formally
+  owns.
+- **Scope**: Notification trigger catalog (one row per governed-lifecycle transition or SLA
+  breach across all modules, e.g. pending-action created, overdue, escalated, approved,
+  rejected); channel model (in-app, email — verify which PRSMTD actually supports before
+  assuming both, given this file's own carried finding that PRSMTD's notification/alerting
+  capability was attempted platform-wide and explicitly retired, `system.md` PR-RESET-02);
+  explicit statement of what is genuinely a new PRSMTD capability requirement versus what can be
+  satisfied by the observability trace contract alone (e.g. a UI-polled "my pending approvals"
+  view needs no notification infrastructure at all).
+- **Deliverables**: `{ux-section}/0N-notifications.md` (or embedded in Phase 15's foundational
+  document if the catalog turns out small enough not to warrant a separate file — decide at
+  authoring time).
+- **Inputs**: This file's own carried finding on PRSMTD's retired notification capability (see
+  Compliance Coverage Assessment, "Capabilities confirmed absent" table); every module's own
+  Workflows section SLA/escalation language; Phase 15's screen taxonomy (an approval-queue
+  screen is itself a form of notification surface that needs no push infrastructure).
+- **Outputs**: An honest notification spec that separates what's implementable today (in-UI,
+  poll-based) from what requires a genuine new PRSMTD capability (push notification/email
+  infrastructure) — mirroring the SIEM/ABAC gaps' honest "named, not designed" treatment.
+- **Dependencies**: Phase 15.
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every notification trigger traces to a named workflow transition/SLA
+  rule in some module's frozen Workflows section; the document explicitly separates "needs no
+  new PRSMTD capability" triggers from "blocked on a genuine new PRSMTD notification
+  capability" triggers, rather than assuming push/email infrastructure exists; passes the
+  Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: New Capability ↔ PRSMTD row explicitly re-confirming the
+  retired-notification-capability gap (or its resolution, if PRSMTD has since rebuilt one —
+  re-verify against current `system.md`, do not assume the Session 6 finding still holds without
+  checking).
+- **Compliance Assessment updates required**: Platform Capability Matrix
+  (`Notification / Alerting` row) — update only if this phase's re-verification changes the
+  finding; otherwise the existing "Not Built (attempted, then retired)" row stands.
+- **Roadmap updates required**: New Session entry; mark Phase 18 complete.
+
+---
+
+### Tier 4 — Cross-Module Consolidation
+
+Phases 19–21 backfill `06-data-model/`, `07-workflows/`, `08-api/`, and `05-modules/` — the four
+sections every session since Session 2 has left "Not yet authored" by deliberate, stated
+convention (each module spec carries its own Data Model/Workflows/API sections inline, avoiding
+duplication). These three phases do **not** re-author what's already inline; they add a
+consolidated, cross-referencing index layer once enough modules exist for cross-module patterns
+(shared enums, shared event-naming conventions, a single ER diagram of the whole platform) to be
+worth extracting.
+
+#### Phase 19 — Cross-Module Data Model Consolidation (`06-data-model`)
+
+- **Objective**: Produce the single cross-module ER view `06-data-model/README.md` scopes,
+  without duplicating any module's own inline table specs.
+- **Scope**: One consolidated Mermaid ER diagram showing every module's aggregate roots and the
+  opaque cross-context references between them (the same reference shapes `04-domain-model`
+  already names, now drawn once at the full-repository scale instead of pairwise per module);
+  an explicit Liquibase changeset placement note per module (new changesets only, confirming
+  each module's own data model is baseline-immutable-safe); a reference-data index (every seed
+  taxonomy — `SEBI_AMC` risk categories, control families, obligation categories, security
+  policy domains, and Phases 6–9's new taxonomies — listed once, cross-linked to its owning
+  module, not restated).
+- **Deliverables**: `06-data-model/01-consolidated-data-model.md`.
+- **Inputs**: Every module's own Data Model section (read, not edited); `PRSMTD/db/liquibase/`
+  target changeset conventions.
+- **Outputs**: The whole-repository ER view no single module spec can show on its own.
+- **Dependencies**: Phases 6–11 (needs the full module set, or as much of it as exists, to be a
+  genuinely useful consolidation rather than a premature partial view — recommend running after
+  Phase 11 at the earliest, and revisiting if Phases 6–9 land afterward).
+- **Estimated Complexity**: Medium (synthesis of existing facts, not new domain modeling).
+- **Success Criteria**: Every table in this document is a citation to a module's own frozen Data
+  Model section, not a restatement with its own column list; the ER diagram renders without
+  contradiction against any module's own table definitions; passes the Documentation Standards
+  checklist.
+- **New authoritative spec?**: Yes, but explicitly a thin index/cross-reference document, not a
+  primary source of truth for any table's own definition.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Update the Requirement ↔ Spec Matrix row "Risk/Controls/
+  Compliance data model as a standalone ER/Liquibase-ready doc" from "Not created" to
+  "Authored — consolidated index" in `01-master-traceability-matrix.md`.
+- **Compliance Assessment updates required**: None expected (a consolidation doesn't change
+  what's built or specified, only how it's presented).
+- **Roadmap updates required**: New Session entry; update `06-data-model/README.md` Status;
+  mark Phase 19 complete.
+
+#### Phase 20 — Cross-Module Workflow & Event Catalog (`07-workflows`)
+
+- **Objective**: Produce the single cross-module workflow/event catalog `07-workflows/README.md`
+  scopes, again without duplicating any module's own inline state machines.
+- **Scope**: A consolidated index of every governed-lifecycle state machine across all modules
+  (one row per entity: module, states, `pending_action` governance points, escalation/SLA
+  rule); a domain event catalog — every `domain.entity.pastTenseVerb`-named event any module's
+  API section already implies (e.g. `risk.assessment.completed`, `control.test.failed`,
+  `obligation.exception.raised`), collected into one authoritative list per `21-standards`'
+  event-naming convention, since right now each module's own API section only lists its own
+  events with no cross-module view of the whole taxonomy.
+- **Deliverables**: `07-workflows/01-consolidated-workflow-event-catalog.md`.
+- **Inputs**: Every module's own Workflows and API sections (read, not edited);
+  `PRSMTD/docs/authoritative/system.md §3` (GOV-07), `§4.1` (closed event taxonomy convention
+  this catalog must conform to, not invent a competing shape for).
+- **Outputs**: The event catalog `08-api/` (Phase 21) and `18-deployment`/observability tooling
+  would need as a single source instead of scanning ten module specs individually.
+- **Dependencies**: Phases 6–11 (same reasoning as Phase 19).
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every event name follows the `domain.entity.pastTenseVerb` convention
+  with no collisions across modules; every governed-lifecycle row cites its module's own
+  Workflows section rather than restating the full state machine; passes the Documentation
+  Standards checklist.
+- **New authoritative spec?**: Yes, thin index/cross-reference document (same caveat as Phase
+  19).
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Update `01-master-traceability-matrix.md`'s Status
+  narrative to note a consolidated workflow/event view now exists.
+- **Compliance Assessment updates required**: None expected.
+- **Roadmap updates required**: New Session entry; update `07-workflows/README.md` Status; mark
+  Phase 20 complete.
+
+#### Phase 21 — Cross-Module REST API Catalog, Event Contracts & Integration Contracts (`08-api`, `05-modules`)
+
+- **Objective**: Produce the single cross-module API surface catalog `08-api/README.md` scopes,
+  and the module-manifest index `05-modules/README.md` scopes (one row per module pointing at
+  its own domain-section spec — since every module spec has, by established convention, been
+  authored under its own domain section rather than under `05-modules/` directly, this document
+  is explicitly an index, not a redirect of content).
+- **Scope**: A consolidated REST resource catalog (path, method, request/response shape,
+  pagination, auth requirement) across every module's own API section, checked for path
+  collisions and versioning consistency; formal event contract specs for every event Phase 20's
+  catalog named (payload shape, not just the name); integration contracts specifically for the
+  cross-module opaque-reference endpoints `04-domain-model`'s shared kernel established
+  (`GET .../reference` pattern, `POST .../obligation-links` pattern, etc.) — collected once so
+  a future integrator sees the whole cross-module contract surface, not ten separate mentions;
+  the `05-modules/` index itself (module code, manifest summary, dependency list, pointer to the
+  owning domain-section spec) for every module, authored and reserved; and, per this file's
+  intro note, a small cross-reference update to `19-roadmap/README.md`'s own Status line
+  pointing back to this file's Master Execution Plan section.
+- **Deliverables**: `08-api/01-consolidated-api-catalog.md`, `05-modules/01-module-index.md`.
+- **Inputs**: Every module's own API section; Phase 20's event catalog; Phase 13's integration
+  specs (for the external-facing contract shape convention to stay consistent with).
+- **Outputs**: The complete, whole-repository API/event/integration-contract surface — the last
+  piece needed before Phase 22's PRSMTD alignment work.
+- **Dependencies**: Phases 6–13 (full module and integration set), Phase 19, Phase 20.
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: No two modules claim the same REST path; every event in Phase 20's
+  catalog has a payload contract here; every module (authored and reserved) has a row in the
+  `05-modules/` index; `19-roadmap/README.md`'s Status line no longer contradicts this file's
+  own expanded scope; passes the Documentation Standards checklist for both primary documents.
+- **New authoritative spec?**: Yes, thin index/cross-reference documents (same caveat as Phases
+  19–20).
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Update `01-master-traceability-matrix.md`'s Status
+  narrative; no new gap rows expected unless a path collision or contract gap is found, in which
+  case treat it as a genuine finding (same discipline as Session 7's Phase 2 review).
+- **Compliance Assessment updates required**: None expected.
+- **Roadmap updates required**: New Session entry; update `08-api/README.md` and
+  `05-modules/README.md` Status; mark Phase 21 complete.
+
+---
+
+### Tier 5 — Platform Alignment & Standards
+
+#### Phase 22 — PRSMTD Module Development Framework Alignment
+
+- **Objective**: Verify, module by module, that every authored ERM spec's own manifest
+  declaration (`code`, `dependencies`, roles) is directly translatable into a real
+  `modules/{code}/module.yaml` without further design work — the concrete, implementation-facing
+  check this repository has stated as a goal since `CLAUDE.md`'s "implementation-ready" principle
+  but never performed as its own dedicated pass across all modules at once.
+  **This phase is a verification/reconciliation pass, not a design phase** — if it finds a
+  genuine mismatch, it proposes (does not apply) a fix, per this repository's established
+  discipline.
+- **Scope**: Re-read current `PRSMTD/modules/contacts/module.yaml` and
+  `PRSMTD/modules/module-template/module.yaml` (re-verify they haven't changed shape since
+  Session 3) and current `system.md §9`/`§5a–§5c` (OWN-03/04/07/08/09); walk every module's own
+  manifest declaration (all ten by this point) against that shape; execute ADR-0002's decision
+  (Phase 5) on the `system.md §18` Product Framework question — if it was adopted, this is where
+  the `RISK` family's manifests actually gain `productClass: PRODUCT_FRAMEWORK`, proposed as an
+  additive change to each affected frozen spec, not applied silently.
+- **Deliverables**: A PRSMTD Module Framework Alignment note (placement: likely
+  `05-modules/01-module-index.md` from Phase 21, as an added section, rather than a new
+  standalone document — avoid creating a document whose entire content is "yes, these ten
+  manifests are all still valid").
+- **Inputs**: Current `PRSMTD/docs/authoritative/system.md` (re-verified, not assumed from any
+  prior session's memory, per this file's own Risk register discipline); Phase 21's module
+  index; Phase 5's ADR-0002 decision.
+- **Outputs**: A confirmed (or corrected-by-proposal) implementation-ready manifest for every
+  module.
+- **Dependencies**: Phase 21.
+- **Estimated Complexity**: Medium (verification breadth across ten modules, but each check is
+  mechanical against an already-stable PRSMTD contract).
+- **Success Criteria**: Every module's manifest declaration is confirmed directly buildable
+  against current `system.md`, or a precise, proposed-not-applied gap is named for each mismatch
+  found; ADR-0002's decision is either executed or explicitly deferred with a stated reason.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: No, unless a genuine mismatch is found, in which case: yes,
+  proposed additive changes to whichever module manifests are affected.
+- **Traceability updates required**: Update the Capability ↔ PRSMTD Matrix for any module whose
+  manifest gains a proposed change.
+- **Compliance Assessment updates required**: Update "Implementation readiness" in the Executive
+  Summary if any module's manifest was found to need a fix.
+- **Roadmap updates required**: New Session entry; mark Phase 22 complete.
+
+#### Phase 23 — Module Packaging Standards (`21-standards`)
+
+- **Objective**: Formalize, in `21-standards/`, the packaging conventions Phase 22's alignment
+  pass exercises but doesn't itself codify as a reusable standard for whichever module is
+  authored next after this plan's own scope closes.
+- **Scope**: Documentation-style guide content `21-standards/README.md` already scopes but which
+  remains "not yet authored" (`CLAUDE.md`'s own Naming Standards section is authoritative until
+  this expands, per that README's own Status line); a module packaging checklist (what a module
+  spec must contain — manifest shape, the shared-kernel patterns it must use unless explicitly
+  justified otherwise, the Documentation Standards checklist restated as a literal checklist
+  rather than prose); the repository-wide glossary of process vocabulary (distinct from
+  `04-domain-model`'s domain vocabulary, per this section's own scoping).
+- **Deliverables**: `21-standards/01-documentation-and-packaging-standards.md`.
+- **Inputs**: `CLAUDE.md`'s Naming Standards, Documentation Standards, and Working Rules
+  sections (the content this document expands on, not duplicates); every phase in this plan as
+  worked examples of the pattern being codified.
+- **Outputs**: The standards document a future session (post this plan's own scope) would read
+  before authoring an eleventh module, rather than having to reverse-engineer conventions from
+  ten prior examples.
+- **Dependencies**: Phase 22.
+- **Estimated Complexity**: Low-Medium.
+- **Success Criteria**: A new module author with no prior session's memory could follow this
+  document plus `CLAUDE.md` and produce a spec consistent with the ten that already exist,
+  without re-reading all ten first; passes the Documentation Standards checklist.
+- **New authoritative spec?**: Yes.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: None expected (a process document, not a capability claim).
+- **Compliance Assessment updates required**: Update Repository Maturity's narrative to note a
+  formal packaging standard now exists, reducing future drift risk (the same risk this file's
+  own Risk register already names for `04-domain-model`'s drift in Sessions 4–7).
+- **Roadmap updates required**: New Session entry; update `21-standards/README.md` Status; mark
+  Phase 23 complete.
+
+---
+
+### Tier 6 — Regulatory Extensions
+
+These two phases can run at any point after their stated dependency, independent of every other
+tier — they extend one frozen spec additively and add one new artifact, respectively, without
+blocking or being blocked by the module/UX/consolidation work above.
+
+#### Phase 24 — Regulatory Content Extension: DPDP Act & CERT-In Directions
+
+- **Objective**: Close the two regulatory gaps the Compliance Coverage Assessment named as "not
+  currently on `docs/roadmap.md`" (now recorded here for the first time as an actionable phase):
+  DPDP Act, 2023 personal-data-processing/consent/breach-notification obligation content, and
+  CERT-In Directions' 6-hour cyber-incident-reporting mandate.
+- **Scope**: New `Obligation`/`ObligationCategory` seed entries within `11-compliance`'s existing,
+  already-profile-configurable taxonomy (architecture ready per that spec's own design; only the
+  seed content and citations are missing) for DPDP; a CERT-In filing-obligation entry in the same
+  taxonomy, cross-referenced to Phase 7's `INCIDENT` module for the actual 6-hour timeline
+  tracking (the compliance obligation and the incident-response timeline are two different
+  concerns — this phase owns only the former, citing the latter).
+- **Deliverables**: An additive amendment to `11-compliance/01-compliance-management.md`'s
+  reference data (new `ObligationCategory` rows), recorded in that document's own Amendment Log
+  — not a new document, since the architecture to host this content already exists.
+- **Inputs**: DPDP Act, 2023 primary text (not yet in `docs/reference/` — sourcing it is part of
+  this phase's own work, the same way Session 1–5 each sourced their own primary regulatory
+  text); CERT-In Directions primary text (same sourcing note); Phase 7's `INCIDENT` module (for
+  the cross-reference, if authored by this point — if not, this phase can still add the DPDP/
+  CERT-In obligation content and defer only the `INCIDENT` cross-reference as a proposed,
+  not-applied forward reference, the same pattern used for `POLICY` throughout Sessions 2–6).
+- **Outputs**: SEBI-AMC-profile compliance content extended to cover two regulations this
+  repository has never addressed.
+- **Dependencies**: None strictly (can start once `11-compliance` exists, which it already
+  does) — recommend running after Phase 7 so the `INCIDENT` cross-reference can be applied
+  rather than proposed, but not required.
+- **Estimated Complexity**: Medium (primary-source sourcing and citation work, not new
+  architecture — this phase adds rows to an existing table shape).
+- **Success Criteria**: DPDP and CERT-In obligations are cited at the same precision standard
+  `11-compliance`'s existing SEBI content uses (clause-level where the source supports it,
+  scope-level with a stated reason otherwise); no change to `11-compliance`'s own aggregate/
+  entity design, only reference-data rows; recorded in that document's Amendment Log.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: Yes — `11-compliance`.
+- **Traceability updates required**: New Business ↔ Regulatory rows (DPDP, CERT-In) in
+  `01-master-traceability-matrix.md`.
+- **Compliance Assessment updates required**: Compliance Coverage Matrix rows for DPDP Act and
+  CERT-In Directions move from "❌ Not Yet Specified" to "🟡 Specified – Yet to Build"; Regulatory
+  Readiness Matrix rows update from "Not Started" to "Mostly Ready"/"Partially Ready" as
+  appropriate; Gap Assessment rows close.
+- **Roadmap updates required**: New Session entry; mark Phase 24 complete.
+
+#### Phase 25 — International Standards Crosswalk (ISO/COBIT/NIST)
+
+- **Objective**: Close the "no explicit crosswalk exists" gap the Compliance Coverage Assessment
+  named for ISO 27001/27701/22301/31000, COBIT, and NIST CSF — explicitly lower priority than
+  Phase 24, per that same assessment's own prioritization ("only relevant if international-market
+  positioning is pursued").
+- **Scope**: A control-by-control (or category-by-category, if control-level granularity proves
+  excessive) mapping from `09-security`'s `SecurityPolicyDomain.framework_tag` field (already
+  designed to host exactly this mapping) and `12-controls`' control taxonomy to each named
+  standard; explicit "structural resemblance only, not a certified mapping" framing throughout,
+  matching the Compliance Coverage Assessment's own careful non-certification language.
+- **Deliverables**: A crosswalk artifact — recommend placement in `22-traceability/` as a third
+  numbered document (`03-international-standards-crosswalk.md`), following the same precedent
+  Session 5 set for the compliance coverage assessment (a cross-cutting artifact that doesn't fit
+  one module's own section).
+- **Inputs**: `09-security`'s `framework_tag` design; `12-controls`' control taxonomy; the
+  Compliance Coverage Assessment's existing Regulatory Readiness Matrix rows for each standard
+  (starting point, not final content).
+- **Outputs**: A stated, citable position on international-framework alignment for any future
+  multi-vertical/international sales or partnership conversation, per `CLAUDE.md`'s long-term
+  vision.
+- **Dependencies**: None strictly; recommend after Phases 6–9 so the crosswalk covers the full
+  control set rather than needing a second pass.
+- **Estimated Complexity**: Medium (research-heavy — requires sourcing each standard's actual
+  control catalog, which is not yet in `docs/reference/`).
+- **Success Criteria**: Every mapped control cites both the ERM-side control/policy-domain and
+  the external standard's own clause/objective number; the document is explicit that this is a
+  structural crosswalk, not a certification, consistent with the Compliance Coverage
+  Assessment's Final Statement.
+- **New authoritative spec?**: Yes (a traceability artifact, not a bounded-context spec).
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Reference this new document from
+  `01-master-traceability-matrix.md`'s own Status narrative, the same way
+  `02-compliance-coverage-assessment.md` is referenced today.
+- **Compliance Assessment updates required**: Regulatory Readiness Matrix rows for each standard
+  move from "Early Stage" toward whatever this phase's actual findings support (do not
+  pre-assume "Ready" — record what the crosswalk actually finds).
+- **Roadmap updates required**: New Session entry; mark Phase 25 complete.
+
+---
+
+### Tier 7 — Repository Certification & Release Readiness
+
+These four phases run last, in strict sequence, once every phase above that a given release
+scope requires is complete — each one gates the next.
+
+#### Phase 26 — Repository-Wide Architecture Review
+
+- **Objective**: Perform, across the **entire** repository (all authored specs by this point —
+  potentially ten-plus bounded contexts, the UX suite, the consolidation layer, and the
+  standards document), the same kind of architecture consistency review Session 7 performed
+  across six specs — but at full repository scale, not a six-document subset.
+- **Scope**: Bounded-context ownership consistency; aggregate/entity ownership; shared-concept
+  and terminology consistency (one canonical name per concept, no drift); enumeration
+  consistency (every cross-referenced enum value, e.g. every module's own `*.source` fields, is
+  consistent with what actually exists); lifecycle/state-machine consistency against Phase 20's
+  catalog; API/event consistency against Phase 21's catalog; PRSMTD capability reuse claims
+  re-verified against current `system.md` (not assumed from any prior session); every proposed-
+  but-not-yet-applied additive change across the whole plan is inventoried and either closed or
+  explicitly still open.
+- **Deliverables**: An architecture review record — placement: a new dated entry within this
+  file's own Session log (the same way Session 7's review was recorded), not a new standalone
+  document, unless the review's findings are extensive enough to warrant one (decide at review
+  time).
+- **Inputs**: Every authored document in the repository at review time; current
+  `PRSMTD/docs/authoritative/system.md` (full re-read); this file's entire Assumptions/Risks
+  register (source of every carried-forward open item to check for resolution).
+- **Outputs**: A confirmed-consistent (or corrected-by-proposal, following established
+  discipline) full repository.
+- **Dependencies**: Every phase in Tiers 0–6 that the release scope under review requires.
+- **Estimated Complexity**: Medium (mechanical checklist review against an already-stable
+  shared kernel, at larger scale than Session 7's).
+- **Success Criteria**: Zero unexplained terminology/enum/ownership drift found, or every
+  finding is corrected by an explicit, recorded amendment (status-label/cross-reference fix,
+  not a redesign) with no entity/aggregate/workflow/API/ownership assignment silently changed.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: Possibly — only via explicit, recorded corrections of genuine
+  staleness (Session 7 precedent), never a redesign.
+- **Traceability updates required**: Update `01-master-traceability-matrix.md`'s Status
+  narrative with a full-repository review record, mirroring Session 7's own entry.
+- **Compliance Assessment updates required**: Update Repository Maturity's Traceability
+  Maturity and Architecture Maturity rows.
+- **Roadmap updates required**: New Session entry documenting the review; mark Phase 26
+  complete.
+
+#### Phase 27 — Repository-Wide Consistency Review
+
+- **Objective**: A distinct pass from Phase 26 — where Phase 26 checks architectural/domain
+  consistency, this phase checks **documentation-process** consistency: every document actually
+  follows `CLAUDE.md`'s Documentation Standards checklist, naming standards, and cross-reference
+  rules (no duplicated content, no broken links, no placeholder/TBD sections anywhere in the
+  repository).
+- **Scope**: Every `.md` file in `docs/` checked against: the Documentation Standards checklist
+  (for substantive specs) or the section-README shape (for indexes); the naming standards
+  (`NN-kebab-case-name.md`, ADR numbering, entity/module/event naming); the "no duplication,
+  cross-reference instead" rule (spot-check for content that restates rather than links);
+  internal link validity (the exact class of defect Session 7 found and fixed for
+  `11-compliance`'s two broken anchors, now checked repository-wide rather than incidentally).
+- **Deliverables**: A consistency review record, same placement convention as Phase 26.
+- **Inputs**: Every document in the repository; `CLAUDE.md` in full (the checklist this phase
+  literally executes).
+- **Outputs**: A repository with zero broken internal links, zero placeholder sections, and
+  full naming-standard compliance.
+- **Dependencies**: Phase 26 (architecture review should resolve first, since consistency
+  findings may reference architecture-review corrections, e.g. re-checking links after Phase
+  26's own status-label fixes).
+- **Estimated Complexity**: Medium (mechanical, but exhaustive — every file, not a sample).
+- **Success Criteria**: Zero broken internal links; zero remaining "Not yet authored" READMEs
+  for any section this release scope requires; every substantive spec's Traceability block is
+  present and matches what `01-master-traceability-matrix.md` records for it.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: Possibly — only link/formatting corrections, never content
+  redesign.
+- **Traceability updates required**: Confirm (not necessarily change) that every Traceability
+  block in the repository is accurately reflected in the master matrix; correct any drift found.
+- **Compliance Assessment updates required**: None expected beyond what Phase 26 already
+  updated.
+- **Roadmap updates required**: New Session entry; mark Phase 27 complete.
+
+#### Phase 28 — Release Readiness Assessment
+
+- **Objective**: Produce the honest, point-in-time answer to "is this specification set ready to
+  hand to a PRSMTD implementation engagement" — the natural successor to
+  `02-compliance-coverage-assessment.md`'s existing "what would be supported if implemented"
+  framing, now asking the implementation-readiness question directly rather than the
+  regulatory-coverage question.
+- **Scope**: Per-module implementation-readiness rating (every table, state machine, API
+  endpoint, role/permission concrete enough to build without further design work — the bar
+  every module spec has claimed to meet since Session 1, now independently re-verified rather
+  than self-asserted); an inventory of every still-open Assumption/Risk/Open Decision in this
+  file at assessment time, each explicitly marked blocking or non-blocking for a first
+  implementation engagement; a recommended MVP scope (which modules/phases are genuinely
+  required for a first SEBI-AMC-profile release versus which can follow in a later release,
+  building on this file's own Session 1–7 sequencing logic).
+- **Deliverables**: A Release Readiness Assessment — recommend `22-traceability/` as a fourth
+  numbered document (`04-release-readiness-assessment.md`), following the same cross-cutting-
+  artifact placement precedent as `02-*` and Phase 25's `03-*`.
+- **Inputs**: Every authored spec; Phases 26–27's review outcomes; this file's full Assumptions/
+  Risks/Open Decisions register.
+- **Outputs**: A go/no-go-shaped assessment a PRSMTD implementation engagement's own kickoff
+  could use directly, without re-deriving it from ten-plus module specs and eight-plus sessions
+  of history.
+- **Dependencies**: Phase 27.
+- **Estimated Complexity**: Medium.
+- **Success Criteria**: Every module has an explicit implementation-readiness rating with a
+  stated reason (not just "Complete"); every blocking open item is named with what would need
+  to happen to unblock it; the document is explicit that it does not certify legal/regulatory
+  compliance, mirroring `02-*`'s own Final Statement discipline.
+- **New authoritative spec?**: Yes (a traceability artifact).
+- **Extends existing spec?**: No.
+- **Traceability updates required**: Reference this new document from
+  `01-master-traceability-matrix.md`'s Status narrative.
+- **Compliance Assessment updates required**: Cross-reference this new document from
+  `02-compliance-coverage-assessment.md`'s own Future Work section.
+- **Roadmap updates required**: New Session entry; mark Phase 28 complete.
+
+#### Phase 29 — Final Architecture Certification
+
+- **Objective**: The closing deliverable of this entire plan — a short, formal statement that
+  the repository, as of this phase, is internally consistent, fully traceable, and ready to be
+  handed off as a specification-complete artifact for whatever release scope was targeted
+  (which may be less than "every phase in this plan," per Phase 28's own MVP-scope
+  recommendation — certification is scoped to what was actually built, not held hostage to
+  every phase above being complete).
+- **Scope**: A certification statement citing Phase 26 (architecture review passed), Phase 27
+  (consistency review passed), and Phase 28 (release readiness assessed) by reference, not
+  restating their content; explicit statement of what is and is not certified (mirroring every
+  prior "does not certify legal/regulatory compliance" disclaimer in this repository); the
+  formal close-out of this Master Execution Plan section itself — marking it superseded-by-
+  completion rather than deleting it, the same "preserve, don't discard" discipline this file
+  has followed since Session 1.
+- **Deliverables**: A short certification document or a final dated entry in this file (decide
+  at the time based on whether a separate document earns its place — likely a final Session
+  entry here is sufficient, given the certification's entire content is "see Phases 26–28").
+- **Inputs**: Phases 26, 27, 28's own outputs.
+- **Outputs**: A closed, certified specification repository (for the certified release scope).
+- **Dependencies**: Phase 28.
+- **Estimated Complexity**: Low.
+- **Success Criteria**: The certification statement is traceable to Phases 26–28's own findings
+  with no new claims introduced at this phase that weren't already established; this file's own
+  Current Status section is updated to reflect certification.
+- **New authoritative spec?**: No.
+- **Extends existing spec?**: No.
+- **Traceability updates required**: A final Status entry in `01-master-traceability-matrix.md`
+  recording certification.
+- **Compliance Assessment updates required**: A final Executive Summary update in
+  `02-compliance-coverage-assessment.md` reflecting the certified state.
+- **Roadmap updates required**: Final Session entry; update this file's Current Status to
+  reflect certification; mark Phase 29 complete — closing this Master Execution Plan.
 
 ## Assumptions (live register)
 
@@ -614,6 +2083,58 @@ Carried forward from both authored specs — re-verify if stale:
     policy-decision mechanism — remain open, unaffected by Session 7.** Neither is an
     additive spec change; both are genuine new PRSMTD platform capabilities with no owning
     section, correctly left unresolved.
+27. **New (Session 8)**: `CLAUDE.md`'s 22-section repository organization has no numbered
+    section for any of the four still-reserved business-domain bounded contexts (`POLICY`,
+    `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`) — sections 14–22 are
+    fully claimed by cross-cutting categories, sections 09–13 are fully claimed by the five
+    authored modules. Named as the Master Execution Plan's Phase 1 (Repository Structure
+    Extension Decision), with a recommended-but-not-applied resolution (extend numbering to
+    `23`–`26`). Not a redesign of anything existing — a genuine, previously only
+    partially-named (Session 7 Next Milestone item 2, for `POLICY` alone) scoping gap.
+28. **New (Session 8)**: none of the 22 sections is scoped for UX/frontend specification content
+    (screens, navigation, dashboards-as-UI, forms, validation rules, notifications,
+    maker-checker approval UI) — `15-analytics/README.md` explicitly excludes "pixel-level UI
+    design" from its own scope, and no other section claims this territory. Folded into the
+    same Phase 1 decision gate as Assumption 27, with a recommended (not applied) resolution of
+    a new `27-user-experience` section. Blocks Phases 15–18 of the Master Execution Plan until
+    resolved.
+29. **New (Session 8)**: the Master Execution Plan (see that section) is itself a snapshot
+    against the repository state as of 2026-07-21 — the same staleness risk this file's Risks
+    register already names for `02-compliance-coverage-assessment.md` applies to it. Each
+    phase's own Dependencies/Inputs explicitly say "re-verify against current `system.md`" or
+    "re-verify this finding still holds" wherever a prior session's finding is being relied on,
+    rather than assuming any carried-forward fact is still true without checking.
+30. **Resolved (Session 9)**: Assumption 27 (no numbered section for the four remaining
+    business-domain contexts) and Assumption 28 (no section scoped for UX/frontend content) are
+    now closed — `docs/` gained `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`,
+    `26-business-continuity`, and `27-user-experience`, with stub READMEs, and `CLAUDE.md`'s
+    Repository organization listing updated to match. No longer open items.
+31. **New (Session 9)**: three governance refinements the owner attached to Phase 1's approval
+    are now binding, recorded directly in `CLAUDE.md` (not only in this file, so they apply
+    automatically to every future session): (a) `05-modules/` is a module index/registry only
+    — one entry per module pointing to its authoritative spec elsewhere, never module content
+    itself; (b) `27-user-experience` owns presentation-layer content only — screens,
+    navigation, dashboards-as-UI, forms, maker-checker UX, notifications, accessibility,
+    responsive behavior — and must not redefine or own business rules, workflows, domain
+    models, APIs, or data ownership, which stay with each domain section; (c) every UX
+    specification must reuse PRSMTD's existing frontend architecture (Next.js App Router
+    shell, dynamic module navigation via `GET /api/v1/modules`, the
+    `src/components/{ui,common,module}` component library, and the existing `approvals`/
+    `dashboard` feature-area conventions in `frontend/src/features/` — now named in
+    `CLAUDE.md`'s PRSMTD capability inventory as a new "Frontend/UI shell" row) rather than
+    design a competing one; a new UI pattern is permitted only where no PRSMTD equivalent
+    exists, explicitly identified and justified as a new capability requirement. Phase 15 (UX
+    Foundational Framework) must be authored against these three rules, not the plan's original
+    Phase 15 text alone.
+32. **New (Session 9)**: this session's direct read of `PRSMTD/frontend/` (`app/`, `src/`)
+    found PRSMTD already has `approvals` and `dashboard` feature areas under
+    `frontend/src/features/`, and a shared component library under
+    `frontend/src/components/{ui,common,module}` — meaning Phase 15's maker-checker UI pattern
+    and Phase 16's dashboard specs likely have a real, existing PRSMTD starting point to
+    extend rather than a greenfield UI to design from nothing. Not independently verified
+    beyond directory-structure inspection (component/feature *content* was not read this
+    session) — re-verify by reading the actual component/feature source before Phase 15/16
+    treats this as settled.
 
 ## Risks
 
@@ -630,6 +2151,8 @@ Carried forward from both authored specs — re-verify if stale:
 | **Resolved (Session 7)**: the three additive changes `09-security/01-*` proposed for `10-risk`/`13-audit`/`04-domain-model` (Assumption 21) | N/A — all three applied this session | Closed; see Assumption 24 and each target document's own Amendment log. |
 | **Resolved (Session 7)**: `SECURITY` was the first module whose own bounded context `04-domain-model` did not reserve | N/A — `04-domain-model` now names `SECURITY` as a tenth context, using the exact relationship shape `09-security/01-*` had already proposed (peer to `CONTROLS`/`COMPLIANCE`, Conformist supplier to `AUDIT`) — no substantive mismatch materialized | Closed; see Assumption 24, `04-domain-model/01-*`'s own Amendment Log. |
 | A domain-model-level document (`04-domain-model`) can silently drift out of sync with later-authored module specs it names, if nothing prompts a revisit — this is what actually happened to `COMPLIANCE`/`AUDIT`'s status labels between Sessions 4–5 and Session 7 | A future module's own authoring could cite a stale cross-reference (a "(reserved)" label, a dashed edge, a broken anchor) from `04-domain-model` as if it were still accurate, compounding the drift | Assumption 25 (Session 7) names this explicitly as a precedent: treat "does this session's new module require `04-domain-model` to be revisited?" as a standing checklist item for every future module-authoring session, not just when a gap is separately reported |
+| **New (Session 8)**: the Master Execution Plan is a 29-phase plan authored in one session without executing any phase — every "recommended resolution," complexity estimate, and dependency claim in it is a planning judgment, not a verified fact the way a frozen spec's own content is | A future session could treat the plan's estimates or recommended resolutions as settled decisions rather than proposals awaiting the same explicit confirmation this repository requires for every other proposed-not-applied change | Treat every "recommended" / "proposed" phrasing in the Master Execution Plan as exactly that — get explicit user confirmation before executing Phase 1's structure decision or any phase whose scope depends on it, the same discipline already applied to every additive-change proposal in Sessions 2–7 |
+| **New (Session 8)**: this file has grown to carry both the session-by-session progress log (Sessions 1–7 and onward) and the full Master Execution Plan in one document, now over 2,000 lines | A single very large file is harder to navigate and more prone to merge friction than smaller, focused documents | Not addressed this session (out of scope — the session's instruction was explicitly to consolidate into this one file); revisit if the file's size becomes an actual editing obstacle in a future session, at which point splitting the Master Execution Plan into its own file under `19-roadmap/` (with this file linking to it) is the natural mitigation |
 
 ## Open Decisions
 
@@ -675,6 +2198,21 @@ Carried forward from both authored specs — re-verify if stale:
   **Reaffirmed (Session 6)**: `09-security/01-*` was authored directly under its own existing
   `docs/09-security/` section (not a new top-level location), consistent with this
   precedent — no new documentation-location question was raised this session.
+- **Resolved (Session 9)**: where do the four remaining reserved bounded contexts (`POLICY`,
+  `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`) and net-new UX/frontend
+  specification content live in the `docs/NN-section-name/` hierarchy? Resolved and applied:
+  numbering extended — `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`,
+  `26-business-continuity`, `27-user-experience` — see
+  [Master Execution Plan, Phase 1](#phase-1--repository-structure-extension-decision) for the
+  full decision package and the three governance refinements the owner attached to the UX
+  section's approval (`05-modules/` index-only; `27-user-experience` presentation-only;
+  UX specs must reuse PRSMTD's frontend architecture). No longer open — unblocks Phases 5–9
+  and 15–18.
+- **New (Session 8), open**: does the Master Execution Plan's own recommended resolution for
+  `system.md §18` (Phase 5, ADR-0002) get decided as part of that phase, or does a future
+  session need to make that call before Phase 5 can even be scheduled? Not resolved this
+  session — Phase 5's own entry states the ADR must record a real decision, one way or the
+  other, rather than leaving the question open a third time, but does not itself decide it.
 
 ## Traceability
 
