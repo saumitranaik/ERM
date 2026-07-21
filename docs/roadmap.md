@@ -21,11 +21,11 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — **seventh authoritative spec complete as of Session 10**
-(`23-policy/01-policy-management.md`, module code `POLICY`; see the Session 10 entry under
-Completed Work and Master Execution Plan Phase 6). The remainder of this paragraph and the
-next is preserved as the Session 6–7 historical record of how the first six specs reached
-their current state. Session 6 closed the two remaining additive-change gaps
+**Phase**: Early specification phase — **eighth authoritative spec complete as of Session 11**
+(`24-incident-issue-capa/01-incident-issue-capa-management.md`, module code `INCIDENT`; see
+the Session 11 entry under Completed Work and Master Execution Plan Phase 7). The remainder of
+this paragraph and the next is preserved as the Session 6–7 historical record of how the first
+six specs reached their current state. Session 6 closed the two remaining additive-change gaps
 from `11-compliance` (`10-risk`'s `Risk.source` enum gained `COMPLIANCE_OBLIGATION`;
 `12-controls` gained `POST /controls/{id}/obligation-links`), and authored
 [`09-security/01-security-management.md`](09-security/01-security-management.md) — the
@@ -47,14 +47,14 @@ redesigned by any of these corrections.
 **Repository state**: Scaffolding (all 22 original `docs/NN-*/README.md` section indexes plus
 `docs/reference/`, extended with `23-policy` through `27-user-experience` at Session 9) was
 already initialized and validated internally consistent against `CLAUDE.md` prior to Session
-1. **Seven authoritative specs now exist as of Session 10**: `RISK`, `CONTROLS`, the
-Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, and `POLICY`. The Enterprise
-Domain Model's own Bounded Context Map, however, still names only five authored business-
-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five reserved
-contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
-`BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s own status-label amendment is proposed, not
-yet applied (Assumption 33) —
-ten total, all cross-references internally consistent. One traceability/assessment artifact
+1. **Eight authoritative specs now exist as of Session 11**: `RISK`, `CONTROLS`, the
+Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, and `INCIDENT`. The
+Enterprise Domain Model's own Bounded Context Map, however, still names only five authored
+business-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five
+reserved contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
+`BUSINESS CONTINUITY`, `REPORTING`) — both `POLICY`'s and `INCIDENT`'s own status-label
+amendments are proposed, not yet applied (Assumptions 33 and 35) — ten total, all
+cross-references internally consistent. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
 
@@ -92,6 +92,21 @@ employee acknowledgement, and exceptions. Two of its three inbound integrations
 (`COMPLIANCE`, `SECURITY`) activate with **zero** additive change to either frozen spec; a
 third (`CONTROLS`) and a `04-domain-model` status-label amendment remain **proposed, not
 applied** — see the Session 10 log entry and Assumption 33 below. No frozen spec was modified.
+
+**Session 11** executed Master Execution Plan Phase 7: the repository's **eighth authoritative
+specification**, [`24-incident-issue-capa/01-incident-issue-capa-management.md`](24-incident-issue-capa/01-incident-issue-capa-management.md)
+(module code `INCIDENT`, resolving `04-domain-model`'s open naming question), is authored —
+Incident intake/investigation, Root Cause Analysis, an enterprise Issue-escalation register,
+and the governed CAPA lifecycle (action plan, action tracking, closure verification,
+effectiveness review), plus Escalation management. This phase's own highest-risk design
+decision — whether this module complements or replaces `ControlException`/
+`ComplianceException`/`Finding`/`SecurityFinding`/`PolicyException` — is resolved explicitly,
+with a stated reason, as **complement**: none of the five frozen entities was redesigned.
+`Risk.source = INCIDENT` activates with **zero** additive change (already live since `10-risk`'s
+own Session 1 authoring); `13-audit`/`09-security`'s already-reserved `capa_ref_id` columns
+need only a proposed initiating endpoint each; `12-controls`/`11-compliance`/`23-policy` and a
+`04-domain-model` status-label amendment remain **proposed, not applied** — see the Session 11
+log entry and Assumptions 35–36 below. No frozen spec was modified.
 
 ## Completed Work
 
@@ -704,6 +719,97 @@ applied** — see the Session 10 log entry and Assumption 33 below. No frozen sp
 - Updated this file (this entry; Phase Summary table and Phase 6's own detail entry marked
   complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
 
+### Session 11 — 2026-07-21
+
+- Reviewed `CLAUDE.md`, this file in full (all ten prior session entries, the complete Master
+  Execution Plan, Assumptions, Risks, Open Decisions), the Enterprise Domain Model, and all
+  seven frozen specs (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`,
+  `23-policy`) — specifically each one's own forward reference to the still-reserved
+  `INCIDENT`/`ISSUE`/`CAPA` context — before making any change, per this session's explicit
+  instruction. Confirmed by direct search which of the five citing specs already reserve a
+  `capa_ref_id` column (`13-audit`'s `FollowUpAction`, `09-security`'s `SecurityFinding` — both
+  already built) versus which do not (`12-controls`'s `ControlException`, `11-compliance`'s
+  `ComplianceException`, `23-policy`'s `PolicyException` — none reserves one). Treated all
+  seven frozen specs as authoritative inputs, not to be redesigned — none was modified.
+- **Executed Master Execution Plan Phase 7 (Incident / Issue / CAPA Module)**: authored the
+  repository's **eighth authoritative specification**,
+  [`24-incident-issue-capa/01-incident-issue-capa-management.md`](24-incident-issue-capa/01-incident-issue-capa-management.md)
+  — module code `INCIDENT`, resolving `04-domain-model`'s open module-code naming question as
+  a single combined module for Incident, Issue, and CAPA (per that document's own reasoning
+  for reserving one combined context rather than three). Covers: `Incident` (a genuinely new
+  top-level realized-adverse-event register) and its immediate-raise/governed-closure
+  lifecycle; `RootCauseAnalysis`, governed, attachable to an Incident or a standalone Issue;
+  `Issue`, an enterprise-level remediation-escalation register with a polymorphic
+  `IssueSourceLink` mirror (mirroring `23-policy`'s own `PolicyReferenceLink` design exactly);
+  the full `CAPA` lifecycle — action-plan proposal and approval, ungoverned action-item
+  tracking (mirroring `13-audit`'s own `FollowUpAction` shape), governed closure verification
+  (independent of the plan's executor), and governed effectiveness review (a later check that
+  the fix actually held, directly operationalizing the Rectification Index pattern
+  `13-audit` already established at the individual-CAPA level); and `Escalation`, generalizing
+  `10-risk`'s own `Escalation` entity to this module's Incident/Issue/CAPA entities exactly as
+  `04-domain-model`'s Common Domain Patterns table itself anticipated. Thirteen tables total (3
+  reference, 10 core), full security/authorization/audit/reporting/API surface.
+- **Made explicit, with a stated reason, the single highest-risk design decision this phase's
+  own Master Execution Plan entry flagged**: this module **complements**, not replaces,
+  `ControlException` (`12-controls`), `ComplianceException` (`11-compliance`), `Finding`
+  (`13-audit`), `SecurityFinding` (`09-security`), and `PolicyException` (`23-policy`) — each
+  keeps its own domain model, data model, and governed closure lifecycle exactly as its frozen
+  spec defines, unmodified. This module instead adds `Incident` (no prior equivalent), `Issue`
+  (an opt-in, enterprise-level escalation register any of the five may link into via an opaque
+  reference when a problem's significance warrants formal CAPA governance beyond a single
+  module's own exception-closure workflow — most exceptions will never touch this module at
+  all), and `CAPA` (the structured remediation capability every one of the five frozen specs'
+  own exception entity already deferred to via a free-text field or, for two of them, an
+  already-reserved `capa_ref_id` column).
+- **Closed the `Risk.source = INCIDENT` integration with zero additive change** — reserved
+  and already live since `10-risk`'s own Session 1 authoring, the first module-relationship in
+  this repository never once requiring an additive change at any point in its history. Decided
+  explicitly (Assumption 3) that `Risk.source = INCIDENT` is module-level granularity and
+  therefore already covers Issue- and CAPA-originated risks too — no additive `Risk.source`
+  value for `ISSUE` or `CAPA` was proposed.
+- **Closed two of five inbound integrations needing only a proposed endpoint, not a schema
+  change**: `13-audit`'s `FollowUpAction.capa_ref_id` and `09-security`'s
+  `SecurityFinding.capa_ref_id` were both already reserved at each spec's own original
+  authoring — this session's spec proposes, but does not apply, only the initiating endpoint
+  each needs (`POST .../capa-request`, calling this module's own new `POST /capa-requests`
+  convenience endpoint). `INCIDENT`'s own manifest stays `dependencies: []` (pure provider,
+  per `04-domain-model` Dependency Rule 4, extended to this context) — `AUDIT` and `SECURITY`
+  are the customers initiating the call, so their own manifests gain the dependency edge, not
+  `INCIDENT`'s.
+- **Proposed, but did not apply, three further additive `capa_ref_id` extensions** (a
+  column plus an initiating endpoint each) to `12-controls`' `ControlException`,
+  `11-compliance`'s `ComplianceException`, and `23-policy`'s `PolicyException` — none of the
+  three had reserved any CAPA-related field before this session, verified by direct search of
+  each frozen spec. **Proposed, but did not apply, the `04-domain-model` status-label
+  amendment** (`INCIDENT`/`ISSUE`/`CAPA` `(reserved)` → `(authored)`), the same amendment
+  shape `09-security`/`23-policy` each proposed for their own onboarding. **No change was made
+  to `12-controls/01-*.md`, `11-compliance/01-*.md`, `23-policy/01-*.md`, `13-audit/01-*.md`,
+  `09-security/01-*.md`, or `04-domain-model/01-*.md`** by this session.
+- Updated [`24-incident-issue-capa/README.md`](24-incident-issue-capa/README.md) status to
+  reflect the authored spec.
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  with the Incident/Issue/CAPA spec's Business↔Regulatory, Capability↔PRSMTD, and
+  Requirement↔Spec entries — adding the Incident/Issue/CAPA row, closing the module-code
+  naming gap row, adding four new proposed-not-applied additive-change gap rows, and a
+  Session 11 Status paragraph.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary, Scope and Method, Question 2, Platform Capability Matrix (`Incident /
+  Issue / CAPA`: Not Started → Planned), Compliance Coverage Matrix (System Audit Checklist
+  §§1–8 and CERT-In rows updated — CERT-In moves from Not Supported to Partially Supported,
+  timeline substrate only), Control-Level Matrix (`+2` rows), Enterprise Capability Matrix,
+  Regulatory Readiness Matrix (CERT-In: Not Started → Early Stage), Gap Assessment
+  (`INCIDENT`/`ISSUE`/`CAPA` gap row closed; four new proposed-not-applied gap rows added),
+  Roadmap Validation, Specification Progress Matrix (`+1` row), Repository Maturity (also
+  corrected a stray multi-line table-row rendering defect from Session 10's own edit — no
+  content change beyond the formatting fix), and Percentage Completion. **Specification
+  Completion stays at 5/10 = 50%** — neither `POLICY`'s nor `INCIDENT`'s `04-domain-model`
+  status-label amendment is applied yet; the document now explicitly notes it becomes
+  7/10 = 70% once both land. Platform Capability Completion moves from 7/8/9 to 7/9/8 (out of
+  24), since `Incident / Issue / CAPA` is the only row whose status changed this session.
+- Updated this file (this entry; Phase Summary table and Phase 7's own detail entry marked
+  complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -796,7 +902,7 @@ a future session.
 | 4 | 0 — Foundational Backfill | Enterprise Architecture Specification (`03-enterprise-architecture`) | Yes | No | Medium | Phase 3; six frozen specs |
 | 5 | 0 — Decisions | Governance ADR Backfill (`20-adr`) | Yes (ADRs) | No | Low | Phase 1 |
 | 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) — **Complete, Session 10** | Yes | Yes (`04-domain-model`, proposed; `12-controls`, proposed) | High | Phase 1 |
-| 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`, `09-security`) | High | Phase 1 |
+| 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module (`INCIDENT`) — **Complete, Session 11** | Yes | Yes (`04-domain-model`, proposed; `12-controls`/`11-compliance`/`23-policy`, proposed; `13-audit`/`09-security`, proposed endpoint only) | High | Phase 1 |
 | 8 | 1 — Remaining Modules | Third-Party Risk Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
 | 9 | 1 — Remaining Modules | Business Continuity Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
 | 10 | 1 — Remaining Modules | Records Retention Schedule Capability | No | Yes (five frozen specs) | Medium | None |
@@ -1103,7 +1209,9 @@ context being authored first; treat all frozen specs as inputs, not editable sur
 patterns `04-domain-model` names (taxonomy shape, governed-lifecycle shape,
 immediate-raise/governed-closure exception shape, opaque-reference shape, code-sequence shape).
 
-#### Phase 6 — Policy Management Module (`POLICY`) — **Complete, Session 10**
+#### Phase 6 — Policy Management Module (`POLICY`)
+
+**Status: Complete, Session 10.**
 
 - **Outcome (Session 10)**: [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md)
   is authored. Two of the three named inbound forward references (`COMPLIANCE`, `SECURITY`)
@@ -1153,6 +1261,20 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
 
 #### Phase 7 — Incident / Issue / CAPA Module
 
+**Status: Complete, Session 11.**
+
+- **Outcome (Session 11)**: [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md)
+  is authored, module code `INCIDENT`. The complement-vs-replace decision is resolved
+  explicitly, with a stated reason, as **complement** — none of the five frozen
+  Finding/Exception entities (`ControlException`, `ComplianceException`, `Finding`,
+  `SecurityFinding`, `PolicyException`) was redesigned. `Risk.source = INCIDENT` activates
+  with **zero** additive change (already live). `13-audit`/`09-security`'s already-reserved
+  `capa_ref_id` columns need only a proposed initiating endpoint each (no schema change).
+  `12-controls`/`11-compliance`/`23-policy` each gain a **proposed, not applied**, additive
+  `capa_ref_id` column plus endpoint, and `04-domain-model` gains a **proposed, not applied**,
+  status-label amendment — open items for a future approved session. See that document's own
+  Traceability block and Amendment history, and this file's Session 11 log entry, for the full
+  record.
 - **Objective**: Author the most cross-referenced still-reserved bounded context in the
   repository — named as a forward reference by five of the six frozen specs
   (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`).
@@ -2254,6 +2376,29 @@ Carried forward from both authored specs — re-verify if stale:
     leading indicator that the shared-kernel modeling patterns (`04-domain-model`'s Common
     Domain Patterns) are working as intended, not as evidence the remaining `CONTROLS`
     proposal is somehow lower-priority — it remains a real, open gap (Assumption 33).
+35. **New (Session 11)**: `24-incident-issue-capa/01-*` proposes, but does not apply, five
+    additive changes across four frozen specs — a `capa_ref_id` column plus initiating
+    endpoint on `12-controls`' `ControlException`, `11-compliance`'s `ComplianceException`,
+    and `23-policy`'s `PolicyException`; an initiating endpoint only (no schema change) on
+    `13-audit`'s `FollowUpAction` and `09-security`'s `SecurityFinding`, both of which already
+    reserve a `capa_ref_id` column — plus the `04-domain-model` `INCIDENT`/`ISSUE`/`CAPA`
+    `(reserved)` → `(authored)` status-label amendment. All six are open implementation-time
+    TODOs, the same discipline every prior additive-change proposal in this repository has
+    used before a later, explicitly-approved session applied it. Combined with `23-policy`'s
+    own two still-unapplied proposals (Assumption 33), this repository now carries **five**
+    open proposed-not-applied additive changes across `12-controls`, `11-compliance`,
+    `13-audit`, `09-security`, `23-policy`, plus **two** open `04-domain-model` status-label
+    amendments (`POLICY`, `INCIDENT`) — a natural single future session's worth of
+    consolidation work, mirroring exactly how Session 7 applied `09-security`'s three
+    proposals together.
+36. **New (Session 11)**: `Risk.source = INCIDENT` required **zero** additive change to
+    `10-risk` — reserved and already live since `10-risk`'s own Session 1 authoring, the first
+    module-relationship in this repository never once requiring an additive change at any
+    point in its history (distinct from `Risk.source = COMPLIANCE_OBLIGATION`/
+    `SECURITY_FINDING`, both of which needed a one-time additive activation). `24-incident-
+    issue-capa/01-*` also decided explicitly (its own Assumption 3) that this single reserved
+    value is module-level granularity and therefore already covers Issue- and CAPA-originated
+    risks too — no additional `Risk.source` value was proposed for either.
 
 ## Risks
 
@@ -2272,8 +2417,8 @@ Carried forward from both authored specs — re-verify if stale:
 | A domain-model-level document (`04-domain-model`) can silently drift out of sync with later-authored module specs it names, if nothing prompts a revisit — this is what actually happened to `COMPLIANCE`/`AUDIT`'s status labels between Sessions 4–5 and Session 7 | A future module's own authoring could cite a stale cross-reference (a "(reserved)" label, a dashed edge, a broken anchor) from `04-domain-model` as if it were still accurate, compounding the drift | Assumption 25 (Session 7) names this explicitly as a precedent: treat "does this session's new module require `04-domain-model` to be revisited?" as a standing checklist item for every future module-authoring session, not just when a gap is separately reported |
 | **New (Session 8)**: the Master Execution Plan is a 29-phase plan authored in one session without executing any phase — every "recommended resolution," complexity estimate, and dependency claim in it is a planning judgment, not a verified fact the way a frozen spec's own content is | A future session could treat the plan's estimates or recommended resolutions as settled decisions rather than proposals awaiting the same explicit confirmation this repository requires for every other proposed-not-applied change | Treat every "recommended" / "proposed" phrasing in the Master Execution Plan as exactly that — get explicit user confirmation before executing Phase 1's structure decision or any phase whose scope depends on it, the same discipline already applied to every additive-change proposal in Sessions 2–7 |
 | **New (Session 8)**: this file has grown to carry both the session-by-session progress log (Sessions 1–7 and onward) and the full Master Execution Plan in one document, now over 2,000 lines | A single very large file is harder to navigate and more prone to merge friction than smaller, focused documents | Not addressed this session (out of scope — the session's instruction was explicitly to consolidate into this one file); revisit if the file's size becomes an actual editing obstacle in a future session, at which point splitting the Master Execution Plan into its own file under `19-roadmap/` (with this file linking to it) is the natural mitigation |
-| **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`'
-  policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
+| **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
+| **New (Session 11)**: five additive changes `24-incident-issue-capa/01-*` proposed (`capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model`'s `INCIDENT` status-label amendment) remain unapplied | Until applied, none of the five citing modules can actually populate a `capa_ref_id` end-to-end, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 7/10 once both `POLICY` and `INCIDENT` are folded in) | Apply alongside `23-policy/01-*`'s own two still-unapplied proposals in one future explicitly-approved consolidation session, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 35 |
 
 ## Open Decisions
 
@@ -2341,12 +2486,29 @@ Carried forward from both authored specs — re-verify if stale:
   Execution Plan phase (unlike Phases 6–9, which are full module specs, this is a small,
   low-effort consolidation more like Phase 5's ADR backfill). Recommend bundling with Phase 7
   (`INCIDENT`/`ISSUE`/`CAPA`) or a future ADR-consolidation session, open for reconsideration.
-- **Order of next work** — with Phase 6 (`POLICY`) now complete, the choice is between Phase 7
-  (`INCIDENT`/`ISSUE`/`CAPA` — the most cross-referenced remaining context, five prior modules
-  already name it), Phase 8 (`THIRD-PARTY RISK`), Phase 9 (`BUSINESS CONTINUITY`), applying
-  `23-policy/01-*`'s two proposed additive changes, or the still-open persona-to-module-role/
-  `system.md §18` ADR consolidation (Phase 5). See Next Milestone below for the current
-  recommendation; open for reconsideration.
+  **Superseded by the Session 11 entry below**: `INCIDENT`/`ISSUE`/`CAPA` is now itself
+  complete and has its own additive changes to bundle alongside these.
+- **Resolved (Session 11)**: Master Execution Plan Phase 7 (`INCIDENT`/`ISSUE`/`CAPA`) is
+  complete —
+  [`24-incident-issue-capa/01-incident-issue-capa-management.md`](24-incident-issue-capa/01-incident-issue-capa-management.md)
+  is authored, module code `INCIDENT`. No longer open as a "which module next" question.
+- **New (Session 11), open**: **applying the now five proposed additive changes across
+  `23-policy/01-*` and `24-incident-issue-capa/01-*`** (`12-controls`' policy-link endpoint;
+  `capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on
+  `13-audit`/`09-security`; two `04-domain-model` status-label amendments, for `POLICY` and
+  `INCIDENT`) — tracked as Assumption 35 and a Risks row above; not yet scheduled as their own
+  Master Execution Plan phase. Recommend one future consolidation session applying all of
+  them together, the same low-effort pattern Session 7 already used for `09-security`'s three
+  proposals at once, open for reconsideration.
+- **Order of next work** — with Phases 6 (`POLICY`) and 7 (`INCIDENT`/`ISSUE`/`CAPA`) now
+  complete, the choice is between Phase 8 (`THIRD-PARTY RISK`), Phase 9
+  (`BUSINESS CONTINUITY`), applying the now five proposed additive changes above in one
+  consolidation session, or the still-open persona-to-module-role/`system.md §18` ADR
+  consolidation (Phase 5). **Current recommendation**: the additive-change consolidation
+  first (lowest effort, no new bounded context required, closes five open gap rows across two
+  traceability documents at once), then Phase 8 or Phase 9 depending on which seventh
+  remaining bounded context is preferred next — see Next Milestone below; open for
+  reconsideration.
 
 ## Traceability
 
