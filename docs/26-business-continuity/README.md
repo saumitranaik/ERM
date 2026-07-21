@@ -35,4 +35,11 @@ Controls section.
 
 ## Status
 
-Not yet authored.
+**Authored** — [`01-business-continuity-management.md`](01-business-continuity-management.md)
+(module code `BCP`), Session 13. Activates the `BUSINESS CONTINUITY` bounded context
+reserved above; the plan-vs-`12-controls`-test boundary is stated explicitly in that
+document's own Integration with Controls Management section, per Assumption 6. Six additive
+changes remain proposed, not applied, across `10-risk`, `12-controls`, `11-compliance`,
+`23-policy`, `13-audit`, and `24-incident-issue-capa`, plus a `04-domain-model`
+status-label amendment — see that document's own Dependencies and Future Extension Points
+sections.

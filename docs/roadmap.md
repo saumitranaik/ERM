@@ -21,9 +21,11 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — **ninth authoritative spec complete as of Session 12**
-(`25-third-party-risk/01-third-party-risk-management.md`, module code `TPR`; see the Session
-12 entry under Completed Work and Master Execution Plan Phase 8). The remainder of this
+**Phase**: Early specification phase — **tenth authoritative spec complete as of Session 13**
+(`26-business-continuity/01-business-continuity-management.md`, module code `BCP`; see the
+Session 13 entry under Completed Work and Master Execution Plan Phase 9) — the last remaining
+reserved business-domain bounded context in `04-domain-model`'s map besides `REPORTING`. The
+remainder of this
 paragraph and the next two are preserved as the Session 6–7 historical record of how the first
 six specs reached their current state. Session 6 closed the two remaining additive-change gaps
 from `11-compliance` (`10-risk`'s `Risk.source` enum gained `COMPLIANCE_OBLIGATION`;
@@ -47,14 +49,15 @@ redesigned by any of these corrections.
 **Repository state**: Scaffolding (all 22 original `docs/NN-*/README.md` section indexes plus
 `docs/reference/`, extended with `23-policy` through `27-user-experience` at Session 9) was
 already initialized and validated internally consistent against `CLAUDE.md` prior to Session
-1. **Nine authoritative specs now exist as of Session 12**: `RISK`, `CONTROLS`, the
-Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, and `TPR`.
-The Enterprise Domain Model's own Bounded Context Map, however, still names only five authored
-business-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five
-reserved contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
-`BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s, `INCIDENT`'s, and now `TPR`'s own
-status-label amendments are all proposed, not yet applied (Assumptions 33, 35, and 37) — ten
-total, all cross-references internally consistent. One traceability/assessment artifact
+1. **Ten authoritative specs now exist as of Session 13**: `RISK`, `CONTROLS`, the
+Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, and
+`BCP`. The Enterprise Domain Model's own Bounded Context Map, however, still names only five
+authored business-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus
+five reserved contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
+`BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s, `INCIDENT`'s, `TPR`'s, and now `BCP`'s own
+status-label amendments are all proposed, not yet applied (Assumptions 33, 35, 37, and the new
+Session 13 assumption below) — ten total, all cross-references internally consistent. One
+traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
 
@@ -927,6 +930,126 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
 - Updated this file (this entry; Phase Summary table and Phase 8's own detail entry marked
   complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
 
+### Session 13 — 2026-07-21
+
+- Reviewed `CLAUDE.md`, this file in full (all twelve prior session entries, the complete
+  Master Execution Plan, Assumptions, Risks, Open Decisions), the Enterprise Domain Model, and
+  all nine frozen specs (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`,
+  `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`) — specifically the Master
+  Execution Plan's Phase 9 entry, `04-domain-model`'s own `BUSINESS CONTINUITY (reserved)`
+  entry and anticipated-entities sketch (`ContinuityPlan`, `RecoveryObjective`,
+  `ContinuityTestResult`), `10-risk`'s original DR/BCP regulatory-driver flag, and
+  `12-controls`' seeded "Business Continuity & Disaster Recovery" control family — before
+  making any change, per explicit instruction. Treated all nine frozen specs as authoritative
+  inputs, not to be redesigned — none was modified.
+- Extracted and read, for the first time at clause-level precision, two regulatory sources:
+  the SEBI *Risk Management System* circular's own Appendix A, Part 1, item 1 ("Disaster
+  Recovery and Business Contingency Plans" — mandatory off-site backup, a regularly
+  tested/evaluated plan comprehensive across IT/infrastructure/personnel, and Day-1 critical-
+  function coverage: daily NAV calculation, redemption processing, outstanding trade
+  settlements), previously cited by `10-risk` only by section heading; and the Annexures'
+  System Audit Program Checklist item 8 "BUSINESS CONTINUITY PLANNING (BCP) & DISASTER
+  RECOVERY" (sub-items 8a–8f: BCP Organization — Committee, Head/Coordinator, Crisis
+  Management Team; BCP Methodology and Plan — BIA, RA, Strategy, Plan, BOD approval; BCP Plan
+  content — BIA including RTO/RPO and dependency identification, RA, an eleven-element
+  documented plan; BCP/DR testing — yearly review, table-top reviews, simulations, DR drills,
+  alternate-site recovery testing, system recovery testing; Communication and training; DR
+  Plan — recovery procedures, a DR site replicating production, redundancy, architecture
+  documentation), previously cited by `12-controls` only by existence, as the source of its
+  own seeded control family.
+- **Executed Master Execution Plan Phase 9 (Business Continuity Management Module)**: authored
+  the repository's **tenth authoritative specification**,
+  [`26-business-continuity/01-business-continuity-management.md`](26-business-continuity/01-business-continuity-management.md)
+  — module code `BCP`, activating the `BUSINESS CONTINUITY` bounded context `04-domain-model`
+  reserved since Session 3. Covers: `CriticalBusinessService` (aggregate root, criticality-
+  tiered, gated to `ACTIVE` by a mandatory `APPROVED` Business Impact Analysis, mirroring every
+  prior aggregate root's root/child governed-lifecycle shape); `BusinessImpactAnalysis`
+  (governed, updates the owning service's `current_rto_hours`/`current_rpo_hours`/
+  `current_mtpd_hours` on approval, mirroring `VendorAssessment`'s root-updating shape);
+  `CriticalServiceDependency` (upstream process, technology, vendor, personnel, facility);
+  `ContinuityStrategy` (governed recovery approach selection); `ContinuityPlan` (aggregate
+  root, `plan_type`-discriminated across `BCP`/`DR_PLAN`/`COMBINED` — unifying both per the
+  Annexures' own single-checklist-item framing, mirroring `23-policy`'s `document_type`
+  precedent) with `ContinuityPlanVersion` (mirrors `PolicyVersion` precisely, including its
+  `storage_ref`-based content design) and `ContinuityPlanReview` (mirrors `PolicyReview`
+  precisely, extended with a `POST_ACTIVATION` review type); `ContinuityPlanActivation`
+  (immediate, ungoverned crisis/DR-invocation record — the operational fact of a plan being
+  invoked, deliberately distinct from `INCIDENT`'s own incident lifecycle); `ContinuityExercise`
+  (governed, `exercise_type` seeded directly from Annexure 8 item 8d's own testing strategies,
+  recording RTO/RPO achievement and auto-creating a `ContinuityException` on failure, mirroring
+  `25-third-party-risk`'s SLA-breach auto-exception rule); and `ContinuityException`
+  (immediate-raise, governed-closure, mirroring `ControlException`/`ComplianceException`/
+  `PolicyException`/`VendorException` exactly). Fourteen tables total (2 reference, 12 core),
+  full security/authorization/audit/reporting/API surface.
+- **Resolved, rather than merely restated, `04-domain-model`'s own anticipated-entities
+  sketch and plan-vs-test-boundary recommendation for this context** — the two open questions
+  that document's own `BUSINESS CONTINUITY (reserved)` entry left for this spec to settle.
+  RTO/RPO/MTPD are modeled as columns on `CriticalBusinessService`, updated by an `APPROVED`
+  BIA, rather than a standalone `RecoveryObjective` entity (spec Assumption 5); the plan-vs-
+  `CONTROLS`-test boundary that document only recommended (`CONTROLS` keeps the effectiveness
+  decision, `BUSINESS CONTINUITY` owns the plan/targets) is adopted as this spec's actual
+  decision, realized as `ContinuityExercise`'s opaque `control_ref_id` corroborating (not
+  duplicating) the seeded "Business Continuity & Disaster Recovery" Control (spec Assumption
+  6) — the Master Execution Plan Phase 9 entry's own Success Criteria requirement.
+- **Being the tenth module authored, and the first authored after both `INCIDENT` and `TPR`
+  already existed, built two cross-module integrations directly rather than merely proposing
+  either — a first for this repository**: `ContinuityException.capa_ref_id` via `INCIDENT`'s
+  existing `POST /capa-requests`, and `CriticalServiceDependency.vendor_ref_id`/
+  `ContinuityStrategy.vendor_ref_id` via `TPR`'s existing `GET /vendors/{id}/reference` (spec
+  Assumption 9) — both with **zero** additive change. Also activated, with **zero** additive
+  change: `POLICY`'s `PolicyReferenceLink` (both directions, this module being its fourth
+  confirmed citing module); `SECURITY`'s `GET /policy-domains`, tagging its already-seeded
+  "Business Continuity and Disaster Recovery" Security Policy Domain — a domain `09-security`
+  itself seeded in Session 6, before this module existed; and the read-only resolution
+  directions of `12-controls`' and `11-compliance`'s existing reference APIs.
+- **Discovered a genuinely new kind of gap**: neither `11-compliance`'s `ObligationCategory`
+  nor `23-policy`'s `PolicyCategory` eight-category seed set has a slot fitting this module's
+  own primary regulatory driver (the DR/BCP mandate itself) — the first module to find its own
+  driver unhoused by either existing taxonomy (spec Assumption 15). Also discovered that
+  `24-incident-issue-capa` exposes no dedicated `GET /incidents/{id}/reference` endpoint (only
+  the full-detail `GET /incidents/{id}`) — the first proposal in this repository for a missing
+  reference-resolution *endpoint*, rather than a missing column on an existing one (spec
+  Assumption 10).
+- **Proposed, but did not apply, six further additive changes**, continuing the
+  propose-in-the-new-spec/apply-in-a-later-approved-session pattern this repository has now
+  used ten times: `Risk.source = BUSINESS_CONTINUITY` (`10-risk`); `Control.source =
+  BUSINESS_CONTINUITY` plus `module_controls_control_continuity_link`/
+  `POST /controls/{id}/continuity-links` (`12-controls`); a new "Technology & Operational
+  Resilience" `ObligationCategory` (`11-compliance`) and matching `PolicyCategory`
+  (`23-policy`); `AuditUniverseEntry.related_critical_service_ref_id` (`13-audit`) — activating
+  that table's already-live `entry_type = PROCESS` value with a real link; a
+  `GET /incidents/{id}/reference` endpoint (`24-incident-issue-capa`). **Proposed, but did not
+  apply, the `04-domain-model` `BUSINESS CONTINUITY` `(reserved)` → `(authored)` status-label
+  amendment.** **No change was made to `10-risk/01-*.md`, `12-controls/01-*.md`,
+  `11-compliance/01-*.md`, `23-policy/01-*.md`, `13-audit/01-*.md`,
+  `24-incident-issue-capa/01-*.md`, or `04-domain-model/01-*.md`** by this session.
+- Updated [`26-business-continuity/README.md`](26-business-continuity/README.md) status to
+  reflect the authored spec.
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  with the Business Continuity spec's Business↔Regulatory, Capability↔PRSMTD, and
+  Requirement↔Spec entries — adding the Business Continuity row, closing the module's own gap
+  row (and splitting it from the still-open platform-level-DR/BCP gap owed to `18-deployment`),
+  adding six new proposed-not-applied additive-change gap rows plus the `04-domain-model`
+  status-label amendment, and a Session 13 Status paragraph.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary, Scope and Method, Question 2, Platform Capability Matrix (`Business
+  Continuity`: Not Started → Planned), Compliance Coverage Matrix (new RMS-circular Appendix A
+  Part 1 item 1 row; System Audit Checklist §§1–8 row updated; ISO 22301 row updated to
+  Specified), Control-Level Matrix (`+2` rows; ISO 22301 row updated), Enterprise Capability
+  Matrix (`Business Continuity` row), Regulatory Readiness Matrix (SEBI rows; ISO 22301 moved
+  to Partially Ready; NIST CSF Recover note), Gap Assessment (`BUSINESS CONTINUITY` gap row
+  closed; two new gap rows added, one of which bundles this session's six additive-change
+  proposals), Roadmap Validation, Specification Progress Matrix (`+1` row), Repository
+  Maturity, and Percentage Completion. **Specification Completion stays at 5/10 = 50%** — none
+  of `POLICY`'s, `INCIDENT`'s, `TPR`'s, or `BCP`'s `04-domain-model` status-label amendments is
+  applied yet; the document now explicitly notes it becomes 9/10 = 90% once all four land —
+  the only remaining reserved context at that point being `REPORTING`. Platform Capability
+  Completion moves from 7/10/7 to 7/11/6 (out of 24), since `Business Continuity` is the only
+  row whose status changed this session.
+- Updated this file (this entry; Phase Summary table and Phase 9's own detail entry marked
+  complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -1021,7 +1144,7 @@ a future session.
 | 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) — **Complete, Session 10** | Yes | Yes (`04-domain-model`, proposed; `12-controls`, proposed) | High | Phase 1 |
 | 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module (`INCIDENT`) — **Complete, Session 11** | Yes | Yes (`04-domain-model`, proposed; `12-controls`/`11-compliance`/`23-policy`, proposed; `13-audit`/`09-security`, proposed endpoint only) | High | Phase 1 |
 | 8 | 1 — Remaining Modules | Third-Party Risk Management Module (`TPR`) — **Complete, Session 12** | Yes | Yes (`04-domain-model`, proposed; `10-risk`/`12-controls`/`11-compliance`/`09-security`/`13-audit`/`24-incident-issue-capa`, proposed) | High | Phase 1 |
-| 9 | 1 — Remaining Modules | Business Continuity Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
+| 9 | 1 — Remaining Modules | Business Continuity Management Module (`BCP`) — **Complete, Session 13** | Yes | Yes (`04-domain-model`, proposed; `10-risk`/`12-controls`/`11-compliance`/`23-policy`/`13-audit`/`24-incident-issue-capa`, proposed) | High | Phase 1 |
 | 10 | 1 — Remaining Modules | Records Retention Schedule Capability | No | Yes (five frozen specs) | Medium | None |
 | 11 | 2 — Reporting/AI/Integration/Deployment | Reporting & Analytics Module (`14-reporting`, `15-analytics`) | Yes | No | High | All six frozen specs; Phases 6–9 (partial) |
 | 12 | 2 — Reporting/AI/Integration/Deployment | AI Governance Specification (`16-ai`) | Yes | No | Medium | Phase 11 (metric catalog) |
@@ -1478,8 +1601,16 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
   `24-incident-issue-capa`; the `04-domain-model` status-label amendment likewise proposed, not
   applied. See the Session 12 entry under Completed Work for the full account.
 
-#### Phase 9 — Business Continuity Management Module
+#### Phase 9 — Business Continuity Management Module — **Complete, Session 13**
 
+- **Status**: Complete. Authored
+  [`26-business-continuity/01-business-continuity-management.md`](26-business-continuity/01-business-continuity-management.md)
+  (module code `BCP`). The plan-vs-test boundary against `12-controls`' seeded "Business
+  Continuity & Disaster Recovery" control family is stated explicitly in that document's own
+  Integration with Controls Management section (spec Assumption 6): `CONTROLS` keeps the
+  effectiveness pass/fail decision; `BCP` owns the plan and RTO/RPO targets, corroborated via
+  `ContinuityExercise.control_ref_id`. See the Session 13 entry under Completed Work for the
+  full account.
 - **Objective**: Author the `BUSINESS CONTINUITY` bounded context — the *plan* side of the
   SEBI DR/BCP mandate first flagged by `10-risk` (Session 1) and repeatedly named since; note
   this is explicitly **not** duplicate work against `12-controls`' existing BCP/DR control
@@ -1510,11 +1641,11 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
   opaque reference).
 - **Traceability updates required**: Same shape as Phase 6; also closes the "Disaster Recovery /
   Business Contingency Plan" gap row already named in `01-master-traceability-matrix.md`'s
-  Requirement ↔ Spec Matrix.
+  Requirement ↔ Spec Matrix. **Done — Session 13.**
 - **Compliance Assessment updates required**: Same shape as Phase 6 (`Business Continuity` row);
   also updates the Compliance Coverage Matrix's System Audit Program Checklist row (BCP/DR),
-  which currently reads "still needed for the plan/RTO-RPO side."
-- **Roadmap updates required**: Same shape as Phase 6.
+  which currently reads "still needed for the plan/RTO-RPO side." **Done — Session 13.**
+- **Roadmap updates required**: Same shape as Phase 6. **Done — Session 13.**
 
 #### Phase 10 — Records Retention Schedule Capability
 
@@ -2569,6 +2700,48 @@ Carried forward from both authored specs — re-verify if stale:
     `*_VIEW` permission is reliably caller-agnostic; a `POST .../references` mirror-registration
     endpoint is reliably caller-agnostic only where its owning spec says so explicitly
     (`POLICY`'s does; `CONTROLS`'/`COMPLIANCE`'s do not, as documented in their own text).
+40. **New (Session 13)**: `26-business-continuity/01-*` proposes, but does not apply, six
+    additive changes across six frozen specs — `Risk.source = BUSINESS_CONTINUITY` (`10-risk`,
+    no `RiskCategory` taxonomy change needed, since "Failure of Mission-Critical Systems &
+    Infrastructure" under "Operations" has been seeded since Session 1); `Control.source =
+    BUSINESS_CONTINUITY` plus a `module_controls_control_continuity_link` table and
+    `POST /controls/{id}/continuity-links` endpoint (`12-controls`); a new "Technology &
+    Operational Resilience" `ObligationCategory` (`11-compliance`) and matching `PolicyCategory`
+    (`23-policy`) — the first module to discover its own primary regulatory driver has no
+    fitting slot in either existing eight-category taxonomy; `AuditUniverseEntry.
+    related_critical_service_ref_id` (`13-audit`) — activating that table's already-live
+    `entry_type = PROCESS` value with a real link; a `GET /incidents/{id}/reference` endpoint
+    (`24-incident-issue-capa`) — the first proposal in this repository for a genuinely missing
+    reference-resolution endpoint, not a missing column on an existing one. Plus the
+    `04-domain-model` `BUSINESS CONTINUITY` `(reserved)` → `(authored)` status-label amendment.
+    Combined with `23-policy`'s own two still-unapplied proposals (Assumption 33),
+    `24-incident-issue-capa`'s five (Assumption 35), and `25-third-party-risk`'s six (Assumption
+    37), this repository now carries **seventeen** open proposed-not-applied additive changes
+    across `10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`, `23-policy`,
+    `24-incident-issue-capa`, plus **four** open `04-domain-model` status-label amendments
+    (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`) — a natural single future
+    consolidation session's worth of work, the same discipline Session 7 already applied once
+    for `09-security`'s three proposals together.
+41. **New (Session 13)**: `26-business-continuity/01-*` resolves, rather than merely restates,
+    `04-domain-model`'s own `BUSINESS CONTINUITY (reserved)` anticipated-entities sketch
+    (`ContinuityPlan`, `RecoveryObjective`, `ContinuityTestResult`) and its plan-vs-test-
+    boundary recommendation. RTO/RPO/MTPD become columns on the new `CriticalBusinessService`
+    aggregate root (updated by a governed Business Impact Analysis), not a standalone
+    `RecoveryObjective` entity; the plan-vs-`CONTROLS`-test boundary that document only
+    recommended is adopted as the actual decision (`CONTROLS` keeps the effectiveness call,
+    `BCP` owns the plan/targets, corroborated via `ContinuityExercise.control_ref_id`). Proposed,
+    not applied, as a `04-domain-model` closing note alongside that document's own status-label
+    amendment (Assumption 40).
+42. **New (Session 13)**: being the tenth module authored, and the first authored after both
+    `INCIDENT` and `TPR` already existed, `26-business-continuity/01-*` is the first module in
+    this repository to build **two** cross-module integrations directly rather than merely
+    propose either, in the same spec: `ContinuityException.capa_ref_id` via `INCIDENT`'s
+    existing `POST /capa-requests`, and `CriticalServiceDependency.vendor_ref_id`/
+    `ContinuityStrategy.vendor_ref_id` via `TPR`'s existing `GET /vendors/{id}/reference`. It
+    also activated, with zero additive change, `POLICY`'s `PolicyReferenceLink` (its fourth
+    confirmed citing module) and `SECURITY`'s already-seeded "Business Continuity and Disaster
+    Recovery" Security Policy Domain tag via `GET /policy-domains` — a domain `09-security`
+    itself seeded in Session 6, before this module existed, requiring no coordination at all.
 
 ## Risks
 
@@ -2590,6 +2763,7 @@ Carried forward from both authored specs — re-verify if stale:
 | **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
 | **New (Session 11)**: five additive changes `24-incident-issue-capa/01-*` proposed (`capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model`'s `INCIDENT` status-label amendment) remain unapplied | Until applied, none of the five citing modules can actually populate a `capa_ref_id` end-to-end, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 7/10 once both `POLICY` and `INCIDENT` are folded in) | Apply alongside `23-policy/01-*`'s own two still-unapplied proposals in one future explicitly-approved consolidation session, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 35 |
 | **New (Session 12)**: six additive changes `25-third-party-risk/01-*` proposed (`Risk.source = THIRD_PARTY` on `10-risk`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint on `12-controls`; an obligation mirror-registration extension on `11-compliance`; `SecurityFinding.linked_vendor_id` on `09-security`; `AuditUniverseEntry.related_vendor_ref_id` on `13-audit`; `Incident.vendor_ref_id` on `24-incident-issue-capa`) remain unapplied, plus a third open `04-domain-model` status-label amendment (`THIRD-PARTY RISK`) | Until applied, `TPR` cannot seed a Risk register entry, a Control, or a Security Finding end-to-end via a structured reference, `AUDIT`'s `VENDOR`-type universe entries and `INCIDENT`'s "Third-Party / Vendor" category cannot resolve to a real Vendor record, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 8/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK` are all folded in) | Apply alongside `23-policy/01-*`'s and `24-incident-issue-capa/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all eleven additive changes and three status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 37 |
+| **New (Session 13)**: six additive changes `26-business-continuity/01-*` proposed (`Risk.source = BUSINESS_CONTINUITY` on `10-risk`; `Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint on `12-controls`; a new "Technology & Operational Resilience" `ObligationCategory` on `11-compliance` and matching `PolicyCategory` on `23-policy`; `AuditUniverseEntry.related_critical_service_ref_id` on `13-audit`; a `GET /incidents/{id}/reference` endpoint on `24-incident-issue-capa`) remain unapplied, plus a fourth open `04-domain-model` status-label amendment (`BUSINESS CONTINUITY`) | Until applied, `BCP` cannot seed a Risk register entry or a Control end-to-end via a structured reference, its Continuity Plan cannot cite a Compliance obligation or Policy category built specifically for the DR/BCP mandate, `AUDIT`'s `PROCESS`-type universe entries cannot resolve to a real Critical Business Service, `INCIDENT`'s own records remain unresolvable through a dedicated reference endpoint, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 9/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK`/`BUSINESS CONTINUITY` are all folded in) | Apply alongside `23-policy/01-*`'s, `24-incident-issue-capa/01-*`'s, and `25-third-party-risk/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all seventeen additive changes and four status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 40 |
 
 ## Open Decisions
 
@@ -2686,15 +2860,37 @@ Carried forward from both authored specs — re-verify if stale:
   Execution Plan phase. Recommend one future consolidation session applying all of them
   together, the same low-effort pattern Session 7 already used for `09-security`'s three
   proposals at once, open for reconsideration.
-- **Order of next work** — with Phases 6 (`POLICY`), 7 (`INCIDENT`/`ISSUE`/`CAPA`), and 8
-  (`THIRD-PARTY RISK`) now complete, the choice is between Phase 9 (`BUSINESS CONTINUITY`),
-  applying the now eleven proposed additive changes above in one consolidation session, or the
-  still-open persona-to-module-role/`system.md §18` ADR consolidation (Phase 5). **Current
-  recommendation**: the additive-change consolidation first (lowest effort, no new bounded
-  context required, closes eleven open gap rows plus three status-label amendments across two
-  traceability documents at once), then Phase 9 (`BUSINESS CONTINUITY`) — the last remaining
-  reserved business-domain bounded context in `04-domain-model`'s map besides `REPORTING` —
+- **Resolved (Session 13)**: Master Execution Plan Phase 9 (`BUSINESS CONTINUITY`) is complete —
+  [`26-business-continuity/01-business-continuity-management.md`](26-business-continuity/01-business-continuity-management.md)
+  is authored, module code `BCP` — the last remaining reserved business-domain bounded context
+  in `04-domain-model`'s map besides `REPORTING`. No longer open as a "which module next"
+  question for the business-domain module set.
+- **New (Session 13), open**: **applying the now seventeen proposed additive changes across
+  `23-policy/01-*`, `24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`, and
+  `26-business-continuity/01-*`** (`12-controls`' policy-link endpoint; `capa_ref_id` on
+  `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`;
+  `Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint;
+  an obligation mirror-registration extension; `SecurityFinding.linked_vendor_id`;
+  `AuditUniverseEntry.related_vendor_ref_id`; `Incident.vendor_ref_id`;
+  `Risk.source = BUSINESS_CONTINUITY`; `Control.source = BUSINESS_CONTINUITY` plus a
+  continuity-link endpoint; a "Technology & Operational Resilience" `ObligationCategory` and
+  matching `PolicyCategory`; `AuditUniverseEntry.related_critical_service_ref_id`; a
+  `GET /incidents/{id}/reference` endpoint; four `04-domain-model` status-label amendments, for
+  `POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, and `BUSINESS CONTINUITY`) — tracked as the new
+  Session 13 Assumption and a Risks row above; not yet scheduled as its own Master Execution
+  Plan phase. Recommend one future consolidation session applying all of them together, the
+  same low-effort pattern Session 7 already used for `09-security`'s three proposals at once,
   open for reconsideration.
+- **Order of next work** — with Phases 6 (`POLICY`), 7 (`INCIDENT`/`ISSUE`/`CAPA`), 8
+  (`THIRD-PARTY RISK`), and 9 (`BUSINESS CONTINUITY`) now complete, every reserved
+  business-domain bounded context in `04-domain-model`'s map is authored except `REPORTING`.
+  The choice is between applying the now seventeen proposed additive changes above in one
+  consolidation session, the still-open persona-to-module-role/`system.md §18` ADR
+  consolidation (Phase 5), or Phase 11 (`REPORTING`/`ANALYTICS`, the last reserved context).
+  **Current recommendation**: the additive-change consolidation first (lowest effort, no new
+  bounded context required, closes seventeen open gap rows plus four status-label amendments
+  across two traceability documents at once), then either Phase 5 or Phase 11, open for
+  reconsideration.
 
 ## Traceability
 
