@@ -22,4 +22,14 @@ cadence, and in what format.
 
 ## Status
 
-Not yet authored.
+**Complete — Session 14 (2026-07-21).** Authored
+[`01-reporting-management.md`](01-reporting-management.md) — module code `REPORTING`, the
+eleventh authoritative specification and the tenth and final bounded context
+[`04-domain-model/01-enterprise-domain-model.md`](../04-domain-model/01-enterprise-domain-model.md#reporting-reserved)
+reserves. Covers the report/dashboard catalogue (69 seeded reports across nine source modules
+plus six new cross-module reports), field-level provenance (`ReportFieldMapping`,
+`ReportCitation`), on-demand report generation, approval-before-submission governance for
+regulator/board-facing reports, distribution record-keeping, and evidence-ready export
+construction. `15-analytics/` (KPI/metric catalog, dashboard visualization composition) remains
+explicitly deferred — see that section's own README and `01-reporting-management.md`
+Assumption 16.

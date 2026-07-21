@@ -27,13 +27,14 @@ for it. It does not certify legal or regulatory compliance — see
   and `PRSMTD/modules/` (directory listing: only `contacts` and `module-template` exist).
   Nothing here is assumed from a prior session's memory without this session's re-check.
 - **ERM verification**: every claim about what the ERM specifications provide is drawn from
-  the ten currently authored, frozen documents — `04-domain-model/01-*`, `10-risk/01-*`,
+  the eleven currently authored, frozen documents — `04-domain-model/01-*`, `10-risk/01-*`,
   `12-controls/01-*`, `11-compliance/01-*`, `13-audit/01-*`, `09-security/01-*`,
   `23-policy/01-*`, `24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`,
-  `26-business-continuity/01-*` — and their Traceability blocks as aggregated in
-  `01-master-traceability-matrix.md`. The reserved-but-unauthored `REPORTING` bounded context is
-  treated as **not specified** — a boundary and relationship type being reserved in
-  `04-domain-model` is not the same as a functional/data-model specification existing.
+  `26-business-continuity/01-*`, `14-reporting/01-*` — and their Traceability blocks as
+  aggregated in `01-master-traceability-matrix.md`. The reserved-but-unauthored `15-analytics`
+  KPI/metric-catalog and dashboard-visualization layer is treated as **not specified** — a
+  boundary being reserved in `04-domain-model`/`14-reporting/01-*` is not the same as a
+  functional/data-model specification existing.
 - **Ratings are never merged across the "already built" / "specified but unbuilt" / "not
   specified" axis anywhere in this document**, per the explicit instruction this assessment
   was commissioned under.
@@ -47,9 +48,11 @@ for it. It does not certify legal or regulatory compliance — see
   reflect the newly authored
   `24-incident-issue-capa/01-incident-issue-capa-management.md`, again in Session 12
   (2026-07-21) to reflect the newly authored
-  `25-third-party-risk/01-third-party-risk-management.md`, and again in Session 13
+  `25-third-party-risk/01-third-party-risk-management.md`, again in Session 13
   (2026-07-21) to reflect the newly authored
-  `26-business-continuity/01-business-continuity-management.md` — **only the sections those
+  `26-business-continuity/01-business-continuity-management.md`, and again in Session 14
+  (2026-07-21) to reflect the newly authored
+  `14-reporting/01-reporting-management.md` — **only the sections those
   changes affect were updated**; all other analysis is preserved unchanged from prior
   sessions. Both PRSMTD and the ERM specification set will keep changing — see
   `docs/roadmap.md` Risks register for the staleness risk this snapshot carries, and
@@ -60,15 +63,15 @@ for it. It does not certify legal or regulatory compliance — see
 | Dimension | Assessment |
 |---|---|
 | **Current PRSMTD maturity** | Mature, well-documented **generic multi-tenant governance platform substrate** (identity/tenancy, maker-checker governance ledger, RBAC, module framework with strict ownership guards, audit/observability trace contract, authentication). **Zero GRC-domain business capability** — no risk, control, compliance, or audit module exists in PRSMTD today; only a `contacts` reference module and a scaffolding template. |
-| **Current ERM specification maturity** | Ten authoritative ERM specifications now exist: `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`, plus the cross-cutting `04-domain-model` that ties them together. `04-domain-model`'s own Bounded Context Map, however, still labels five contexts "authored" (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) — `POLICY`'s, `INCIDENT`'s, `TPR`'s, and now `BCP`'s status-label amendments are all proposed, not yet applied (the same lag `SECURITY` itself had between Sessions 6 and 7), so [Percentage Completion](#percentage-completion) deliberately keeps counting 5/10 until those amendments land. **Session 6 authored the sixth authoritative spec**, [`09-security/01-security-management.md`](../09-security/01-security-management.md) (module code `SECURITY`); **Session 7 closed that gap**. **Session 10 authored the seventh authoritative spec**, [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) (module code `POLICY`). **Session 11 authored the eighth authoritative spec**, [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md) (module code `INCIDENT`). **Session 12 authored the ninth authoritative spec**, [`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md) (module code `TPR`). **Session 13 authored the tenth authoritative spec**, [`26-business-continuity/01-business-continuity-management.md`](../26-business-continuity/01-business-continuity-management.md) (module code `BCP`) — critical business service identification, Business Impact Analysis, RTO/RPO, dependency mapping, continuity strategy, a governed BCP/DR plan lifecycle, crisis/DR activation recording, continuity exercises/testing, and corrective-action tracking, grounded in the SEBI Risk Mgmt circular's own Appendix A Part 1 item 1 mandate and the Annexures' System Audit Program Checklist item 8, both mined at clause level for the first time. Being the tenth module, it is the first to build **two** integrations directly rather than merely propose either (`INCIDENT`'s `POST /capa-requests`, `TPR`'s `GET /vendors/{id}/reference`), plus activates `POLICY`'s and `SECURITY`'s reference/tag resolution and `CONTROLS`'/`COMPLIANCE`'s read directions with zero additive change, and proposes six further additive changes plus its own `04-domain-model` status-label amendment. |
-| **Combined platform maturity** | If the nine authored GRC specs were implemented today, an AMC would have a genuinely governed risk register, control library, compliance obligation register, internal/system audit capability, cybersecurity governance capability, a governed policy management capability, a governed incident/issue/CAPA capability, a governed third-party risk capability (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, periodic reassessment), and a governed business continuity capability (critical service register, BIA, RTO/RPO, dependency mapping, continuity strategy, BCP/DR plan lifecycle, crisis activation, exercises/testing, exceptions) — but no reporting/analytics layer, no binary evidence storage, and no SIEM/automated threat-detection capability. See [Percentage Completion](#percentage-completion). |
-| **Regulatory readiness** | **Partially ready** for the SEBI Mutual Fund regulatory profile specifically (Risk Management System circular — including, as of Session 13, its own mandatory DR/BCP practice — Master Circular Annexures operational/financial/IT/cyber/compliance-risk/audit/outsourcing-risk/BCP-DR sections, the Cyber Security and Cyber Resilience Framework's governance layer via `SECURITY`, formal policy authorship/acknowledgement via `POLICY`, structured incident/CAPA remediation via `INCIDENT`, governed vendor/outsourcing oversight via `TPR`, and now governed business continuity via `BCP`) if the nine specs were implemented. **Not ready** for DPDP Act, CERT-In Directions, Companies Act, or Income Tax — none is addressed by any current spec, though `INCIDENT` now supplies the incident-timeline substrate a future CERT-In filing obligation would need to cite. **Early-stage, architecturally-compatible-only** for ISO 27001/27701/31000, COBIT, and NIST CSF — no ERM spec explicitly cites or maps to any of these. **ISO 22301 moves from Early Stage to Partially Mapped** — `BCP` is not an explicit ISO 22301 crosswalk, but its BIA/RTO/RPO/continuity-plan/exercise model is structurally the closest any ERM spec has come to an international standard's own vocabulary to date; see [Regulatory Readiness Matrix](#regulatory-readiness-matrix). |
+| **Current ERM specification maturity** | Eleven authoritative ERM specifications now exist: `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`, `REPORTING`, plus the cross-cutting `04-domain-model` that ties them together. `04-domain-model`'s own Bounded Context Map, however, still labels five contexts "authored" (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) — `POLICY`'s, `INCIDENT`'s, `TPR`'s, `BCP`'s, and now `REPORTING`'s status-label amendments are all proposed, not yet applied (the same lag `SECURITY` itself had between Sessions 6 and 7), so [Percentage Completion](#percentage-completion) deliberately keeps counting 5/10 until those amendments land. **Session 6 authored the sixth authoritative spec**, [`09-security/01-security-management.md`](../09-security/01-security-management.md) (module code `SECURITY`); **Session 7 closed that gap**. **Session 10 authored the seventh authoritative spec**, [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) (module code `POLICY`). **Session 11 authored the eighth authoritative spec**, [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md) (module code `INCIDENT`). **Session 12 authored the ninth authoritative spec**, [`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md) (module code `TPR`). **Session 13 authored the tenth authoritative spec**, [`26-business-continuity/01-business-continuity-management.md`](../26-business-continuity/01-business-continuity-management.md) (module code `BCP`). **Session 14 authored the eleventh and final authoritative spec named in `04-domain-model`'s own Bounded Context Map**, [`14-reporting/01-reporting-management.md`](../14-reporting/01-reporting-management.md) (module code `REPORTING`) — a report/dashboard catalogue (69 seeded reports: 63 consolidating every source module's own deferred Reporting Requirements section, 6 genuinely new cross-module reports), field-level provenance mapping, on-demand report generation with opt-in approval-before-submission governance, and distribution record-keeping. Unlike every prior module, `REPORTING` originates no business fact of its own — a pure Conformist/read-model layer over all nine other business-domain modules — and is the first module whose manifest depends on all nine of them at once while no module depends on it in return. `15-analytics` (KPI/metric catalog, dashboard visualization composition) remains explicitly deferred to a future phase. |
+| **Combined platform maturity** | If the ten authored GRC specs were implemented today, an AMC would have a genuinely governed risk register, control library, compliance obligation register, internal/system audit capability, cybersecurity governance capability, a governed policy management capability, a governed incident/issue/CAPA capability, a governed third-party risk capability, a governed business continuity capability, **and now a reporting capability** that consolidates every one of those nine modules' own deferred reporting obligation into a seeded catalogue with field-level provenance and evidence-ready export construction — but still no KPI/metric catalog or interactive dashboard visualization layer (`15-analytics`, deferred), no binary evidence storage, no scheduled-job/batch report execution, no generic export-rendering pipeline, and no SIEM/automated threat-detection capability. See [Percentage Completion](#percentage-completion). |
+| **Regulatory readiness** | **Partially ready** for the SEBI Mutual Fund regulatory profile specifically (Risk Management System circular — including its own mandatory DR/BCP practice — Master Circular Annexures operational/financial/IT/cyber/compliance-risk/audit/outsourcing-risk/BCP-DR sections, the Cyber Security and Cyber Resilience Framework's governance layer via `SECURITY`, formal policy authorship/acknowledgement via `POLICY`, structured incident/CAPA remediation via `INCIDENT`, governed vendor/outsourcing oversight via `TPR`, governed business continuity via `BCP`, and now — for the first time — a concrete mechanism, `REPORTING`, for actually producing and evidencing the quarterly/half-yearly Board/Trustee/SEBI filings every one of those modules only ever named as an obligation) if the ten specs were implemented. **Not ready** for DPDP Act, CERT-In Directions, Companies Act, or Income Tax — none is addressed by any current spec. **Early-stage, architecturally-compatible-only** for ISO 27001/27701/31000, COBIT, and NIST CSF. **ISO 22301** remains Partially Mapped via `BCP`; see [Regulatory Readiness Matrix](#regulatory-readiness-matrix). |
 | **Compliance readiness** | Same as regulatory readiness — this document does not distinguish the two terms further; see [Regulatory Readiness Matrix](#regulatory-readiness-matrix). |
-| **Architecture maturity** | High for what exists: every authored spec follows one shared-kernel modeling pattern (`04-domain-model`'s taxonomy shape, governed-lifecycle shape, opaque-reference shape, code-sequence shape). `13-audit` activated its primary cross-context integrations with **zero** additive changes required to any frozen prior spec; `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`, and now `26-business-continuity` each activated a majority of theirs the same way — a leading indicator that the shared kernel is working as intended, strengthening with each successive module rather than degrading. `BCP` is the first module to build two cross-module integrations directly (not merely propose either) in the same spec, and is also the first to discover a genuine gap in two already-established taxonomies at once (`ObligationCategory`/`PolicyCategory` both lack a Technology & Operational Resilience slot) rather than reusing an existing one — a more precise integration-risk finding than any prior module made. |
-| **Implementation readiness** | Each of the ten authored specs is implementation-ready on its own terms (concrete tables, states, APIs, role/permission names) but **none has been implemented in PRSMTD** — this repository is specification-only by design (`CLAUDE.md`). The two small, precisely-scoped additive changes `11-compliance` proposed are applied (Session 6); the three `09-security/01-*` proposed are applied (Session 7). **Seventeen additive changes remain proposed, not applied, as of this session**: `23-policy/01-*`'s `12-controls` policy-link extension and `04-domain-model` `POLICY` status-label amendment; `24-incident-issue-capa/01-*`'s `capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`, its two initiating-endpoint-only proposals to `13-audit`/`09-security`, and its own `04-domain-model` `INCIDENT` status-label amendment; `25-third-party-risk/01-*`'s `Risk.source = THIRD_PARTY` (`10-risk`), `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint (`12-controls`), an obligation mirror-registration extension (`11-compliance`), `SecurityFinding.linked_vendor_id` (`09-security`), `AuditUniverseEntry.related_vendor_ref_id` (`13-audit`), `Incident.vendor_ref_id` (`24-incident-issue-capa`), and its own `04-domain-model` `THIRD-PARTY RISK` status-label amendment; `26-business-continuity/01-*`'s `Risk.source = BUSINESS_CONTINUITY` (`10-risk`), `Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint (`12-controls`), a "Technology & Operational Resilience" `ObligationCategory` (`11-compliance`) and matching `PolicyCategory` (`23-policy`), `AuditUniverseEntry.related_critical_service_ref_id` (`13-audit`), a `GET /incidents/{id}/reference` endpoint (`24-incident-issue-capa`), and its own `04-domain-model` `BUSINESS CONTINUITY` status-label amendment. |
-| **Highest strength** | The governance-ledger/maker-checker substrate (PRSMTD, Built) plus the immediate-raise/governed-closure exception pattern (ERM, Specified across eight modules now, including `INCIDENT`'s own `Issue`/generalized `Escalation`, `TPR`'s own `VendorException`, and `BCP`'s own `ContinuityException`) together give every governed GRC decision — risk acceptance, control sign-off, compliance exception closure, audit finding closure, policy exception closure, CAPA closure verification, vendor exception closure, continuity exception closure — the same real, auditable, SoD-enforced approval mechanism with zero bespoke code per module. |
-| **Highest risk** | The platform document/object storage capability gap, first flagged at `12-controls` and now inherited by `COMPLIANCE`, `AUDIT`, `POLICY`, `INCIDENT`, `TPR`, and `BCP` unchanged: every evidence-bearing control, obligation, audit finding, published policy version, incident/CAPA record, vendor due-diligence/assessment record, and continuity plan/BIA/exercise record in this repository's design can be fully governed and metadata-tracked, but **cannot yet retain the actual binary evidence/content** an auditor or regulator would expect to retrieve, except for `AUDIT`'s system-trace-extract evidence path (system.md §4.1), which covers only evidence that is itself a platform-trace citation. |
-| **Recommended next module** | Session 13 completed the `BUSINESS CONTINUITY` module (`docs/roadmap.md` Master Execution Plan Phase 9) — the last remaining reserved business-domain bounded context in `04-domain-model`'s map besides `REPORTING`. See `docs/roadmap.md`'s updated Next Milestone / Master Execution Plan for the current recommendation — applying the now seventeen proposed-not-applied additive changes across `23-policy`/`24-incident-issue-capa`/`25-third-party-risk`/`26-business-continuity` in one consolidation session, the persona-to-module-role/`system.md §18` ADR consolidation, or Phase 11 (`REPORTING`/`ANALYTICS`). |
+| **Architecture maturity** | High for what exists: every authored spec follows one shared-kernel modeling pattern (`04-domain-model`'s taxonomy shape, governed-lifecycle shape, opaque-reference shape, code-sequence shape). `REPORTING` activated seven of its nine source-module integrations with **zero** additive change — consuming, not extending, the shared kernel — and is the first module to discover that `RISK` itself (this repository's very first module) has never needed to expose a point-citation endpoint for its own entities, and that `AUDIT` (designed from its own authoring as a pure consumer/sink) has never needed to either. Both are precisely-scoped, low-effort gaps, the same class of finding `26-business-continuity` made for its own taxonomy gap, not evidence of a structural flaw. |
+| **Implementation readiness** | Each of the eleven authored specs is implementation-ready on its own terms (concrete tables, states, APIs, role/permission names) but **none has been implemented in PRSMTD** — this repository is specification-only by design (`CLAUDE.md`). **Nineteen additive changes remain proposed, not applied, as of this session**: the seventeen already carried from `23-policy`/`24-incident-issue-capa`/`25-third-party-risk`/`26-business-continuity` (see prior sessions' entries below), plus two new ones from `14-reporting/01-*`: `GET /risks/{id}/reference` on `10-risk`, and `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`. **Five `04-domain-model` status-label amendments now await one future consolidation session** (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, and now `REPORTING`). |
+| **Highest strength** | The governance-ledger/maker-checker substrate (PRSMTD, Built) plus the immediate-raise/governed-closure exception pattern (ERM, Specified across nine business-domain modules) together give every governed GRC decision the same real, auditable, SoD-enforced approval mechanism with zero bespoke code per module — and `REPORTING` now gives every one of those decisions, once generated into a Report Instance, a fully reconstructable, field-level provenance trail (`ReportCitation`) independent of whether the platform's still-open document/object-storage gap is ever closed. |
+| **Highest risk** | The platform document/object storage capability gap, first flagged at `12-controls` and now inherited by `COMPLIANCE`, `AUDIT`, `POLICY`, `INCIDENT`, `TPR`, and `BCP` unchanged: every evidence-bearing record in this repository's design can be fully governed and metadata-tracked, but **cannot yet retain the actual binary evidence/content** an auditor or regulator would expect to retrieve — except `AUDIT`'s system-trace-extract evidence path and, as of this session, `REPORTING`'s own `content_summary`-based instances, both of which deliberately do not depend on this gap. |
+| **Recommended next module** | Session 14 completed the `REPORTING` module (`docs/roadmap.md` Master Execution Plan Phase 11) — the last remaining reserved business-domain bounded context in `04-domain-model`'s map. See `docs/roadmap.md`'s updated status for the current recommendation — applying the now nineteen proposed-not-applied additive changes and five `04-domain-model` status-label amendments in one consolidation session, the persona-to-module-role/`system.md §18` ADR consolidation, or Phase 12 (`16-ai` AI Governance, which now has a metric catalog it can build on once `15-analytics` exists) / a future `15-analytics` phase. |
 
 ## Question 1 — PRSMTD Platform As-Is
 
@@ -114,8 +117,8 @@ enumeration.
 ## Question 2 — Combined PRSMTD + Current ERM Specifications
 
 If every currently-authored ERM specification (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`,
-`SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`, `04-domain-model`) were implemented into
-PRSMTD:
+`SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`, `REPORTING`, `04-domain-model`) were implemented
+into PRSMTD:
 
 **Additional controls that would become available**:
 - A governed risk register with inherent/residual scoring, risk appetite thresholds, KRI
@@ -184,6 +187,23 @@ PRSMTD:
   Recovery" policy-domain tag, and the resolution directions of `CONTROLS`'/`COMPLIANCE`'s
   reference APIs; requires six proposed, not-yet-applied additive changes across `10-risk`,
   `12-controls`, `11-compliance`, `23-policy`, `13-audit`, and `24-incident-issue-capa`.
+- A reporting capability (`REPORTING`) — a 69-row seed Report Catalogue consolidating every one
+  of the nine other modules' own deferred Reporting Requirements section (63 rows) plus six new
+  cross-module/enterprise reports this module itself originates (a Board & Executive GRC
+  Summary, an Enterprise Exception & Aging Register, an Evidence Completeness Rollup, a
+  Regulatory Filing & Review Calendar, a Rectification Index & CAPA Effectiveness Rollup, and a
+  Cross-Module CAPA & Remediation Tracker); field-level provenance mapping from every report to
+  its owning source module (`ReportFieldMapping`, prescriptive) and a per-instance citation
+  manifest recording exactly what was resolved at generation time (`ReportCitation`,
+  descriptive — the mechanism making a generated report "evidence-ready" without depending on
+  the platform's still-open object-storage gap); on-demand report generation with opt-in
+  approval-before-submission governance (gated by a boolean flag per report definition, not a
+  fixed per-entity-type rule); and distribution record-keeping. Activates seven of nine
+  source-module integrations with **zero** additive change; discovers two new point-citation
+  gaps neither named before (`RISK` and `AUDIT` each lack a `GET .../{id}/reference` endpoint
+  for their own entities) and two new PRSMTD capability gaps (a scheduled-job/batch-execution
+  mechanism; a generic PDF/CSV export-rendering mechanism), neither blocking this module's own
+  MVP scope.
 
 **Which regulations would become supported** (see
 [Regulatory Readiness Matrix](#regulatory-readiness-matrix) for the full rating and rationale
@@ -200,26 +220,29 @@ explicitly mapped. **ISO 22301 moves to Partially Mapped** — `BCP`'s BIA/RTO/R
 plan/exercise vocabulary is the closest structural match to an international standard any ERM
 spec has produced, though no explicit clause-level Annex crosswalk exists.
 
-**Which roadmap items would still remain before full platform capability exists**: one
-remaining reserved bounded context (`REPORTING`), a platform document/object storage
-capability, a general-purpose Records Retention Schedule capability, the `system.md §18`
-Product Framework reconciliation, a SIEM/security-event-correlation capability, an ABAC
-policy-decision mechanism, seventeen additive changes `23-policy/01-*`,
-`24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`, and `26-business-continuity/01-*`
-proposed but did not apply (a `CONTROLS`-side policy-link endpoint; `capa_ref_id` extensions to
-`12-controls`/`11-compliance`/`23-policy`; two initiating-endpoint-only proposals to
-`13-audit`/`09-security`; `Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK` plus
-a vendor-link endpoint; an obligation mirror-registration extension; a
-`SecurityFinding.linked_vendor_id` column; an `AuditUniverseEntry.related_vendor_ref_id`
-column; an `Incident.vendor_ref_id` column; `Risk.source = BUSINESS_CONTINUITY`;
-`Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint; a new "Technology &
-Operational Resilience" `ObligationCategory` and matching `PolicyCategory`; an
-`AuditUniverseEntry.related_critical_service_ref_id` column; a `GET /incidents/{id}/reference`
-endpoint; and four `04-domain-model` status-label amendments, for `POLICY`, `INCIDENT`,
-`THIRD-PARTY RISK`, and `BUSINESS CONTINUITY`), and — newly surfaced by this
-assessment, not previously named on `docs/roadmap.md` — explicit DPDP Act / CERT-In obligation
-content and an explicit international-standard crosswalk. See
-[Roadmap Validation](#roadmap-validation).
+**Which roadmap items would still remain before full platform capability exists**: `15-analytics`
+(the KPI/metric catalog and dashboard visualization layer `14-reporting/01-*` explicitly
+deferred), a platform document/object storage capability, a general-purpose Records Retention
+Schedule capability, the `system.md §18` Product Framework reconciliation, a
+SIEM/security-event-correlation capability, an ABAC policy-decision mechanism, a
+scheduled-job/batch-execution mechanism and a generic PDF/CSV export-rendering mechanism (both
+newly named by `14-reporting/01-*`), nineteen additive changes `23-policy/01-*`,
+`24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`, `26-business-continuity/01-*`, and
+`14-reporting/01-*` proposed but did not apply (a `CONTROLS`-side policy-link endpoint;
+`capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`; two initiating-
+endpoint-only proposals to `13-audit`/`09-security`; `Risk.source = THIRD_PARTY`;
+`Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint; an obligation
+mirror-registration extension; a `SecurityFinding.linked_vendor_id` column; an
+`AuditUniverseEntry.related_vendor_ref_id` column; an `Incident.vendor_ref_id` column;
+`Risk.source = BUSINESS_CONTINUITY`; `Control.source = BUSINESS_CONTINUITY` plus a
+continuity-link endpoint; a new "Technology & Operational Resilience" `ObligationCategory` and
+matching `PolicyCategory`; an `AuditUniverseEntry.related_critical_service_ref_id` column; a
+`GET /incidents/{id}/reference` endpoint; a `GET /risks/{id}/reference` endpoint; two
+`GET .../{id}/reference` endpoints on `13-audit`), and five `04-domain-model` status-label
+amendments (for `POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, and now
+`REPORTING`), and — newly surfaced by this assessment, not previously named on
+`docs/roadmap.md` — explicit DPDP Act / CERT-In obligation content and an explicit
+international-standard crosswalk. See [Roadmap Validation](#roadmap-validation).
 
 ## Platform Capability Matrix
 
@@ -243,12 +266,15 @@ content and an explicit international-standard crosswalk. See
 | Incident / Issue / CAPA (intake, RCA, issue tracking, CAPA lifecycle, escalation) | Not Built | Specified (`INCIDENT`) | Planned |
 | Third-Party Risk (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, reassessment) | Not Built | Specified (`TPR`) | Planned |
 | Business Continuity (critical service register, BIA, RTO/RPO, dependency mapping, continuity strategy, BCP/DR plan lifecycle, crisis activation, exercises/testing, exceptions) | Not Built | Specified (`BCP`) | Planned |
-| Reporting & Analytics | Not Built | Not Specified (Conformist relationship reserved; no module spec) | Not Started |
+| Reporting (report/dashboard catalogue, field-level provenance, generation, distribution) | Not Built | Specified (`REPORTING`, added Session 14) | Planned |
+| Analytics (KPI/metric catalog, dashboard visualization composition) | Not Built | Not Specified — explicitly deferred by `14-reporting/01-*` Assumption 16; `DashboardWidget.widget_type = METRIC_REFERENCE` reserves the slot only | Not Started |
 | Document / Object Storage (evidence binaries) | Not Built (confirmed absent) | Not Specified — flagged as a required new PRSMTD capability by three specs | Not Started |
 | Records Retention Schedule (cross-module) | Not Built | Not Specified — named explicitly as a real gap by `11-compliance`/`13-audit` | Not Started |
 | Notification / Alerting | Not Built (attempted, then retired) | Not Specified | Not Started |
 | SIEM / Automated Threat Detection / Security Event Correlation | Not Built | Not Specified — named for the first time by `09-security/01-*`; `SecurityFinding.source = SIEM_ALERT` reserves the slot only | Not Started |
 | ABAC (attribute-based access control) | Not Built (RBAC only, three closed domains — system.md §8) | Not Specified — named as future extensibility only by `09-security/01-*` | Not Started |
+| Scheduled-Job / Batch-Execution Mechanism | Not Built (confirmed absent) | Not Specified — named for the first time by `14-reporting/01-*` Assumption 8; `ReportSchedule` tracks due dates only | Not Started |
+| Generic PDF/CSV Export-Rendering Pipeline | Not Built (confirmed absent) | Not Specified — named for the first time by `14-reporting/01-*` Assumption 9; the unresolved `system.md §18` PF-CT-3/PF-CW-8 evidence-pack contract is the closest conceptual analog | Not Started |
 | Privacy Management (DPDP Act) | Not Built | Not Specified | Not Started |
 
 ## Compliance Coverage Matrix
@@ -320,8 +346,9 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Incident Management (intake, RCA, issue tracking, CAPA, escalation) | Not Built | Specified | Planned | `INCIDENT` (authored, Session 11) |
 | Third-Party Risk (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, reassessment) | Not Built | Specified | Planned | `TPR` (authored, Session 12) |
 | Business Continuity (critical service register, BIA, RTO/RPO, dependency mapping, continuity strategy, BCP/DR plan lifecycle, crisis activation, exercises/testing, exceptions) | Not Built | Specified | Planned | `BCP` (authored, Session 13) |
-| Executive Reporting | Not Built | Not Specified | Not Started | `REPORTING`/`ANALYTICS` (reserved; tenant-vs-platform-level question open) |
-| Regulatory Reporting | Not Built | Not Specified (source views named per module, aggregation layer not designed) | Not Started | `14-reporting`/`15-analytics` |
+| Executive Reporting | Not Built | Specified (`REPORTING` — Board & Executive GRC Summary, Report Catalogue's `EXECUTIVE`-category rows, `DashboardDefinition`) | Planned | `14-reporting` (authored, Session 14) |
+| Regulatory Reporting | Not Built | Specified (`REPORTING` — approval-before-submission governance, distribution record-keeping, evidence-ready export construction via `ReportCitation`) | Planned | `14-reporting` (authored, Session 14) |
+| Interactive Analytics / KPI Dashboards | Not Built | Not Specified — explicitly deferred by `14-reporting/01-*` Assumption 16; `DashboardWidget.widget_type = METRIC_REFERENCE` reserves the slot only | Not Started | `15-analytics` |
 | Privacy Management | Not Built | Not Specified | Not Started | Unscoped — named in `CLAUDE.md`'s long-term vision only |
 | AI-Assisted Risk Analytics | Not Built | Not Specified | Not Started | `16-ai` (README scaffold only) |
 
@@ -356,7 +383,12 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Governance | `system.md §18` Product Framework reconciliation still open | — (ADR, not a module) | `docs/roadmap.md` Open Decisions | None | Low urgency — doesn't block current MVP scope |
 | Architecture | Persona-to-module-role mapping convention confirmed 5 times but never formalized as an ADR | — | `docs/roadmap.md` Open Decisions | None | Low urgency, low effort |
 | Operational | Records Retention Schedule (cross-module statutory retention periods) unspecified | Cross-module capability, not one ERM module | `docs/roadmap.md` Assumption 14/17 (carried), Future Extension Points across `11-compliance`/`13-audit` | Depends on which record types are in scope across all modules | Medium — grows more urgent as more modules ship real data |
-| Reporting | No Reporting/Analytics module authored; aggregation layer over `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`SECURITY` source views not designed | `REPORTING`/`ANALYTICS` (reserved) | `docs/roadmap.md` — named as a future candidate, not the current Next Milestone | All five authored modules (Conformist, read-only) | Medium — every module already exposes source views; only the aggregation layer is missing |
+| Reporting | No Reporting module authored; aggregation layer over the nine business-domain modules not designed — **Closed (Session 14)**, see `14-reporting/01-reporting-management.md` | `REPORTING` (authored) | `docs/roadmap.md` Master Execution Plan Phase 11 | All nine authored business-domain modules (Conformist, read-only) | Resolved |
+| Analytics | `15-analytics` (KPI/metric catalog, dashboard visualization composition) remains unauthored — explicitly deferred by `14-reporting/01-*` Assumption 16, not silently dropped | `15-analytics` (reserved) | `docs/roadmap.md` — named as a future candidate | `14-reporting` (authored; `DashboardWidget.widget_type = METRIC_REFERENCE` reserves the integration slot) | Medium — this module's own `DashboardDefinition`/`ReportDefinition` shape is ready to build on |
+| Business | Two additive changes proposed by `14-reporting/01-*` (`GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference` and `GET /engagements/{id}/reference` on `13-audit`) | — | **Not yet on `docs/roadmap.md` as a scheduled phase** — Session 14 | None — each is one new endpoint, no schema change, already precedented by every prior module's own reference-resolution endpoint | Low — precisely-scoped, low-effort |
+| Architecture | `04-domain-model`'s Bounded Context Map still labels `REPORTING` "(reserved)" despite `14-reporting/01-*` now being authored | `04-domain-model/01-enterprise-domain-model.md` | **Not yet on `docs/roadmap.md` as a scheduled phase** — proposed by `14-reporting/01-*`, Session 14, the same amendment shape every prior module proposed — the fifth and last such amendment this document's map would need to reach full internal consistency | None — additive status-label and cross-reference correction only | Low — precisely-scoped, low-effort |
+| Technical | Scheduled-job/cron/batch-execution mechanism for periodic report generation | New PRSMTD capability (not an ERM module) | **Not currently on `docs/roadmap.md`** — new finding, named by `14-reporting/01-*` | None — can be built independently of any ERM module | Medium — `ReportSchedule` reserves the due-date-tracking slot but has no execution mechanism to trigger from |
+| Technical | Generic PDF/CSV/export-rendering pipeline | New PRSMTD capability (not an ERM module), possibly reconciled with the unresolved `system.md §18` PF-CT-3/PF-CW-8 evidence-pack contract | **Not currently on `docs/roadmap.md`** — new finding, named by `14-reporting/01-*` | None | Medium — `ReportDefinition.output_formats`/`ReportInstance.output_format` reserve the metadata slot but have no rendering engine to produce an artifact |
 | Functional | `BUSINESS CONTINUITY` context reserved but not authored — SEBI DR/BCP mandate (flagged since `10-risk`) remains unspecified for the *plan* side — **Closed (Session 13)**, see `26-business-continuity/01-business-continuity-management.md` | `BCP` (authored) | `docs/roadmap.md` Master Execution Plan Phase 9 | `RISK`, `CONTROLS` (both authored) | Resolved |
 | Functional | `THIRD-PARTY RISK` reserved but unspecified — **Closed (Session 12)**, see `25-third-party-risk/01-third-party-risk-management.md` | `TPR` (authored) | `docs/roadmap.md` Master Execution Plan Phase 8 | See `04-domain-model` Dependency Rules | Resolved |
 | Business | Six additive changes proposed by `26-business-continuity/01-*` (`Risk.source = BUSINESS_CONTINUITY` on `10-risk`; `Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint on `12-controls`; a new "Technology & Operational Resilience" `ObligationCategory` on `11-compliance` and matching `PolicyCategory` on `23-policy`; `AuditUniverseEntry.related_critical_service_ref_id` on `13-audit`; a `GET /incidents/{id}/reference` endpoint on `24-incident-issue-capa`) | — | **Not yet on `docs/roadmap.md` as a scheduled phase** — Session 13 | None — each is a one-line column/enum value/taxonomy row plus, in two cases, one endpoint, already precedented by identical proposed-not-applied changes across every prior module | Low — precisely-scoped, low-effort |
@@ -398,7 +430,10 @@ Decisions sections (both updated earlier this session):
 | Persona-to-module-role ADR | **Yes** — Open Decisions |
 | Records Retention Schedule | **Yes** — carried Assumption across sessions, named explicitly by `11-compliance`/`13-audit` |
 | Platform document/object storage | **Yes** — carried Assumption/Risk across sessions |
-| Reporting/Analytics aggregation layer | Partially — named as a future section, not a scoped candidate module with a milestone |
+| `REPORTING` module | **Yes** — Master Execution Plan Phase 11 — **closed (Session 14)**, see `14-reporting/01-reporting-management.md` |
+| `GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`; `04-domain-model` `REPORTING` status-label amendment | **No** — proposed by `14-reporting/01-*` (Session 14); not yet named `docs/roadmap.md` phases of their own, tracked as Gap Assessment rows above pending explicit scheduling |
+| Scheduled-job/batch-execution mechanism; generic PDF/CSV export-rendering pipeline | **No** — named for the first time by `14-reporting/01-*` (Session 14), not yet on `docs/roadmap.md` |
+| `15-analytics` (KPI/metric catalog, dashboard visualization layer) | Partially — named as a future section with an explicit dependency shape (`DashboardWidget.widget_type = METRIC_REFERENCE`), not yet a scoped candidate module with its own milestone number |
 | **DPDP Act obligation content** | **No** — not named anywhere on `docs/roadmap.md` before this assessment |
 | **CERT-In Directions obligation content** | **No** — not named anywhere on `docs/roadmap.md` before this assessment |
 | **International standard crosswalk (ISO/COBIT/NIST)** | **No** — not named anywhere on `docs/roadmap.md` before this assessment |
@@ -465,6 +500,24 @@ status-label amendment) are **not** yet applied — recommended for the same fut
 session as the eleven changes `23-policy`/`24-incident-issue-capa`/`25-third-party-risk` already
 proposed, bringing the total to seventeen additive changes plus four `04-domain-model`
 status-label amendments awaiting one explicitly-authorized session.
+**Session 14 update**: `docs/roadmap.md` Master Execution Plan Phase 11 (`REPORTING`) is
+closed — `14-reporting/01-reporting-management.md` is authored (module code `REPORTING`), per
+this session's explicit instruction to proceed directly to Phase 11 rather than the
+seventeen-additive-change consolidation this document's own prior recommendation had named
+first. This closes the last remaining reserved business-domain bounded context named in
+`04-domain-model`'s map — all ten are now authored as ERM specifications, though that document's
+own status labels still lag for five of them. Two additive changes this new spec itself proposed
+(`GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference`/
+`GET /engagements/{id}/reference` on `13-audit`) plus the `04-domain-model` `REPORTING`
+status-label amendment are **not** yet applied — recommended for the same future consolidation
+session as the seventeen changes `23-policy`/`24-incident-issue-capa`/`25-third-party-risk`/
+`26-business-continuity` already proposed, bringing the total to nineteen additive changes plus
+five `04-domain-model` status-label amendments awaiting one explicitly-authorized session. Two
+genuinely new PRSMTD capability gaps (a scheduled-job/batch-execution mechanism; a generic
+PDF/CSV export-rendering pipeline) are named for the first time, neither blocking this module's
+own MVP scope. `15-analytics` (KPI/metric catalog, dashboard visualization composition) remains
+the one piece of `CLAUDE.md`'s original "REPORTING & ANALYTICS" combined vision not yet
+authored — explicitly deferred, not silently dropped.
 
 ## Specification Progress Matrix
 
@@ -476,7 +529,8 @@ status-label amendments awaiting one explicitly-authorized session.
 | `COMPLIANCE` | Complete | Not Started | Complete — Session 4 |
 | `AUDIT` | Complete | Not Started | Complete — Session 5 |
 | `26-business-continuity/` (`BCP` module) | **Complete — Session 13** | Not Started | Master Execution Plan Phase 9; now authored ([`01-business-continuity-management.md`](../26-business-continuity/01-business-continuity-management.md)) — activates the `BUSINESS CONTINUITY` bounded context `04-domain-model` reserved, resolving its own anticipated-entities sketch and plan-vs-`CONTROLS`-test-boundary recommendation. Two integrations (`INCIDENT`'s `POST /capa-requests`, `TPR`'s `GET /vendors/{id}/reference`) activate directly with zero additive change, plus `POLICY`'s and `SECURITY`'s reference/tag resolution and `CONTROLS`'/`COMPLIANCE`'s read directions; six additive changes (`10-risk`, `12-controls`, `11-compliance`, `23-policy`, `13-audit`, `24-incident-issue-capa`) and the `04-domain-model` status-label amendment remain proposed, not applied. |
-| `REPORTING`/`ANALYTICS` | Planned (Conformist relationship reserved) | Not Started | Master Execution Plan Phase 11 |
+| `14-reporting/` (`REPORTING` module) | **Complete — Session 14** | Not Started | Master Execution Plan Phase 11; now authored ([`01-reporting-management.md`](../14-reporting/01-reporting-management.md)) — activates the `REPORTING` bounded context `04-domain-model` reserved (the tenth and final one), a 69-row seed Report Catalogue, field-level provenance, on-demand generation with opt-in approval governance, and distribution record-keeping. Seven of nine source-module integrations activate with zero additive change; two new point-citation endpoints (`10-risk`, `13-audit`) and the `04-domain-model` status-label amendment remain proposed, not applied. |
+| `15-analytics/` (KPI/metric catalog, dashboard visualization layer) | Planned (explicitly deferred by `14-reporting/01-*` Assumption 16) | Not Started | Not yet its own scheduled Master Execution Plan phase |
 | `09-security/` (`SECURITY` module) | **Complete — Session 6** | Not Started | Was Next Milestone item 2; now authored ([`01-security-management.md`](../09-security/01-security-management.md)) — a cross-cutting consolidation plus a genuine sixth module. Originally outside `04-domain-model`'s 9-context map (see that spec's Assumption 1); **folded in as a tenth context in Session 7**, closing that gap. |
 | `23-policy/` (`POLICY` module) | **Complete — Session 10** | Not Started | Master Execution Plan Phase 6; now authored ([`01-policy-management.md`](../23-policy/01-policy-management.md)) — activates the `POLICY` bounded context `04-domain-model` reserved. Two of three inbound integrations (`COMPLIANCE`, `SECURITY`) required zero additive change; the `CONTROLS` integration and the `04-domain-model` status-label amendment remain proposed, not applied. |
 | `24-incident-issue-capa/` (`INCIDENT` module) | **Complete — Session 11** | Not Started | Master Execution Plan Phase 7; now authored ([`01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md)) — activates the `INCIDENT`/`ISSUE`/`CAPA` bounded context `04-domain-model` reserved, resolving its open module-code naming question. `Risk.source = INCIDENT` required zero additive change; `13-audit`/`09-security`'s already-reserved `capa_ref_id` columns need only a proposed endpoint each; `12-controls`/`11-compliance`/`23-policy` and the `04-domain-model` status-label amendment remain proposed, not applied. |
@@ -487,10 +541,10 @@ status-label amendments awaiting one explicitly-authorized session.
 | Dimension | Rating | Explanation |
 |---|---|---|
 | PRSMTD Platform Maturity | High (for a generic substrate) | Governance ledger, RBAC, module framework, RLS, audit/observability, and authentication are all documented as binding, guard-enforced invariants with real enforcement mechanisms (ArchUnit-style guards named throughout §5a–§5c) — not aspirational. Zero business-domain (GRC) capability, which is by design at this layer. |
-| ERM Specification Maturity | Medium-High, growing | Ten documents authored, each meeting `CLAUDE.md`'s full Documentation Standards checklist, each building on a shared modeling kernel that has now held across ten consecutive modules without structural rework (`13-audit` needed zero additive changes to any frozen spec at its own authoring; `09-security/01-*` proposed three additive changes, all applied — Session 7; `23-policy/01-*` needed zero additive change for two of its three integrations — Session 10; `24-incident-issue-capa/01-*` needed zero additive change for its `RISK` integration and only an endpoint-only proposal for two of its five integrations — Session 11; `25-third-party-risk/01-*` needed zero additive change for six of its nine integrations, the highest fraction yet — Session 12; `26-business-continuity/01-*` is the first module to build **two** integrations directly rather than merely propose either, in the same spec — Session 13, the same non-invasive discipline every prior activation used, strengthening rather than degrading as the shared kernel absorbs more modules). One of ten bounded contexts named in `04-domain-model`'s map remains unauthored: `REPORTING`. `POLICY`, `INCIDENT`, `TPR`, and now `BCP` are all authored as ERM specifications (Sessions 10–13) but `04-domain-model`'s own map still labels all four "(reserved)," pending a future session applying the amendments each spec proposes — see [Percentage Completion](#percentage-completion). |
-| Combined Platform Maturity | Low-Medium | Nothing is implemented; the combined maturity of a *deployed* platform is necessarily Low today. The combined maturity of the *design* (were it implemented) is Medium-High for the nine covered domains, Not Started for `REPORTING`. |
-| Regulatory Mapping Maturity | Medium for SEBI Mutual Fund regulation, Low for everything else | Every authored spec carries a precise regulatory citation for its primary SEBI source (clause-level for `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`INCIDENT`/`TPR`/`BCP`; scope-level for `SECURITY`, per its inherited Cyber Security Framework PDF-extraction limitation). No spec cites DPDP, CERT-In (beyond `INCIDENT`'s timeline substrate), Companies Act, Income Tax, or any international standard, though `BCP`'s own vocabulary is the structurally closest match to ISO 22301 any spec has produced. |
-| Traceability Maturity | High | Every substantive spec carries the mandated Traceability block; `01-master-traceability-matrix.md` aggregates all ten with zero gaps between what each spec's Traceability block claims and what the matrix records — updated this session (Session 13) with `26-business-continuity/01-*`'s entries, including its six proposed-not-applied additive changes recorded as open gap rows rather than silently omitted. |
+| ERM Specification Maturity | Medium-High, growing | Eleven documents authored, each meeting `CLAUDE.md`'s full Documentation Standards checklist, each building on a shared modeling kernel that has now held across eleven consecutive modules without structural rework. `14-reporting/01-*` activated seven of its nine source-module integrations with **zero** additive change — the first module whose own integrations outnumber the two it needed to propose — and, uniquely among evidence-bearing modules, deliberately decoupled its own core function from the still-open document/object-storage gap (Assumption 7). All ten bounded contexts named in `04-domain-model`'s map are now authored as ERM specifications (`POLICY`/`INCIDENT`/`TPR`/`BCP`/`REPORTING`, Sessions 10–14, joining the original five), but that document's own map still labels five of them "(reserved)," pending a future session applying the amendments each spec proposes — see [Percentage Completion](#percentage-completion). |
+| Combined Platform Maturity | Low-Medium | Nothing is implemented; the combined maturity of a *deployed* platform is necessarily Low today. The combined maturity of the *design* (were it implemented) is Medium-High for all ten covered business-domain modules, Not Started for `15-analytics` (explicitly deferred). |
+| Regulatory Mapping Maturity | Medium for SEBI Mutual Fund regulation, Low for everything else | Every authored spec carries a precise regulatory citation for its primary SEBI source (clause-level for `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`INCIDENT`/`TPR`/`BCP`; scope-level for `SECURITY`, per its inherited Cyber Security Framework PDF-extraction limitation; `14-reporting/01-*` cites no new regulatory text of its own, only operationalizing what the other nine already cite). No spec cites DPDP, CERT-In (beyond `INCIDENT`'s timeline substrate), Companies Act, Income Tax, or any international standard, though `BCP`'s own vocabulary is the structurally closest match to ISO 22301 any spec has produced. |
+| Traceability Maturity | High | Every substantive spec carries the mandated Traceability block; `01-master-traceability-matrix.md` aggregates all eleven with zero gaps between what each spec's Traceability block claims and what the matrix records — updated this session (Session 14) with `14-reporting/01-*`'s entries, including its two proposed-not-applied additive changes recorded as open gap rows rather than silently omitted. |
 | Overall Readiness | Early-to-Mid specification phase | Consistent with `docs/roadmap.md`'s own "Current Status" framing — this is not a claim of production readiness at any layer. |
 
 ## Percentage Completion
@@ -511,12 +565,13 @@ Session 6→7 already set for `SECURITY`: a module authored elsewhere does not m
 until `04-domain-model`'s own status-label amendment is actually applied — the fraction counts
 what `04-domain-model`'s map itself currently labels "authored," not what has been authored
 elsewhere and merely proposed back to it. `23-policy/01-*`, `24-incident-issue-capa/01-*`,
-`25-third-party-risk/01-*`, and now `26-business-continuity/01-*` each propose, but neither this
-nor any prior session applies, their respective `(reserved)` → `(authored)` amendments (see Gap
-Assessment). **Once all four amendments are applied, Specification Completion becomes
-9/10 = 90%** — the only remaining reserved context at that point being `REPORTING` — flagged
-here so a future session does not have to re-derive the arithmetic, the same forward note this
-document gave for `SECURITY`'s own pending amendment between Sessions 6 and 7.
+`25-third-party-risk/01-*`, `26-business-continuity/01-*`, and now `14-reporting/01-*` each
+propose, but neither this nor any prior session applies, their respective `(reserved)` →
+`(authored)` amendments (see Gap Assessment). **Once all five amendments are applied,
+Specification Completion becomes 10/10 = 100%** — `REPORTING` is the last of the ten bounded
+contexts `04-domain-model`'s own map enumerates, so this is also the ceiling for this metric —
+flagged here so a future session does not have to re-derive the arithmetic, the same forward
+note this document gave for `SECURITY`'s own pending amendment between Sessions 6 and 7.
 
 This figure **excludes** `04-domain-model` itself (a foundational cross-cutting document, not
 a bounded context, so it does not belong in either the numerator or denominator) and excludes
@@ -527,27 +582,30 @@ gap in this percentage, per that convention.
 
 ### Platform Capability Completion
 
-**Method**: a capability-count heuristic across the 24-row list in
-[Platform Capability Matrix](#platform-capability-matrix), updated this session to move the
-`Business Continuity` row from "Not Started" to "Specified but Pending" following
-`26-business-continuity/01-business-continuity-management.md` — 7 substrate rows + 12 GRC-domain
-rows + 5 cross-cutting-gap rows, the same 24-row denominator Session 6 established (the row
-itself already existed; this session only changes its status). This is an auditable count,
-not an effort-weighted estimate — a single "Built" substrate capability (e.g. RBAC) and a
-single "Not Started" cross-cutting gap (e.g. Records Retention Schedule) are counted as
-equally-weighted rows, which likely **understates** the substrate's true implementation effort
-relative to a not-yet-scoped future module. Treat this percentage as directional, not precise.
+**Method**: a capability-count heuristic across the (now) 27-row list in
+[Platform Capability Matrix](#platform-capability-matrix) — 7 substrate rows + 13 GRC-domain
+rows + 7 cross-cutting-gap rows. **Session 14's 27-row denominator supersedes Session 6's
+24-row count**, the same kind of growth Session 6 itself applied to Session 5's 19-row count:
+the single "Reporting & Analytics" row is split into "Reporting" (now Specified, following
+`14-reporting/01-reporting-management.md`) and "Analytics" (still Not Started — `15-analytics`
+remains explicitly deferred, Assumption 16 of that spec), and two new gap rows this session's
+spec names for the first time (a scheduled-job/batch-execution mechanism; a generic PDF/CSV
+export-rendering pipeline) are added. This is an auditable count, not an effort-weighted
+estimate — a single "Built" substrate capability (e.g. RBAC) and a single "Not Started"
+cross-cutting gap (e.g. Records Retention Schedule) are counted as equally-weighted rows,
+which likely **understates** the substrate's true implementation effort relative to a
+not-yet-scoped future module. Treat this percentage as directional, not precise.
 
 | Status | Count | Rows |
 |---|---|---|
 | **Already Built** | 7 | Identity & Tenancy, Multi-Tenancy RLS, Governance Ledger, RBAC, Module Framework, Audit Trail & Observability, Authentication |
-| **Specified but Pending** | 11 | Risk Register, Control Library, Compliance/Regulatory Obligations, Audit Management, Cybersecurity Governance, Privileged Access Management, Secrets/Key/Certificate Governance, Policy Management, Incident/Issue/CAPA, Third-Party Risk, Business Continuity |
-| **Remaining (Not Started/Not Specified)** | 6 | Reporting & Analytics, Document/Object Storage, Records Retention Schedule, Notification/Alerting, SIEM/Automated Threat Detection, ABAC |
+| **Specified but Pending** | 12 | Risk Register, Control Library, Compliance/Regulatory Obligations, Audit Management, Cybersecurity Governance, Privileged Access Management, Secrets/Key/Certificate Governance, Policy Management, Incident/Issue/CAPA, Third-Party Risk, Business Continuity, Reporting |
+| **Remaining (Not Started/Not Specified)** | 8 | Analytics, Document/Object Storage, Records Retention Schedule, Notification/Alerting, SIEM/Automated Threat Detection, ABAC, Scheduled-Job/Batch-Execution Mechanism, Generic PDF/CSV Export-Rendering Pipeline |
 
-**Already Built % = 7/24 ≈ 29%. Specified but Pending % = 11/24 ≈ 46%. Remaining % =
-6/24 = 25%.** (Session 5's 19-row denominator was superseded by Session 6's 24-row count; the
-underlying substrate rows and their "Built" status remain unchanged this session — only
-`Business Continuity`'s own status moved, per `26-business-continuity/01-*`.)
+**Already Built % = 7/27 ≈ 26%. Specified but Pending % = 12/27 ≈ 44%. Remaining % =
+8/27 ≈ 30%.** (The underlying substrate rows and their "Built" status are unchanged this
+session — only the `Reporting & Analytics` split and the two new gap rows change the
+denominator and the Pending/Remaining counts, per `14-reporting/01-*`.)
 
 ## Final Statement
 
@@ -669,3 +727,24 @@ compliance program in their own right.
   remaining reserved context at that point being `REPORTING`. Platform Capability Completion
   moves from 7/10/7 to 7/11/6 (out of 24), since `Business Continuity` is the only row
   whose status changed this session.
+- **Session 14 update (2026-07-21)**: incrementally updated — not regenerated — to reflect
+  the newly authored `14-reporting/01-reporting-management.md` (module code `REPORTING`), per
+  this session's explicit instruction to proceed directly to Master Execution Plan Phase 11
+  rather than the seventeen-additive-change consolidation this document's own prior
+  recommendation had named first. Updated: Executive Summary, Scope and Method, Question 2,
+  Platform Capability Matrix (`Reporting & Analytics` row split into `Reporting`/`Analytics`;
+  two new gap rows for a scheduled-job/batch-execution mechanism and a generic PDF/CSV
+  export-rendering pipeline), Enterprise Capability Matrix (`Executive Reporting`/`Regulatory
+  Reporting` rows; new `Interactive Analytics/KPI Dashboards` row), Gap Assessment (`Reporting`
+  gap row closed; `Analytics` gap row added; two new proposed-not-applied gap rows added; a
+  `04-domain-model` status-label amendment row added; two new PRSMTD-capability gap rows added),
+  Roadmap Validation, Specification Progress Matrix (`+1` row for `14-reporting/`, `+1` row for
+  `15-analytics/`), Repository Maturity, and Percentage Completion. **Specification Completion
+  stays at 5/10 = 50%** — none of `POLICY`'s, `INCIDENT`'s, `TPR`'s, `BCP`'s, or `REPORTING`'s
+  `04-domain-model` status-label amendments is applied yet; the document now explicitly notes it
+  becomes 10/10 = 100% once all five land — `REPORTING` is the last of the ten contexts that
+  document's map enumerates, so this is also the ceiling for this metric. **Platform Capability
+  Completion's denominator itself grows this session, from 24 to 27** — the single "Reporting &
+  Analytics" row splits into "Reporting" (now Specified) and "Analytics" (still Not Started),
+  and two new gap rows are added — moving the count from 7/11/6 to 7/12/8 (out of 27), the same
+  kind of denominator growth Session 6 itself applied to Session 5's 19-row count.
