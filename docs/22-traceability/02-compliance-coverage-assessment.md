@@ -27,25 +27,27 @@ for it. It does not certify legal or regulatory compliance — see
   and `PRSMTD/modules/` (directory listing: only `contacts` and `module-template` exist).
   Nothing here is assumed from a prior session's memory without this session's re-check.
 - **ERM verification**: every claim about what the ERM specifications provide is drawn from
-  the eight currently authored, frozen documents — `04-domain-model/01-*`, `10-risk/01-*`,
+  the nine currently authored, frozen documents — `04-domain-model/01-*`, `10-risk/01-*`,
   `12-controls/01-*`, `11-compliance/01-*`, `13-audit/01-*`, `09-security/01-*`,
-  `23-policy/01-*`, `24-incident-issue-capa/01-*` — and their Traceability blocks as
-  aggregated in `01-master-traceability-matrix.md`. Reserved-but-unauthored bounded contexts
-  (`THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`) are treated as **not specified** —
-  a boundary and relationship type being reserved in `04-domain-model` is not the same as a
-  functional/data-model specification existing.
+  `23-policy/01-*`, `24-incident-issue-capa/01-*`, `25-third-party-risk/01-*` — and their
+  Traceability blocks as aggregated in `01-master-traceability-matrix.md`.
+  Reserved-but-unauthored bounded contexts (`BUSINESS CONTINUITY`, `REPORTING`) are treated as
+  **not specified** — a boundary and relationship type being reserved in `04-domain-model` is
+  not the same as a functional/data-model specification existing.
 - **Ratings are never merged across the "already built" / "specified but unbuilt" / "not
   specified" axis anywhere in this document**, per the explicit instruction this assessment
   was commissioned under.
-- This document is a snapshot as of **2026-07-20**, incrementally updated in Session 6 to
+- This document is a snapshot as of **2026-07-21**, incrementally updated in Session 6 to
   reflect the two additive changes applied to `10-risk`/`12-controls` and the newly authored
   `09-security/01-security-management.md`, again in Session 7 to reflect the three
   additive changes `09-security` had proposed (now applied to `10-risk`/`13-audit`/
   `04-domain-model`) and a consistency-review correction to `04-domain-model`'s own stale
   `COMPLIANCE`/`AUDIT` status labels, again in Session 10 (2026-07-21) to reflect the
-  newly authored `23-policy/01-policy-management.md`, and again in Session 11 (2026-07-21) to
+  newly authored `23-policy/01-policy-management.md`, again in Session 11 (2026-07-21) to
   reflect the newly authored
-  `24-incident-issue-capa/01-incident-issue-capa-management.md` — **only the sections those
+  `24-incident-issue-capa/01-incident-issue-capa-management.md`, and again in Session 12
+  (2026-07-21) to reflect the newly authored
+  `25-third-party-risk/01-third-party-risk-management.md` — **only the sections those
   changes affect were updated**; all other analysis is preserved unchanged from prior
   sessions. Both PRSMTD and the ERM specification set will keep changing — see
   `docs/roadmap.md` Risks register for the staleness risk this snapshot carries, and
@@ -56,15 +58,15 @@ for it. It does not certify legal or regulatory compliance — see
 | Dimension | Assessment |
 |---|---|
 | **Current PRSMTD maturity** | Mature, well-documented **generic multi-tenant governance platform substrate** (identity/tenancy, maker-checker governance ledger, RBAC, module framework with strict ownership guards, audit/observability trace contract, authentication). **Zero GRC-domain business capability** — no risk, control, compliance, or audit module exists in PRSMTD today; only a `contacts` reference module and a scaffolding template. |
-| **Current ERM specification maturity** | Eight authoritative ERM specifications now exist: `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, plus the cross-cutting `04-domain-model` that ties them together. `04-domain-model`'s own Bounded Context Map, however, still labels five contexts "authored" (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) — both `POLICY`'s and `INCIDENT`'s status-label amendments are proposed, not yet applied (the same lag `SECURITY` itself had between Sessions 6 and 7), so [Percentage Completion](#percentage-completion) deliberately keeps counting 5/10 until those amendments land. **Session 6 authored the sixth authoritative spec**, [`09-security/01-security-management.md`](../09-security/01-security-management.md) (module code `SECURITY`); **Session 7 closed that gap**. **Session 10 authored the seventh authoritative spec**, [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) (module code `POLICY`). **Session 11 authored the eighth authoritative spec**, [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md) (module code `INCIDENT`) — Incident intake/investigation, Root Cause Analysis, an enterprise Issue-escalation register, and the governed CAPA lifecycle (action plan, tracking, closure verification, effectiveness review). It explicitly **complements**, not replaces, `ControlException`/`ComplianceException`/`Finding`/`SecurityFinding`/`PolicyException` — the single highest-risk design decision this phase's own Master Execution Plan entry flagged, made explicitly with a stated reason. `Risk.source = INCIDENT` activated with **zero** additive change (already live since `10-risk`'s Session 1 authoring); `13-audit`/`09-security` needed only a proposed initiating endpoint each (schema already reserved); `12-controls`/`11-compliance`/`23-policy` each require a proposed, not-yet-applied `capa_ref_id` column plus endpoint. |
-| **Combined platform maturity** | If the seven authored GRC specs were implemented today, an AMC would have a genuinely governed risk register, control library, compliance obligation register, internal/system audit capability, cybersecurity governance capability, a governed policy management capability, and a governed incident/issue/CAPA capability (incident investigation, root cause analysis, enterprise issue tracking, structured corrective/preventive action with closure verification and effectiveness review, escalation management) — but no third-party risk, no business continuity plan register, no reporting/analytics layer, no binary evidence storage, and no SIEM/automated threat-detection capability. See [Percentage Completion](#percentage-completion). |
-| **Regulatory readiness** | **Partially ready** for the SEBI Mutual Fund regulatory profile specifically (Risk Management System circular, Master Circular Annexures operational/financial/IT/cyber/compliance-risk/audit sections, the Cyber Security and Cyber Resilience Framework's governance layer via `SECURITY`, formal policy authorship/acknowledgement via `POLICY`, and now structured incident/CAPA remediation via `INCIDENT`) if the seven specs were implemented. **Not ready** for DPDP Act, CERT-In Directions, Companies Act, or Income Tax — none is addressed by any current spec, though `INCIDENT` now supplies the incident-timeline substrate a future CERT-In filing obligation would need to cite. **Early-stage, architecturally-compatible-only** for ISO 27001/27701/22301/31000, COBIT, and NIST CSF — no ERM spec explicitly cites or maps to any of these. |
+| **Current ERM specification maturity** | Nine authoritative ERM specifications now exist: `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, plus the cross-cutting `04-domain-model` that ties them together. `04-domain-model`'s own Bounded Context Map, however, still labels five contexts "authored" (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) — `POLICY`'s, `INCIDENT`'s, and now `TPR`'s status-label amendments are all proposed, not yet applied (the same lag `SECURITY` itself had between Sessions 6 and 7), so [Percentage Completion](#percentage-completion) deliberately keeps counting 5/10 until those amendments land. **Session 6 authored the sixth authoritative spec**, [`09-security/01-security-management.md`](../09-security/01-security-management.md) (module code `SECURITY`); **Session 7 closed that gap**. **Session 10 authored the seventh authoritative spec**, [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) (module code `POLICY`). **Session 11 authored the eighth authoritative spec**, [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md) (module code `INCIDENT`). **Session 12 authored the ninth authoritative spec**, [`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md) (module code `TPR`) — vendor/third-party lifecycle management (onboarding through offboarding), classification/criticality, due diligence, inherent/residual vendor-risk assessment, security and compliance assessment, contract and SLA tracking, ongoing monitoring, and periodic reassessment, grounded in the Annexures' dedicated §2.9 Outsourcing Risk section. Being the ninth module, it activates **six** integrations with zero additive change (both directions of `POLICY`'s `PolicyReferenceLink`; `SECURITY`'s policy-domain tag and already-reserved `THIRD_PARTY_RISK` finding type; `INCIDENT`'s `POST /capa-requests`, built directly rather than merely proposed; the read-only resolution directions of `CONTROLS`' and `COMPLIANCE`'s reference APIs) and proposes six further additive changes plus its own `04-domain-model` status-label amendment. |
+| **Combined platform maturity** | If the eight authored GRC specs were implemented today, an AMC would have a genuinely governed risk register, control library, compliance obligation register, internal/system audit capability, cybersecurity governance capability, a governed policy management capability, a governed incident/issue/CAPA capability, and a governed third-party risk capability (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, periodic reassessment) — but no business continuity plan register, no reporting/analytics layer, no binary evidence storage, and no SIEM/automated threat-detection capability. See [Percentage Completion](#percentage-completion). |
+| **Regulatory readiness** | **Partially ready** for the SEBI Mutual Fund regulatory profile specifically (Risk Management System circular, Master Circular Annexures operational/financial/IT/cyber/compliance-risk/audit/outsourcing-risk sections, the Cyber Security and Cyber Resilience Framework's governance layer via `SECURITY`, formal policy authorship/acknowledgement via `POLICY`, structured incident/CAPA remediation via `INCIDENT`, and now governed vendor/outsourcing oversight via `TPR`) if the eight specs were implemented. **Not ready** for DPDP Act, CERT-In Directions, Companies Act, or Income Tax — none is addressed by any current spec, though `INCIDENT` now supplies the incident-timeline substrate a future CERT-In filing obligation would need to cite. **Early-stage, architecturally-compatible-only** for ISO 27001/27701/22301/31000, COBIT, and NIST CSF — no ERM spec explicitly cites or maps to any of these. |
 | **Compliance readiness** | Same as regulatory readiness — this document does not distinguish the two terms further; see [Regulatory Readiness Matrix](#regulatory-readiness-matrix). |
-| **Architecture maturity** | High for what exists: every authored spec follows one shared-kernel modeling pattern (`04-domain-model`'s taxonomy shape, governed-lifecycle shape, opaque-reference shape, code-sequence shape). `13-audit` activated its primary cross-context integrations with **zero** additive changes required to any frozen prior spec; `23-policy` and `24-incident-issue-capa` each activated a majority of theirs (two of three; two of five, respectively) the same way — a leading indicator that the shared kernel is working as intended. `24-incident-issue-capa` is also the first spec whose central design risk (complement vs. replace five existing entities) was resolved without touching any of the five. |
-| **Implementation readiness** | Each of the eight authored specs is implementation-ready on its own terms (concrete tables, states, APIs, role/permission names) but **none has been implemented in PRSMTD** — this repository is specification-only by design (`CLAUDE.md`). The two small, precisely-scoped additive changes `11-compliance` proposed are applied (Session 6); the three `09-security/01-*` proposed are applied (Session 7). **Five additive changes remain proposed, not applied, as of this session**: `23-policy/01-*`'s `12-controls` policy-link extension and `04-domain-model` `POLICY` status-label amendment; `24-incident-issue-capa/01-*`'s `capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`, its two initiating-endpoint-only proposals to `13-audit`/`09-security`, and its own `04-domain-model` `INCIDENT` status-label amendment. |
-| **Highest strength** | The governance-ledger/maker-checker substrate (PRSMTD, Built) plus the immediate-raise/governed-closure exception pattern (ERM, Specified across six modules now, including `INCIDENT`'s own `Issue`/generalized `Escalation`) together give every governed GRC decision — risk acceptance, control sign-off, compliance exception closure, audit finding closure, policy exception closure, CAPA closure verification — the same real, auditable, SoD-enforced approval mechanism with zero bespoke code per module. |
-| **Highest risk** | The platform document/object storage capability gap, first flagged at `12-controls` and now inherited by `COMPLIANCE`, `AUDIT`, `POLICY`, and `INCIDENT` unchanged: every evidence-bearing control, obligation, audit finding, published policy version, and incident/CAPA record in this repository's design can be fully governed and metadata-tracked, but **cannot yet retain the actual binary evidence/content** an auditor or regulator would expect to retrieve, except for `AUDIT`'s system-trace-extract evidence path (system.md §4.1), which covers only evidence that is itself a platform-trace citation. |
-| **Recommended next module** | Session 11 completed the `INCIDENT`/`ISSUE`/`CAPA` module (`docs/roadmap.md` Master Execution Plan Phase 7). See `docs/roadmap.md`'s updated Next Milestone / Master Execution Plan for the current recommendation — Phase 8 (`THIRD-PARTY RISK`), Phase 9 (`BUSINESS CONTINUITY`), applying the now five proposed-not-applied additive changes across `23-policy`/`24-incident-issue-capa`, or the persona-to-module-role/`system.md §18` ADR consolidation. |
+| **Architecture maturity** | High for what exists: every authored spec follows one shared-kernel modeling pattern (`04-domain-model`'s taxonomy shape, governed-lifecycle shape, opaque-reference shape, code-sequence shape). `13-audit` activated its primary cross-context integrations with **zero** additive changes required to any frozen prior spec; `23-policy`, `24-incident-issue-capa`, and now `25-third-party-risk` each activated a majority of theirs (two of three; two of five; six of nine, respectively) the same way — a leading indicator that the shared kernel is working as intended, strengthening with each successive module rather than degrading. `TPR` is also the first module to confirm, with a second and third citing module, that `POLICY`'s deliberately-polymorphic `PolicyReferenceLink` design performs exactly as that spec intended — while explicitly declining to assume the same of `CONTROLS`'/`COMPLIANCE`'s non-polymorphic mirror-registration endpoints, a more careful integration-risk assessment than any prior module made. |
+| **Implementation readiness** | Each of the nine authored specs is implementation-ready on its own terms (concrete tables, states, APIs, role/permission names) but **none has been implemented in PRSMTD** — this repository is specification-only by design (`CLAUDE.md`). The two small, precisely-scoped additive changes `11-compliance` proposed are applied (Session 6); the three `09-security/01-*` proposed are applied (Session 7). **Eleven additive changes remain proposed, not applied, as of this session**: `23-policy/01-*`'s `12-controls` policy-link extension and `04-domain-model` `POLICY` status-label amendment; `24-incident-issue-capa/01-*`'s `capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`, its two initiating-endpoint-only proposals to `13-audit`/`09-security`, and its own `04-domain-model` `INCIDENT` status-label amendment; `25-third-party-risk/01-*`'s `Risk.source = THIRD_PARTY` (`10-risk`), `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint (`12-controls`), an obligation mirror-registration extension (`11-compliance`), `SecurityFinding.linked_vendor_id` (`09-security`), `AuditUniverseEntry.related_vendor_ref_id` (`13-audit`), `Incident.vendor_ref_id` (`24-incident-issue-capa`), and its own `04-domain-model` `THIRD-PARTY RISK` status-label amendment. |
+| **Highest strength** | The governance-ledger/maker-checker substrate (PRSMTD, Built) plus the immediate-raise/governed-closure exception pattern (ERM, Specified across seven modules now, including `INCIDENT`'s own `Issue`/generalized `Escalation` and `TPR`'s own `VendorException`) together give every governed GRC decision — risk acceptance, control sign-off, compliance exception closure, audit finding closure, policy exception closure, CAPA closure verification, vendor exception closure — the same real, auditable, SoD-enforced approval mechanism with zero bespoke code per module. |
+| **Highest risk** | The platform document/object storage capability gap, first flagged at `12-controls` and now inherited by `COMPLIANCE`, `AUDIT`, `POLICY`, `INCIDENT`, and `TPR` unchanged: every evidence-bearing control, obligation, audit finding, published policy version, incident/CAPA record, and vendor due-diligence/assessment record in this repository's design can be fully governed and metadata-tracked, but **cannot yet retain the actual binary evidence/content** an auditor or regulator would expect to retrieve, except for `AUDIT`'s system-trace-extract evidence path (system.md §4.1), which covers only evidence that is itself a platform-trace citation. |
+| **Recommended next module** | Session 12 completed the `THIRD-PARTY RISK` module (`docs/roadmap.md` Master Execution Plan Phase 8). See `docs/roadmap.md`'s updated Next Milestone / Master Execution Plan for the current recommendation — Phase 9 (`BUSINESS CONTINUITY`), applying the now eleven proposed-not-applied additive changes across `23-policy`/`24-incident-issue-capa`/`25-third-party-risk` in one consolidation session, or the persona-to-module-role/`system.md §18` ADR consolidation. |
 
 ## Question 1 — PRSMTD Platform As-Is
 
@@ -110,7 +112,7 @@ enumeration.
 ## Question 2 — Combined PRSMTD + Current ERM Specifications
 
 If every currently-authored ERM specification (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`,
-`SECURITY`, `POLICY`, `INCIDENT`, `04-domain-model`) were implemented into PRSMTD:
+`SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `04-domain-model`) were implemented into PRSMTD:
 
 **Additional controls that would become available**:
 - A governed risk register with inherent/residual scoring, risk appetite thresholds, KRI
@@ -152,6 +154,17 @@ If every currently-authored ERM specification (`RISK`, `CONTROLS`, `COMPLIANCE`,
   and `09-security`'s already-reserved `capa_ref_id` columns with only a proposed initiating
   endpoint each; requires a proposed, not-yet-applied `capa_ref_id` extension to `12-controls`,
   `11-compliance`, and `23-policy`.
+- A governed third-party risk capability (`TPR`) — vendor/third-party master data and lifecycle
+  (prospective through terminated); mandatory pre-outsourcing due diligence gating vendor
+  activation; independent inherent/residual vendor-risk rating; security and compliance
+  assessment of vendors; contract tracking (SLA terms, tenure, right-to-audit, sub-delegation
+  restriction, insurance, exit strategy); threshold-banded SLA monitoring mirroring `RISK`'s
+  own KRI shape; and governed vendor exceptions. Activates six integrations with **zero**
+  additive change (both directions of `POLICY`'s `PolicyReferenceLink`; `SECURITY`'s
+  policy-domain tag and already-reserved `finding_type = THIRD_PARTY_RISK` value; `INCIDENT`'s
+  `POST /capa-requests`; the resolution directions of `CONTROLS`' and `COMPLIANCE`'s reference
+  APIs); requires six proposed, not-yet-applied additive changes across `10-risk`,
+  `12-controls`, `11-compliance`, `09-security`, `13-audit`, and `24-incident-issue-capa`.
 
 **Which regulations would become supported** (see
 [Regulatory Readiness Matrix](#regulatory-readiness-matrix) for the full rating and rationale
@@ -165,15 +178,19 @@ clause-level). **Not Ready** for DPDP Act, CERT-In Directions, Companies Act, or
 (ISO 27001/27701/22301/31000, COBIT, NIST CSF) — architecturally compatible, not explicitly
 mapped.
 
-**Which roadmap items would still remain before full platform capability exists**: three
-reserved bounded contexts (`THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`), a platform
-document/object storage capability, a general-purpose Records Retention Schedule capability,
-the `system.md §18` Product Framework reconciliation, a SIEM/security-event-correlation
-capability, an ABAC policy-decision mechanism, five additive changes `23-policy/01-*` and
-`24-incident-issue-capa/01-*` proposed but did not apply (a `CONTROLS`-side policy-link
-endpoint; `capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`; two
-initiating-endpoint-only proposals to `13-audit`/`09-security`; and two `04-domain-model`
-status-label amendments, for `POLICY` and `INCIDENT`), and — newly surfaced by this
+**Which roadmap items would still remain before full platform capability exists**: two
+reserved bounded contexts (`BUSINESS CONTINUITY`, `REPORTING`), a platform document/object
+storage capability, a general-purpose Records Retention Schedule capability, the
+`system.md §18` Product Framework reconciliation, a SIEM/security-event-correlation
+capability, an ABAC policy-decision mechanism, eleven additive changes `23-policy/01-*`,
+`24-incident-issue-capa/01-*`, and `25-third-party-risk/01-*` proposed but did not apply (a
+`CONTROLS`-side policy-link endpoint; `capa_ref_id` extensions to
+`12-controls`/`11-compliance`/`23-policy`; two initiating-endpoint-only proposals to
+`13-audit`/`09-security`; `Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK`
+plus a vendor-link endpoint; an obligation mirror-registration extension; a
+`SecurityFinding.linked_vendor_id` column; an `AuditUniverseEntry.related_vendor_ref_id`
+column; an `Incident.vendor_ref_id` column; and three `04-domain-model` status-label
+amendments, for `POLICY`, `INCIDENT`, and `THIRD-PARTY RISK`), and — newly surfaced by this
 assessment, not previously named on `docs/roadmap.md` — explicit DPDP Act / CERT-In obligation
 content and an explicit international-standard crosswalk. See
 [Roadmap Validation](#roadmap-validation).
@@ -198,7 +215,7 @@ content and an explicit international-standard crosswalk. See
 | Secrets/Key/Certificate Governance (ownership, rotation, expiry tracking) | Partially Built (PRSMTD: `encryption_keys`/`encryption_key_versions`, Production Credential Policy, Wildcard TLS Architecture — see `system.md` §7, §11) | Specified (`SECURITY` — `SecurityAsset`, governance layer only, does not hold credential material) | Planned |
 | Policy Management (authoring, versioning, review, acknowledgement, exceptions) | Not Built | Specified (`POLICY`) | Planned |
 | Incident / Issue / CAPA (intake, RCA, issue tracking, CAPA lifecycle, escalation) | Not Built | Specified (`INCIDENT`) | Planned |
-| Third-Party Risk | Not Built | Not Specified (reserved boundary only) | Not Started |
+| Third-Party Risk (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, reassessment) | Not Built | Specified (`TPR`) | Planned |
 | Business Continuity | Not Built | Not Specified (reserved boundary only) | Not Started |
 | Reporting & Analytics | Not Built | Not Specified (Conformist relationship reserved; no module spec) | Not Started |
 | Document / Object Storage (evidence binaries) | Not Built (confirmed absent) | Not Specified — flagged as a required new PRSMTD capability by three specs | Not Started |
@@ -216,6 +233,7 @@ content and an explicit international-standard crosswalk. See
 | Annexures to Master Circular §1.3.4.1 | Three lines of defense; dedicated internal auditor; non-compliance rate; Rectification Index | Not Implemented | Specified | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `AUDIT` module | Implement `AUDIT` module in PRSMTD |
 | Annexures §2.5 / §2.11 | Operational Risk controls; Financial Reporting Risk / ICFR, segregation of duties | Not Implemented | Specified | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `CONTROLS` module | Implement `CONTROLS` module in PRSMTD |
 | Annexures §2.6 | Compliance Risk — 17 mandatory policy domains, filing responsibilities, AML/CFT program, quarterly/half-yearly alert reporting | Not Implemented | Specified | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `COMPLIANCE` module | Implement `COMPLIANCE` module in PRSMTD |
+| Annexures §2.9 | Outsourcing Risk — mandatory pre-/post-outsourcing due diligence, Board-approved Outsourcing Policy elements, dedicated vendor ownership, structured SLA benchmarking, documented and monitored remediation | Not Implemented | Specified (added Session 12) | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `TPR` module | Implement `TPR` module in PRSMTD |
 | Annexures, System Audit Program Checklist §§1–8 | IT Governance, Information Security, Access Management, Change Management, Incident Management, Backup & Recovery, Job Processing, BCP/DR | Not Implemented | Specified (control taxonomy in `CONTROLS`; audit scope in `AUDIT`; Incident Management domain now in `INCIDENT`, added Session 11) | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `CONTROLS` + `AUDIT` + `INCIDENT` | Implement all three modules; `BUSINESS CONTINUITY` module still needed for the plan/RTO-RPO side, not just the testing-control side |
 | Annexure 8, clause 55 (SEBI/HO/IMD/DF2/CIR/P/2019/57) | Semi-annual System Audit by CISA/CISM/CERT-IN-empanelled auditor; SEBI filing within 3 months of FY end | Not Implemented | Specified | 🟡 Specified – Yet to Build | Mostly Supported (once implemented) | ERM `AUDIT` module (`engagement_type = SYSTEM_AUDIT`) | Implement `AUDIT` module; wire actual SEBI filing/export mechanism (not designed — see `13-audit` Future Extension Points) |
 | Cyber Security and Cyber Resilience Framework for Mutual Funds AMCs (2019) | Cyber security policy, technical/organizational controls | Not Implemented | Partial — scope-level citation only (source PDF is scanned/image-only in this environment) | 🔵 Partially Built (specified at scope level, not clause level) | Partially Supported | ERM `CONTROLS` (`Cyber Security` control family) + ERM `SECURITY` (Security Policy Domain taxonomy, security findings/vulnerability management, privileged access, secrets/key/certificate governance — added Session 6) + ERM `POLICY` (the versioned, governed Information Security Policy *document* itself, tagged to the relevant Security Policy Domain — added Session 10, same scope-level precision) | Manually re-verify clause-level content against the source document before implementation; `12-controls` Assumption 5, inherited by `09-security/01-*` and `23-policy/01-*` |
@@ -252,6 +270,8 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Annexures §2.6.2.1(i)(g)/(iii) a–d | Employee Code of Conduct / AML-CFT awareness acknowledgement | No | Yes | Yes | — | Governance ledger for publication; ungoverned individual record for the acknowledgement itself | `POLICY` (`PolicyVersion`, `PolicyAcknowledgement`) |
 | System Audit Program Checklist §5 | Incident intake, investigation, and closure | No | Yes | Yes | — | Governance ledger, RBAC | `INCIDENT` (`Incident`, `RootCauseAnalysis`) |
 | Annexures §1.3.4.1.1(ii)(d)–(f) | Structured corrective/preventive action with independent closure verification and later effectiveness review, feeding the Rectification Index pattern at the individual-remediation level | No | Yes | Yes | — | Governance ledger, RBAC | `INCIDENT` (`CAPA`, `CAPAClosureVerification`, `CAPAEffectivenessReview`) |
+| Annexures §2.9.3.1(ii)–(iv) | Mandatory pre-outsourcing due diligence gating vendor activation, with a dedicated accountable vendor owner | No | Yes (Session 12) | Yes | — | Governance ledger, RBAC | `TPR` (`Vendor`, `VendorAssessment`) |
+| Annexures §2.9.3.1(v)(c)–(d) | Structured SLA benchmarking tool with documented, monitored remediation | No | Yes (Session 12) | Yes | — | Governance ledger, RBAC | `TPR` (`VendorSLA`, `VendorSLAMeasurement`, `VendorException`) |
 | DPDP Act | Consent management, breach notification for investor PII | No | No | Yes | Privacy Management (unscoped) | Document/object storage would also be needed for consent records | None yet |
 | CERT-In Directions | 6-hour cyber incident reporting | No | Partial (`INCIDENT`'s timeline/escalation substrate only, Session 11) | Yes | `COMPLIANCE` (filing obligation content) | — | `INCIDENT` (`Incident.detected_date`, `Escalation`) |
 | Companies Act / statutory audit | Board governance, related-party transaction controls | No | No | Yes | Unscoped — out of this repository's current SEBI-AMC profile | — | None yet |
@@ -269,8 +289,8 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Cybersecurity Governance | Not Built | Specified | Planned | `SECURITY` (authored, Session 6) |
 | Policy Management | Not Built | Specified | Planned | `POLICY` (authored, Session 10) |
 | Incident Management (intake, RCA, issue tracking, CAPA, escalation) | Not Built | Specified | Planned | `INCIDENT` (authored, Session 11) |
+| Third-Party Risk (vendor lifecycle, due diligence, risk/security/compliance assessment, contract/SLA tracking, ongoing monitoring, reassessment) | Not Built | Specified | Planned | `TPR` (authored, Session 12) |
 | Business Continuity | Not Built | Not Specified | Not Started | `BUSINESS CONTINUITY` (reserved) |
-| Third-Party Risk | Not Built | Not Specified | Not Started | `THIRD-PARTY RISK` (reserved) |
 | Executive Reporting | Not Built | Not Specified | Not Started | `REPORTING`/`ANALYTICS` (reserved; tenant-vs-platform-level question open) |
 | Regulatory Reporting | Not Built | Not Specified (source views named per module, aggregation layer not designed) | Not Started | `14-reporting`/`15-analytics` |
 | Privacy Management | Not Built | Not Specified | Not Started | Unscoped — named in `CLAUDE.md`'s long-term vision only |
@@ -281,7 +301,7 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Regulation / Framework | Current Platform Readiness | Future Platform Readiness (after current ERM specs implemented) | Explanation |
 |---|---|---|---|
 | SEBI *Risk Management System* circular | Not Started | Mostly Ready | `RISK` is fully specified against this circular's own text; only implementation remains. |
-| SEBI Master Circular Annexures §1.3.4.1 / §2.5 / §2.11 / §2.6 / System Audit | Not Started | Mostly Ready | Each clause has a directly-cited, implementation-ready spec (`CONTROLS`, `COMPLIANCE`, `AUDIT`); not "Ready" because none is implemented and the export/filing mechanisms to SEBI/Board/Trustees are named as source views, not built. |
+| SEBI Master Circular Annexures §1.3.4.1 / §2.5 / §2.11 / §2.6 / §2.9 / System Audit | Not Started | Mostly Ready | Each clause has a directly-cited, implementation-ready spec (`CONTROLS`, `COMPLIANCE`, `AUDIT`, and now `TPR` for §2.9 Outsourcing Risk, Session 12); not "Ready" because none is implemented and the export/filing mechanisms to SEBI/Board/Trustees are named as source views, not built. |
 | SEBI Cyber Security and Cyber Resilience Framework (2019) | Not Started | Partially Ready | Cited at scope level only in `CONTROLS` and, as of Session 6, `SECURITY`; source PDF's clause-level text could not be extracted in this environment — manual verification required before implementation, per `12-controls` Assumption 5 (inherited by `09-security/01-*`). `SECURITY` adds the governance layer (findings, PAM, secrets/key/cert governance) at the same scope-level precision, not clause-level. |
 | DPDP Act, 2023 | Not Started | Not Started | No spec addresses personal-data processing, consent, or breach notification for investor PII at all. |
 | CERT-In Directions | Not Started | Early Stage | `INCIDENT` (Session 11) now supplies the incident-timeline/escalation substrate a 6-hour filing obligation would cite; the filing-obligation content and deadline logic itself remains an unscoped `COMPLIANCE` extension. |
@@ -308,7 +328,9 @@ module spec's own Functional Requirements table for the complete, authoritative 
 | Operational | Records Retention Schedule (cross-module statutory retention periods) unspecified | Cross-module capability, not one ERM module | `docs/roadmap.md` Assumption 14/17 (carried), Future Extension Points across `11-compliance`/`13-audit` | Depends on which record types are in scope across all modules | Medium — grows more urgent as more modules ship real data |
 | Reporting | No Reporting/Analytics module authored; aggregation layer over `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`SECURITY` source views not designed | `REPORTING`/`ANALYTICS` (reserved) | `docs/roadmap.md` — named as a future candidate, not the current Next Milestone | All five authored modules (Conformist, read-only) | Medium — every module already exposes source views; only the aggregation layer is missing |
 | Functional | `BUSINESS CONTINUITY` context reserved but not authored — SEBI DR/BCP mandate (flagged since `10-risk`) remains unspecified for the *plan* side (not the testing-control side, which `CONTROLS` already covers) | `BUSINESS CONTINUITY` (reserved) | `docs/roadmap.md` — named as an alternative candidate, not the current Next Milestone | `RISK`, `CONTROLS` (both authored) | Medium |
-| Functional | `THIRD-PARTY RISK` reserved but unspecified — **`POLICY` closed Session 10, `INCIDENT`/`ISSUE`/`CAPA` closed Session 11** | Its own future module | `docs/roadmap.md` Master Execution Plan Phase 8 | See `04-domain-model` Dependency Rules | Medium |
+| Functional | `THIRD-PARTY RISK` reserved but unspecified — **Closed (Session 12)**, see `25-third-party-risk/01-third-party-risk-management.md` | `TPR` (authored) | `docs/roadmap.md` Master Execution Plan Phase 8 | See `04-domain-model` Dependency Rules | Resolved |
+| Business | Six additive changes proposed by `25-third-party-risk/01-*` (`Risk.source = THIRD_PARTY` on `10-risk`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint on `12-controls`; an obligation mirror-registration extension on `11-compliance`; `SecurityFinding.linked_vendor_id` on `09-security`; `AuditUniverseEntry.related_vendor_ref_id` on `13-audit`; `Incident.vendor_ref_id` on `24-incident-issue-capa`) | — | **Not yet on `docs/roadmap.md` as a scheduled phase** — Session 12 | None — each is a one-line column/enum value plus, in two cases, one endpoint, already precedented by identical proposed-not-applied changes across `11-compliance`/`09-security`/`23-policy`/`24-incident-issue-capa` | Low — precisely-scoped, low-effort |
+| Architecture | `04-domain-model`'s Bounded Context Map still labels `THIRD-PARTY RISK` "(reserved)" despite `25-third-party-risk/01-*` now being authored | `04-domain-model/01-enterprise-domain-model.md` | **Not yet on `docs/roadmap.md` as a scheduled phase** — proposed by `25-third-party-risk/01-*`, Session 12, the same amendment shape `09-security`/`23-policy`/`24-incident-issue-capa` each proposed | None — additive status-label and cross-reference correction only, plus a closing note on the `VendorCategory`/`RiskCategory` question `04-domain-model` itself left open | Low — precisely-scoped, low-effort |
 | Business | `CONTROLS`-side endpoint to populate a proposed `module_controls_control_policy_link` (e.g. `POST /controls/{id}/policy-links`) | — | **Not yet on `docs/roadmap.md` as a scheduled phase** — proposed by `23-policy/01-*` Integration with Controls, Session 10 | None — one-line table shape (already precedented by `module_controls_control_obligation_link`), one endpoint | Low — precisely-scoped, low-effort, mirrors the already-twice-applied `11-compliance`/`09-security` pattern |
 | Architecture | `04-domain-model`'s Bounded Context Map still labels `POLICY` "(reserved)" despite `23-policy/01-*` now being authored | `04-domain-model/01-enterprise-domain-model.md` | **Not yet on `docs/roadmap.md` as a scheduled phase** — proposed by `23-policy/01-*`, Session 10, the same amendment shape `09-security` proposed (Session 6) and a later session applied (Session 7) | None — additive status-label and cross-reference correction only | Low — precisely-scoped, low-effort |
 | Business | `capa_ref_id` column plus initiating endpoint needed on `ControlException` (`12-controls`), `ComplianceException` (`11-compliance`), and `PolicyException` (`23-policy`) | — | **Not yet on `docs/roadmap.md` as a scheduled phase** — proposed by `24-incident-issue-capa/01-*` Integration with Controls/Compliance/Policy, Session 11 | None — one-line column plus one endpoint per module, already precedented by `capa_ref_id` on `FollowUpAction`/`SecurityFinding` | Low — precisely-scoped, low-effort |
@@ -336,6 +358,8 @@ Decisions sections (both updated earlier this session):
 | `INCIDENT`/`ISSUE`/`CAPA` module | **Yes** — Master Execution Plan Phase 7 — **closed (Session 11)**, see `24-incident-issue-capa/01-incident-issue-capa-management.md` |
 | `CONTROLS`-side policy-link endpoint; `04-domain-model` `POLICY` status-label amendment | **No** — proposed by `23-policy/01-*` (Session 10); not yet a named `docs/roadmap.md` phase of their own, tracked as a Gap Assessment row above pending explicit scheduling, the same treatment `11-compliance`'s and `09-security`'s own proposed additive changes received before a later session applied them |
 | `capa_ref_id` extensions to `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model` `INCIDENT` status-label amendment | **No** — proposed by `24-incident-issue-capa/01-*` (Session 11); not yet named `docs/roadmap.md` phases of their own, tracked as Gap Assessment rows above pending explicit scheduling |
+| `THIRD-PARTY RISK` module | **Yes** — Master Execution Plan Phase 8 — **closed (Session 12)**, see `25-third-party-risk/01-third-party-risk-management.md` |
+| `Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK` plus vendor-link endpoint; obligation mirror-registration extension; `SecurityFinding.linked_vendor_id`; `AuditUniverseEntry.related_vendor_ref_id`; `Incident.vendor_ref_id`; `04-domain-model` `THIRD-PARTY RISK` status-label amendment | **No** — proposed by `25-third-party-risk/01-*` (Session 12); not yet named `docs/roadmap.md` phases of their own, tracked as Gap Assessment rows above pending explicit scheduling |
 | `system.md §18` reconciliation | **Yes** — Open Decisions |
 | Persona-to-module-role ADR | **Yes** — Open Decisions |
 | Records Retention Schedule | **Yes** — carried Assumption across sessions, named explicitly by `11-compliance`/`13-audit` |
@@ -382,6 +406,17 @@ are **not** yet applied and are not yet named as their own scheduled `docs/roadm
 phases — recommended for consolidation into one future low-effort session alongside `23-policy`'s
 own two still-unapplied proposals, whenever a future session is explicitly authorized to apply
 them.
+**Session 12 update**: `docs/roadmap.md` Master Execution Plan Phase 8 (`THIRD-PARTY RISK`) is
+closed — `25-third-party-risk/01-third-party-risk-management.md` is authored (module code
+`TPR`), grounded in the Annexures' dedicated §2.9 Outsourcing Risk section (not previously
+mined by any frozen spec). Six additive changes this new spec itself proposed
+(`Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint;
+an obligation mirror-registration extension; `SecurityFinding.linked_vendor_id`;
+`AuditUniverseEntry.related_vendor_ref_id`; `Incident.vendor_ref_id`; plus the `04-domain-model`
+`THIRD-PARTY RISK` status-label amendment) are **not** yet applied — recommended for the same
+future consolidation session as `23-policy`'s and `24-incident-issue-capa`'s own still-unapplied
+proposals, bringing the total to eleven additive changes plus three `04-domain-model`
+status-label amendments awaiting one explicitly-authorized session.
 
 ## Specification Progress Matrix
 
@@ -392,22 +427,22 @@ them.
 | `CONTROLS` | Complete | Not Started | Complete — Session 2 |
 | `COMPLIANCE` | Complete | Not Started | Complete — Session 4 |
 | `AUDIT` | Complete | Not Started | Complete — Session 5 |
-| `THIRD-PARTY RISK` | Planned (boundary reserved) | Not Started | Master Execution Plan Phase 8 |
 | `BUSINESS CONTINUITY` | Planned (boundary reserved) | Not Started | Master Execution Plan Phase 9 |
 | `REPORTING`/`ANALYTICS` | Planned (Conformist relationship reserved) | Not Started | Master Execution Plan Phase 11 |
 | `09-security/` (`SECURITY` module) | **Complete — Session 6** | Not Started | Was Next Milestone item 2; now authored ([`01-security-management.md`](../09-security/01-security-management.md)) — a cross-cutting consolidation plus a genuine sixth module. Originally outside `04-domain-model`'s 9-context map (see that spec's Assumption 1); **folded in as a tenth context in Session 7**, closing that gap. |
 | `23-policy/` (`POLICY` module) | **Complete — Session 10** | Not Started | Master Execution Plan Phase 6; now authored ([`01-policy-management.md`](../23-policy/01-policy-management.md)) — activates the `POLICY` bounded context `04-domain-model` reserved. Two of three inbound integrations (`COMPLIANCE`, `SECURITY`) required zero additive change; the `CONTROLS` integration and the `04-domain-model` status-label amendment remain proposed, not applied. |
 | `24-incident-issue-capa/` (`INCIDENT` module) | **Complete — Session 11** | Not Started | Master Execution Plan Phase 7; now authored ([`01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md)) — activates the `INCIDENT`/`ISSUE`/`CAPA` bounded context `04-domain-model` reserved, resolving its open module-code naming question. `Risk.source = INCIDENT` required zero additive change; `13-audit`/`09-security`'s already-reserved `capa_ref_id` columns need only a proposed endpoint each; `12-controls`/`11-compliance`/`23-policy` and the `04-domain-model` status-label amendment remain proposed, not applied. |
+| `25-third-party-risk/` (`TPR` module) | **Complete — Session 12** | Not Started | Master Execution Plan Phase 8; now authored ([`01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md)) — activates the `THIRD-PARTY RISK` bounded context `04-domain-model` reserved, resolving its open `VendorCategory`/`RiskCategory` question. Six integrations (`POLICY` ×2, `SECURITY` ×2, `INCIDENT`, and the resolution directions of `CONTROLS`/`COMPLIANCE`) activate with zero additive change; six additive changes (`10-risk`, `12-controls`, `11-compliance`, `09-security`, `13-audit`, `24-incident-issue-capa`) and the `04-domain-model` status-label amendment remain proposed, not applied. |
 
 ## Repository Maturity
 
 | Dimension | Rating | Explanation |
 |---|---|---|
 | PRSMTD Platform Maturity | High (for a generic substrate) | Governance ledger, RBAC, module framework, RLS, audit/observability, and authentication are all documented as binding, guard-enforced invariants with real enforcement mechanisms (ArchUnit-style guards named throughout §5a–§5c) — not aspirational. Zero business-domain (GRC) capability, which is by design at this layer. |
-| ERM Specification Maturity | Medium-High, growing | Eight documents authored, each meeting `CLAUDE.md`'s full Documentation Standards checklist, each building on a shared modeling kernel that has now held across eight consecutive modules without structural rework (`13-audit` needed zero additive changes to any frozen spec at its own authoring; `09-security/01-*` proposed three additive changes, all applied — Session 7; `23-policy/01-*` needed zero additive change for two of its three integrations — Session 10; `24-incident-issue-capa/01-*` needed zero additive change for its `RISK` integration and only an endpoint-only proposal for two of its five integrations — Session 11, the same non-invasive discipline every prior activation used). Three of ten bounded contexts named in `04-domain-model`'s map remain unauthored: `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`. `POLICY` and `INCIDENT` are both now authored as ERM specifications (Sessions 10–11) but `04-domain-model`'s own map still labels both "(reserved)," pending a future session applying the amendments each spec proposes — see [Percentage Completion](#percentage-completion). |
-| Combined Platform Maturity | Low-Medium | Nothing is implemented; the combined maturity of a *deployed* platform is necessarily Low today. The combined maturity of the *design* (were it implemented) is Medium-High for the seven covered domains, Not Started for the other three. |
-| Regulatory Mapping Maturity | Medium for SEBI Mutual Fund regulation, Low for everything else | Every authored spec carries a precise regulatory citation for its primary SEBI source (clause-level for `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`INCIDENT`; scope-level for `SECURITY`, per its inherited Cyber Security Framework PDF-extraction limitation). No spec cites DPDP, CERT-In (beyond `INCIDENT`'s timeline substrate), Companies Act, Income Tax, or any international standard. |
-| Traceability Maturity | High | Every substantive spec carries the mandated Traceability block; `01-master-traceability-matrix.md` aggregates all eight with zero gaps between what each spec's Traceability block claims and what the matrix records — updated this session (Session 11) with `24-incident-issue-capa/01-*`'s entries, including its five proposed-not-applied additive changes recorded as open gap rows rather than silently omitted. |
+| ERM Specification Maturity | Medium-High, growing | Nine documents authored, each meeting `CLAUDE.md`'s full Documentation Standards checklist, each building on a shared modeling kernel that has now held across nine consecutive modules without structural rework (`13-audit` needed zero additive changes to any frozen spec at its own authoring; `09-security/01-*` proposed three additive changes, all applied — Session 7; `23-policy/01-*` needed zero additive change for two of its three integrations — Session 10; `24-incident-issue-capa/01-*` needed zero additive change for its `RISK` integration and only an endpoint-only proposal for two of its five integrations — Session 11; `25-third-party-risk/01-*` needed zero additive change for six of its nine integrations, the highest fraction yet — Session 12, the same non-invasive discipline every prior activation used, strengthening rather than degrading as the shared kernel absorbs more modules). Two of ten bounded contexts named in `04-domain-model`'s map remain unauthored: `BUSINESS CONTINUITY`, `REPORTING`. `POLICY`, `INCIDENT`, and now `TPR` are all authored as ERM specifications (Sessions 10–12) but `04-domain-model`'s own map still labels all three "(reserved)," pending a future session applying the amendments each spec proposes — see [Percentage Completion](#percentage-completion). |
+| Combined Platform Maturity | Low-Medium | Nothing is implemented; the combined maturity of a *deployed* platform is necessarily Low today. The combined maturity of the *design* (were it implemented) is Medium-High for the eight covered domains, Not Started for the other two. |
+| Regulatory Mapping Maturity | Medium for SEBI Mutual Fund regulation, Low for everything else | Every authored spec carries a precise regulatory citation for its primary SEBI source (clause-level for `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`INCIDENT`/`TPR`; scope-level for `SECURITY`, per its inherited Cyber Security Framework PDF-extraction limitation). No spec cites DPDP, CERT-In (beyond `INCIDENT`'s timeline substrate), Companies Act, Income Tax, or any international standard. |
+| Traceability Maturity | High | Every substantive spec carries the mandated Traceability block; `01-master-traceability-matrix.md` aggregates all nine with zero gaps between what each spec's Traceability block claims and what the matrix records — updated this session (Session 12) with `25-third-party-risk/01-*`'s entries, including its six proposed-not-applied additive changes recorded as open gap rows rather than silently omitted. |
 | Overall Readiness | Early-to-Mid specification phase | Consistent with `docs/roadmap.md`'s own "Current Status" framing — this is not a claim of production readiness at any layer. |
 
 ## Percentage Completion
@@ -420,18 +455,19 @@ Bounded Context Map currently reflects as authored (`RISK`, `CONTROLS`, `COMPLIA
 
 **Denominator**: 10 total bounded contexts in `04-domain-model`'s bounded context map.
 
-**Specification Completion remains 5/10 = 50% this session**, unchanged from Sessions 7–10,
-**despite `24-incident-issue-capa/01-incident-issue-capa-management.md` now also being
-authored** (module code `INCIDENT`, joining `23-policy/01-*` from Session 10). This
-deliberately follows the precedent Session 6→7 already set for `SECURITY`: a module authored
-elsewhere does not move this fraction until `04-domain-model`'s own status-label amendment is
-actually applied — the fraction counts what `04-domain-model`'s map itself currently labels
-"authored," not what has been authored elsewhere and merely proposed back to it. Both
-`23-policy/01-*` and `24-incident-issue-capa/01-*` propose, but neither this nor any prior
-session applies, their respective `(reserved)` → `(authored)` amendments (see Gap Assessment).
-**Once both amendments are applied, Specification Completion becomes 7/10 = 70%** — flagged
-here so a future session does not have to re-derive the arithmetic, the same forward note this
-document gave for `SECURITY`'s own pending amendment between Sessions 6 and 7.
+**Specification Completion remains 5/10 = 50% this session**, unchanged from Sessions 7–11,
+**despite `25-third-party-risk/01-third-party-risk-management.md` now also being authored**
+(module code `TPR`, joining `23-policy/01-*` and `24-incident-issue-capa/01-*` from Sessions
+10–11). This deliberately follows the precedent Session 6→7 already set for `SECURITY`: a
+module authored elsewhere does not move this fraction until `04-domain-model`'s own
+status-label amendment is actually applied — the fraction counts what `04-domain-model`'s map
+itself currently labels "authored," not what has been authored elsewhere and merely proposed
+back to it. `23-policy/01-*`, `24-incident-issue-capa/01-*`, and now `25-third-party-risk/01-*`
+each propose, but neither this nor any prior session applies, their respective `(reserved)` →
+`(authored)` amendments (see Gap Assessment). **Once all three amendments are applied,
+Specification Completion becomes 8/10 = 80%** — flagged here so a future session does not have
+to re-derive the arithmetic, the same forward note this document gave for `SECURITY`'s own
+pending amendment between Sessions 6 and 7.
 
 This figure **excludes** `04-domain-model` itself (a foundational cross-cutting document, not
 a bounded context, so it does not belong in either the numerator or denominator) and excludes
@@ -444,25 +480,25 @@ gap in this percentage, per that convention.
 
 **Method**: a capability-count heuristic across the 24-row list in
 [Platform Capability Matrix](#platform-capability-matrix), updated this session to move the
-`Incident / Issue / CAPA` row from "Not Started" to "Specified but Pending" following
-`24-incident-issue-capa/01-incident-issue-capa-management.md` — 7 substrate rows + 12
-GRC-domain rows + 5 cross-cutting-gap rows, the same 24-row denominator Session 6 established
-(the row itself already existed; this session only changes its status). This is an auditable
-count, not an effort-weighted estimate — a single "Built" substrate capability (e.g. RBAC) and
-a single "Not Started" GRC-domain capability (e.g. Third-Party Risk) are counted as
+`Third-Party Risk` row from "Not Started" to "Specified but Pending" following
+`25-third-party-risk/01-third-party-risk-management.md` — 7 substrate rows + 12 GRC-domain
+rows + 5 cross-cutting-gap rows, the same 24-row denominator Session 6 established (the row
+itself already existed; this session only changes its status). This is an auditable count,
+not an effort-weighted estimate — a single "Built" substrate capability (e.g. RBAC) and a
+single "Not Started" GRC-domain capability (e.g. Business Continuity) are counted as
 equally-weighted rows, which likely **understates** the substrate's true implementation effort
 relative to a not-yet-scoped future module. Treat this percentage as directional, not precise.
 
 | Status | Count | Rows |
 |---|---|---|
 | **Already Built** | 7 | Identity & Tenancy, Multi-Tenancy RLS, Governance Ledger, RBAC, Module Framework, Audit Trail & Observability, Authentication |
-| **Specified but Pending** | 9 | Risk Register, Control Library, Compliance/Regulatory Obligations, Audit Management, Cybersecurity Governance, Privileged Access Management, Secrets/Key/Certificate Governance, Policy Management, Incident/Issue/CAPA |
-| **Remaining (Not Started/Not Specified)** | 8 | Third-Party Risk, Business Continuity, Reporting & Analytics, Document/Object Storage, Records Retention Schedule, Notification/Alerting, SIEM/Automated Threat Detection, ABAC |
+| **Specified but Pending** | 10 | Risk Register, Control Library, Compliance/Regulatory Obligations, Audit Management, Cybersecurity Governance, Privileged Access Management, Secrets/Key/Certificate Governance, Policy Management, Incident/Issue/CAPA, Third-Party Risk |
+| **Remaining (Not Started/Not Specified)** | 7 | Business Continuity, Reporting & Analytics, Document/Object Storage, Records Retention Schedule, Notification/Alerting, SIEM/Automated Threat Detection, ABAC |
 
-**Already Built % = 7/24 ≈ 29%. Specified but Pending % = 9/24 = 37.5% ≈ 38%. Remaining % =
-8/24 ≈ 33%.** (Session 5's 19-row denominator was superseded by Session 6's 24-row count; the
+**Already Built % = 7/24 ≈ 29%. Specified but Pending % = 10/24 ≈ 42%. Remaining % =
+7/24 ≈ 29%.** (Session 5's 19-row denominator was superseded by Session 6's 24-row count; the
 underlying substrate rows and their "Built" status remain unchanged this session — only
-`Incident / Issue / CAPA`'s own status moved, per `24-incident-issue-capa/01-*`.)
+`Third-Party Risk`'s own status moved, per `25-third-party-risk/01-*`.)
 
 ## Final Statement
 
@@ -552,3 +588,17 @@ compliance program in their own right.
   is applied yet; the document now explicitly notes it becomes 7/10 = 70% once both land.
   Platform Capability Completion moves from 7/8/9 to 7/9/8 (out of 24), since
   `Incident / Issue / CAPA` is the only row whose status changed this session.
+- **Session 12 update (2026-07-21)**: incrementally updated — not regenerated — to reflect
+  the newly authored `25-third-party-risk/01-third-party-risk-management.md` (module code
+  `TPR`), grounded in the Annexures' dedicated §2.9 Outsourcing Risk section. Updated:
+  Executive Summary, Scope and Method, Question 2, Platform Capability Matrix
+  (`Third-Party Risk` row), Compliance Coverage Matrix (new §2.9 row), Control-Level Matrix
+  (`+2` rows), Enterprise Capability Matrix (`Third-Party Risk` row), Regulatory Readiness
+  Matrix (SEBI Annexures row), Gap Assessment (`THIRD-PARTY RISK` gap row closed; two new
+  proposed-not-applied gap rows added, one bundling this spec's six additive changes), Roadmap
+  Validation, Specification Progress Matrix (`+1` row), Repository Maturity, and Percentage
+  Completion. **Specification Completion stays at 5/10 = 50%** — none of `POLICY`'s,
+  `INCIDENT`'s, or `TPR`'s `04-domain-model` status-label amendments is applied yet; the
+  document now explicitly notes it becomes 8/10 = 80% once all three land. Platform Capability
+  Completion moves from 7/9/8 to 7/10/7 (out of 24), since `Third-Party Risk` is the only row
+  whose status changed this session.

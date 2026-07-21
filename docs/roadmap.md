@@ -21,10 +21,10 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — **eighth authoritative spec complete as of Session 11**
-(`24-incident-issue-capa/01-incident-issue-capa-management.md`, module code `INCIDENT`; see
-the Session 11 entry under Completed Work and Master Execution Plan Phase 7). The remainder of
-this paragraph and the next is preserved as the Session 6–7 historical record of how the first
+**Phase**: Early specification phase — **ninth authoritative spec complete as of Session 12**
+(`25-third-party-risk/01-third-party-risk-management.md`, module code `TPR`; see the Session
+12 entry under Completed Work and Master Execution Plan Phase 8). The remainder of this
+paragraph and the next two are preserved as the Session 6–7 historical record of how the first
 six specs reached their current state. Session 6 closed the two remaining additive-change gaps
 from `11-compliance` (`10-risk`'s `Risk.source` enum gained `COMPLIANCE_OBLIGATION`;
 `12-controls` gained `POST /controls/{id}/obligation-links`), and authored
@@ -47,14 +47,14 @@ redesigned by any of these corrections.
 **Repository state**: Scaffolding (all 22 original `docs/NN-*/README.md` section indexes plus
 `docs/reference/`, extended with `23-policy` through `27-user-experience` at Session 9) was
 already initialized and validated internally consistent against `CLAUDE.md` prior to Session
-1. **Eight authoritative specs now exist as of Session 11**: `RISK`, `CONTROLS`, the
-Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, and `INCIDENT`. The
-Enterprise Domain Model's own Bounded Context Map, however, still names only five authored
+1. **Nine authoritative specs now exist as of Session 12**: `RISK`, `CONTROLS`, the
+Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, and `TPR`.
+The Enterprise Domain Model's own Bounded Context Map, however, still names only five authored
 business-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five
 reserved contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
-`BUSINESS CONTINUITY`, `REPORTING`) — both `POLICY`'s and `INCIDENT`'s own status-label
-amendments are proposed, not yet applied (Assumptions 33 and 35) — ten total, all
-cross-references internally consistent. One traceability/assessment artifact
+`BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s, `INCIDENT`'s, and now `TPR`'s own
+status-label amendments are all proposed, not yet applied (Assumptions 33, 35, and 37) — ten
+total, all cross-references internally consistent. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
 
@@ -810,6 +810,123 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
 - Updated this file (this entry; Phase Summary table and Phase 7's own detail entry marked
   complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
 
+### Session 12 — 2026-07-21
+
+- Reviewed `CLAUDE.md`, this file in full (all eleven prior session entries, the complete
+  Master Execution Plan, Assumptions, Risks, Open Decisions), the Enterprise Domain Model, and
+  all eight frozen specs (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`,
+  `23-policy`, `24-incident-issue-capa`) — specifically the Master Execution Plan's Phase 8
+  entry and every frozen spec's own already-seeded "third-party"/"vendor"/"outsourcing"
+  content (`10-risk`'s "Third-Party Risks" `RiskCategory` sub-category; `12-controls`'
+  "Third-Party/Outsourcing Oversight" control family; `11-compliance`'s and `23-policy`'s
+  "Outsourcing & Related-Party Oversight" categories; `13-audit`'s already-reserved
+  `AuditUniverseEntry.entry_type = VENDOR` value; `09-security`'s already-reserved
+  `SecurityFinding.finding_type = THIRD_PARTY_RISK` value; `24-incident-issue-capa`'s reserved
+  "Third-Party / Vendor" Incident category) — before making any change, per this session's
+  explicit instruction. Treated all eight frozen specs as authoritative inputs, not to be
+  redesigned — none was modified.
+- Extracted and read Annexures to Master Circular for Mutual Funds (March 31, 2023) §2.9
+  "Outsourcing Risk" via `pdftotext` — a dedicated, clause-level regulatory section (mandatory
+  elements §2.9.3.1(i)–(vii): in-house-equivalent risk management, a dedicated vendor owner,
+  a seventeen-element Board-approved Outsourcing Policy, pre-outsourcing due diligence
+  including AML/CFT, post-outsourcing periodic review at least annual, structured SLA
+  benchmarking, and reconciliation/fund-accounting-system checks; recommendatory elements
+  §2.9.3.2: fraud-vulnerability assessment, exit-strategy/alternate-provider pooling) not
+  previously mined by any frozen spec — confirming the Master Execution Plan Phase 8 entry's
+  own prediction that this session's regulatory-citation work would be genuinely new, not a
+  re-citation. Re-cited §2.10 "Sales and Distribution Risk" at scope level only, for the
+  `Distribution & Marketing Channel` seed vendor category.
+- **Executed Master Execution Plan Phase 8 (Third-Party Risk Management Module)**: authored
+  the repository's **ninth authoritative specification**,
+  [`25-third-party-risk/01-third-party-risk-management.md`](25-third-party-risk/01-third-party-risk-management.md)
+  — module code `TPR`, activating the `THIRD-PARTY RISK` bounded context `04-domain-model`
+  reserved since Session 3. Covers: `Vendor` (aggregate root) and its governed lifecycle
+  (`PROSPECTIVE → ONBOARDING → ACTIVE → UNDER_REVIEW → OFFBOARDING → TERMINATED`, gated by a
+  mandatory `APPROVED` due-diligence assessment before activation, mirroring every prior
+  aggregate root's root/child governed-lifecycle shape); `VendorContract` (SLA terms, tenure,
+  right-to-audit, sub-delegation restriction, insurance requirement, exit-strategy flag —
+  operationalizing the Annexures' seventeen-element Outsourcing Policy structure without
+  re-authoring the Policy document itself); `VendorAssessment` (one entity, four
+  `assessment_type` values — `DUE_DILIGENCE`, `RISK_ASSESSMENT`, `SECURITY_ASSESSMENT`,
+  `COMPLIANCE_ASSESSMENT` — mirroring `ControlTest`'s single-entity-multiple-type-discriminator
+  shape rather than four separate entities); `VendorException` (immediate-raise,
+  governed-closure, mirroring `ControlException`/`ComplianceException`/`PolicyException`
+  exactly); `VendorSLA`/`VendorSLAMeasurement` (mirroring `RISK`'s own KRI/KRIMeasurement shape
+  precisely, satisfying the Annexures' mandatory "structured tool to benchmark service
+  providers against SLA" element); and `VendorEvidence`. Eleven tables total (2 reference, 9
+  core), full security/authorization/audit/reporting/API surface.
+- **Resolved, explicitly, `04-domain-model`'s own open Future Enhancements question** — "Third
+  Party Risk's relationship to `RiskCategory`... whether `VendorRiskCategory` is a genuinely
+  separate taxonomy or a seeded sub-tree of `RISK`'s existing `RiskCategory` hierarchy" — as
+  neither: `VendorCategory` (this module's own reference table) classifies *what kind of
+  vendor* a Vendor is, not a risk taxonomy at all; a Vendor-sourced Risk register entry uses
+  `RISK`'s own already-seeded "Other Business Risks → Third-Party Risks" `RiskCategory`
+  sub-category, present since `10-risk`'s original Session 1 seed — no `VendorRiskCategory`
+  entity is designed, and no `RiskCategory` taxonomy change is needed at all (spec Assumption
+  5). This spec proposes, but does not apply, the corresponding `04-domain-model` closing note.
+- **Being the ninth module authored, activated six of nine cross-module integrations with
+  zero additive change to any frozen spec — the highest fraction any module in this
+  repository has achieved**: both directions of `23-policy`'s `PolicyReferenceLink` (the
+  first confirmation, with a third citing module, that its deliberately-polymorphic design
+  performs exactly as that spec intended); `09-security`'s `GET /policy-domains` tag
+  resolution and its already-reserved `SecurityFinding.finding_type = THIRD_PARTY_RISK` value
+  (reserved specifically for this integration at `09-security`'s own Session 6 authoring);
+  `24-incident-issue-capa`'s `POST /capa-requests`, built directly into
+  `VendorException.capa_ref_id` rather than merely proposed — the first module in this
+  repository authored *after* `INCIDENT` already existed, and so the first able to build this
+  integration outright (spec Assumption 6); and the read-only resolution directions of
+  `12-controls`' `GET /controls/{id}/reference` and `11-compliance`'s
+  `GET /obligations/{id}/reference`.
+- **Explicitly declined to assume `CONTROLS`' and `COMPLIANCE`'s mirror-registration
+  (write) endpoints are reusable without verification** — a more conservative integration-risk
+  read than any prior module made. `12-controls/01-*` itself documents its own
+  `POST /controls/{id}/references` as hardcoded to `RISK`'s mirror shape (the exact situation
+  that produced a dedicated `POST /controls/{id}/obligation-links` for `COMPLIANCE`);
+  `11-compliance/01-*`'s own APIs table describes `POST /obligations/{id}/references` as
+  registering "a mirror reference from `CONTROLS`" specifically. Unlike `POLICY`'s confirmed
+  third-citing-module-ready design, this spec therefore proposes, but does not apply, a
+  `POST /controls/{id}/vendor-links` endpoint on `12-controls` and an unspecified-shape
+  extension to `11-compliance`'s mirror-registration direction (spec Assumptions 8–9) — real
+  functioning value (`GET`-direction resolution) is still delivered with zero change to either
+  frozen spec.
+- **Proposed, but did not apply, six further additive changes**, continuing the
+  propose-in-the-new-spec/apply-in-a-later-approved-session pattern this repository has now
+  used nine times: `Risk.source = THIRD_PARTY` (`10-risk`); `Control.source =
+  THIRD_PARTY_RISK` plus `module_controls_control_vendor_link`/
+  `POST /controls/{id}/vendor-links` (`12-controls`); the `COMPLIANCE`-side mirror-registration
+  extension named above (`11-compliance`); `SecurityFinding.linked_vendor_id`
+  (`09-security`); `AuditUniverseEntry.related_vendor_ref_id` (`13-audit`) — activating that
+  table's already-live `entry_type = VENDOR` value with a real link; `Incident.vendor_ref_id`
+  (`24-incident-issue-capa`) — activating that module's already-reserved "Third-Party / Vendor"
+  category with a real link. **Proposed, but did not apply, the `04-domain-model`
+  `THIRD-PARTY RISK` `(reserved)` → `(authored)` status-label amendment** plus its closing note
+  on the `VendorCategory`/`RiskCategory` question. **No change was made to `10-risk/01-*.md`,
+  `12-controls/01-*.md`, `11-compliance/01-*.md`, `09-security/01-*.md`, `13-audit/01-*.md`,
+  `24-incident-issue-capa/01-*.md`, or `04-domain-model/01-*.md`** by this session.
+- Updated [`25-third-party-risk/README.md`](25-third-party-risk/README.md) status to reflect
+  the authored spec.
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  with the Third-Party Risk spec's Business↔Regulatory, Capability↔PRSMTD, and
+  Requirement↔Spec entries — adding the Third-Party Risk row, closing the module's own gap
+  row, adding seven new proposed-not-applied additive-change gap rows (six across
+  `10-risk`/`12-controls`/`11-compliance`/`09-security`/`13-audit`/`24-incident-issue-capa`,
+  plus the `04-domain-model` status-label amendment), and a Session 12 Status paragraph.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary, Scope and Method, Question 2, Platform Capability Matrix (`Third-Party
+  Risk`: Not Started → Planned), Compliance Coverage Matrix (new Annexures §2.9 row),
+  Control-Level Matrix (`+2` rows), Enterprise Capability Matrix (`Third-Party Risk` row),
+  Regulatory Readiness Matrix (SEBI Annexures row updated to include §2.9), Gap Assessment
+  (`THIRD-PARTY RISK` gap row closed; two new gap rows added, one of which bundles this
+  session's six additive-change proposals), Roadmap Validation, Specification Progress Matrix
+  (`+1` row), Repository Maturity, and Percentage Completion. **Specification Completion
+  stays at 5/10 = 50%** — none of `POLICY`'s, `INCIDENT`'s, or `TPR`'s `04-domain-model`
+  status-label amendments is applied yet; the document now explicitly notes it becomes
+  8/10 = 80% once all three land. Platform Capability Completion moves from 7/9/8 to 7/10/7
+  (out of 24), since `Third-Party Risk` is the only row whose status changed this session.
+- Updated this file (this entry; Phase Summary table and Phase 8's own detail entry marked
+  complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -903,7 +1020,7 @@ a future session.
 | 5 | 0 — Decisions | Governance ADR Backfill (`20-adr`) | Yes (ADRs) | No | Low | Phase 1 |
 | 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) — **Complete, Session 10** | Yes | Yes (`04-domain-model`, proposed; `12-controls`, proposed) | High | Phase 1 |
 | 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module (`INCIDENT`) — **Complete, Session 11** | Yes | Yes (`04-domain-model`, proposed; `12-controls`/`11-compliance`/`23-policy`, proposed; `13-audit`/`09-security`, proposed endpoint only) | High | Phase 1 |
-| 8 | 1 — Remaining Modules | Third-Party Risk Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
+| 8 | 1 — Remaining Modules | Third-Party Risk Management Module (`TPR`) — **Complete, Session 12** | Yes | Yes (`04-domain-model`, proposed; `10-risk`/`12-controls`/`11-compliance`/`09-security`/`13-audit`/`24-incident-issue-capa`, proposed) | High | Phase 1 |
 | 9 | 1 — Remaining Modules | Business Continuity Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
 | 10 | 1 — Remaining Modules | Records Retention Schedule Capability | No | Yes (five frozen specs) | Medium | None |
 | 11 | 2 — Reporting/AI/Integration/Deployment | Reporting & Analytics Module (`14-reporting`, `15-analytics`) | Yes | No | High | All six frozen specs; Phases 6–9 (partial) |
@@ -1316,7 +1433,7 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
   row).
 - **Roadmap updates required**: Same shape as Phase 6.
 
-#### Phase 8 — Third-Party Risk Management Module
+#### Phase 8 — Third-Party Risk Management Module — **Complete, Session 12**
 
 - **Objective**: Author the `THIRD-PARTY RISK` bounded context — reserved in `04-domain-model`,
   named in `CLAUDE.md`'s long-term vision, not yet a forward reference from any frozen spec's
@@ -1348,6 +1465,18 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
 - **Traceability updates required**: Same shape as Phase 6.
 - **Compliance Assessment updates required**: Same shape as Phase 6 (`Third-Party Risk` row).
 - **Roadmap updates required**: Same shape as Phase 6.
+- **Outcome (Session 12)**: Executed exactly as scoped, plus more — the regulatory-citation
+  task predicted above landed precisely: Annexures §2.9 "Outsourcing Risk" was found,
+  clause-level, not previously mined. Delivered
+  [`25-third-party-risk/01-third-party-risk-management.md`](25-third-party-risk/01-third-party-risk-management.md)
+  (module code `TPR`), activating six of nine cross-module integrations with zero additive
+  change (the highest fraction any module has achieved) and resolving `04-domain-model`'s own
+  open `VendorCategory`/`RiskCategory` question. `Control.source` gained a proposed
+  `THIRD_PARTY_RISK` value (the "if third-party controls need their own source tag" question
+  this phase entry itself left open is resolved: yes). Six additive changes proposed, not
+  applied, across `10-risk`/`12-controls`/`11-compliance`/`09-security`/`13-audit`/
+  `24-incident-issue-capa`; the `04-domain-model` status-label amendment likewise proposed, not
+  applied. See the Session 12 entry under Completed Work for the full account.
 
 #### Phase 9 — Business Continuity Management Module
 
@@ -2399,6 +2528,47 @@ Carried forward from both authored specs — re-verify if stale:
     issue-capa/01-*` also decided explicitly (its own Assumption 3) that this single reserved
     value is module-level granularity and therefore already covers Issue- and CAPA-originated
     risks too — no additional `Risk.source` value was proposed for either.
+37. **New (Session 12)**: `25-third-party-risk/01-*` proposes, but does not apply, six
+    additive changes across six frozen specs — `Risk.source = THIRD_PARTY` (`10-risk`, no
+    `RiskCategory` taxonomy change needed, since "Third-Party Risks" has been seeded since
+    Session 1); `Control.source = THIRD_PARTY_RISK` plus a `module_controls_control_vendor_link`
+    table and `POST /controls/{id}/vendor-links` endpoint (`12-controls`); a
+    mirror-registration extension of unspecified final shape (`11-compliance`, per Assumption
+    39 below); `SecurityFinding.linked_vendor_id` (`09-security`); `AuditUniverseEntry.
+    related_vendor_ref_id` (`13-audit`) — activating that table's already-live `entry_type =
+    VENDOR` value with a real link; `Incident.vendor_ref_id` (`24-incident-issue-capa`) —
+    activating that module's already-reserved "Third-Party / Vendor" category with a real
+    link. Plus the `04-domain-model` `THIRD-PARTY RISK` `(reserved)` → `(authored)`
+    status-label amendment. Combined with `23-policy`'s own two still-unapplied proposals
+    (Assumption 33) and `24-incident-issue-capa`'s five (Assumption 35), this repository now
+    carries **eleven** open proposed-not-applied additive changes across `10-risk`,
+    `12-controls`, `11-compliance`, `13-audit`, `09-security`, `23-policy`, plus **three** open
+    `04-domain-model` status-label amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`) — a
+    natural single future consolidation session's worth of work, the same discipline Session 7
+    already applied once for `09-security`'s three proposals together.
+38. **New (Session 12)**: `25-third-party-risk/01-*` resolves `04-domain-model`'s own open
+    Future Enhancements question about `VendorRiskCategory` — a Vendor-sourced Risk uses
+    `RISK`'s already-seeded "Other Business Risks → Third-Party Risks" `RiskCategory`
+    sub-category directly; `VendorCategory` (the new module's own reference table) classifies
+    vendor *type*, not risk, and is not a specialization of `RiskCategory` at all. No
+    `VendorRiskCategory` entity was designed. Proposed, not applied, as a `04-domain-model`
+    closing note alongside that document's own status-label amendment (Assumption 37).
+39. **New (Session 12)**: being the ninth module authored, `25-third-party-risk/01-*` activated
+    six of nine cross-module integrations with **zero** additive change — the highest fraction
+    any module in this repository has achieved, and the first confirmation (with a third
+    citing module, after `CONTROLS`/`COMPLIANCE`) that `23-policy`'s deliberately-polymorphic
+    `PolicyReferenceLink` design works exactly as intended. It is also the first module to
+    explicitly *decline* to assume a sibling module's mirror-registration (write) endpoint is
+    reusable without verification: `12-controls`' own `POST /controls/{id}/references` and
+    `11-compliance`'s own `POST /obligations/{id}/references` are each documented, in their own
+    frozen specs, as shaped for one specific first caller (`RISK` and `CONTROLS` respectively)
+    rather than generically polymorphic like `POLICY`'s equivalent — so this session proposed,
+    rather than assumed, an extension for each, while still delivering real, zero-additive-
+    change value via each module's read-only resolution endpoint. Worth naming as a general
+    principle for future sessions: a `GET` reference-resolution endpoint guarded only by a
+    `*_VIEW` permission is reliably caller-agnostic; a `POST .../references` mirror-registration
+    endpoint is reliably caller-agnostic only where its owning spec says so explicitly
+    (`POLICY`'s does; `CONTROLS`'/`COMPLIANCE`'s do not, as documented in their own text).
 
 ## Risks
 
@@ -2419,6 +2589,7 @@ Carried forward from both authored specs — re-verify if stale:
 | **New (Session 8)**: this file has grown to carry both the session-by-session progress log (Sessions 1–7 and onward) and the full Master Execution Plan in one document, now over 2,000 lines | A single very large file is harder to navigate and more prone to merge friction than smaller, focused documents | Not addressed this session (out of scope — the session's instruction was explicitly to consolidate into this one file); revisit if the file's size becomes an actual editing obstacle in a future session, at which point splitting the Master Execution Plan into its own file under `19-roadmap/` (with this file linking to it) is the natural mitigation |
 | **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
 | **New (Session 11)**: five additive changes `24-incident-issue-capa/01-*` proposed (`capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model`'s `INCIDENT` status-label amendment) remain unapplied | Until applied, none of the five citing modules can actually populate a `capa_ref_id` end-to-end, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 7/10 once both `POLICY` and `INCIDENT` are folded in) | Apply alongside `23-policy/01-*`'s own two still-unapplied proposals in one future explicitly-approved consolidation session, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 35 |
+| **New (Session 12)**: six additive changes `25-third-party-risk/01-*` proposed (`Risk.source = THIRD_PARTY` on `10-risk`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint on `12-controls`; an obligation mirror-registration extension on `11-compliance`; `SecurityFinding.linked_vendor_id` on `09-security`; `AuditUniverseEntry.related_vendor_ref_id` on `13-audit`; `Incident.vendor_ref_id` on `24-incident-issue-capa`) remain unapplied, plus a third open `04-domain-model` status-label amendment (`THIRD-PARTY RISK`) | Until applied, `TPR` cannot seed a Risk register entry, a Control, or a Security Finding end-to-end via a structured reference, `AUDIT`'s `VENDOR`-type universe entries and `INCIDENT`'s "Third-Party / Vendor" category cannot resolve to a real Vendor record, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 8/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK` are all folded in) | Apply alongside `23-policy/01-*`'s and `24-incident-issue-capa/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all eleven additive changes and three status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 37 |
 
 ## Open Decisions
 
@@ -2500,15 +2671,30 @@ Carried forward from both authored specs — re-verify if stale:
   Master Execution Plan phase. Recommend one future consolidation session applying all of
   them together, the same low-effort pattern Session 7 already used for `09-security`'s three
   proposals at once, open for reconsideration.
-- **Order of next work** — with Phases 6 (`POLICY`) and 7 (`INCIDENT`/`ISSUE`/`CAPA`) now
-  complete, the choice is between Phase 8 (`THIRD-PARTY RISK`), Phase 9
-  (`BUSINESS CONTINUITY`), applying the now five proposed additive changes above in one
-  consolidation session, or the still-open persona-to-module-role/`system.md §18` ADR
-  consolidation (Phase 5). **Current recommendation**: the additive-change consolidation
-  first (lowest effort, no new bounded context required, closes five open gap rows across two
-  traceability documents at once), then Phase 8 or Phase 9 depending on which seventh
-  remaining bounded context is preferred next — see Next Milestone below; open for
-  reconsideration.
+- **Resolved (Session 12)**: Master Execution Plan Phase 8 (`THIRD-PARTY RISK`) is complete —
+  [`25-third-party-risk/01-third-party-risk-management.md`](25-third-party-risk/01-third-party-risk-management.md)
+  is authored, module code `TPR`. No longer open as a "which module next" question.
+- **New (Session 12), open**: **applying the now eleven proposed additive changes across
+  `23-policy/01-*`, `24-incident-issue-capa/01-*`, and `25-third-party-risk/01-*`**
+  (`12-controls`' policy-link endpoint; `capa_ref_id` on `12-controls`/`11-compliance`/
+  `23-policy`; initiating endpoints on `13-audit`/`09-security`; `Risk.source = THIRD_PARTY`;
+  `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint; an obligation
+  mirror-registration extension; `SecurityFinding.linked_vendor_id`;
+  `AuditUniverseEntry.related_vendor_ref_id`; `Incident.vendor_ref_id`; three
+  `04-domain-model` status-label amendments, for `POLICY`, `INCIDENT`, and `THIRD-PARTY RISK`)
+  — tracked as Assumption 37 and a Risks row above; not yet scheduled as its own Master
+  Execution Plan phase. Recommend one future consolidation session applying all of them
+  together, the same low-effort pattern Session 7 already used for `09-security`'s three
+  proposals at once, open for reconsideration.
+- **Order of next work** — with Phases 6 (`POLICY`), 7 (`INCIDENT`/`ISSUE`/`CAPA`), and 8
+  (`THIRD-PARTY RISK`) now complete, the choice is between Phase 9 (`BUSINESS CONTINUITY`),
+  applying the now eleven proposed additive changes above in one consolidation session, or the
+  still-open persona-to-module-role/`system.md §18` ADR consolidation (Phase 5). **Current
+  recommendation**: the additive-change consolidation first (lowest effort, no new bounded
+  context required, closes eleven open gap rows plus three status-label amendments across two
+  traceability documents at once), then Phase 9 (`BUSINESS CONTINUITY`) — the last remaining
+  reserved business-domain bounded context in `04-domain-model`'s map besides `REPORTING` —
+  open for reconsideration.
 
 ## Traceability
 

@@ -35,4 +35,14 @@ outsourcing/vendor-risk section).
 
 ## Status
 
-Not yet authored.
+**Authored — Session 12.** See
+[`01-third-party-risk-management.md`](01-third-party-risk-management.md) (module code `TPR`)
+— vendor/third-party lifecycle management (onboarding through offboarding), vendor
+classification and criticality, due diligence, inherent/residual vendor-risk assessment,
+security and compliance assessment of vendors, contract and SLA tracking, ongoing monitoring,
+and periodic reassessment. Activates the `THIRD-PARTY RISK` bounded context
+`04-domain-model` reserved and resolves that document's own open `VendorCategory`/
+`RiskCategory` question. Proposes, but does not apply, additive changes to `10-risk`,
+`12-controls`, `11-compliance`, `09-security`, `13-audit`, `24-incident-issue-capa`, and
+`04-domain-model`'s own status label — see that spec's own Traceability block and
+[`../roadmap.md`](../roadmap.md) for the current session's log entry.
