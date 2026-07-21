@@ -21,8 +21,11 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — sixth authoritative spec complete, and its three
-proposed additive changes now applied. Session 6 closed the two remaining additive-change gaps
+**Phase**: Early specification phase — **seventh authoritative spec complete as of Session 10**
+(`23-policy/01-policy-management.md`, module code `POLICY`; see the Session 10 entry under
+Completed Work and Master Execution Plan Phase 6). The remainder of this paragraph and the
+next is preserved as the Session 6–7 historical record of how the first six specs reached
+their current state. Session 6 closed the two remaining additive-change gaps
 from `11-compliance` (`10-risk`'s `Risk.source` enum gained `COMPLIANCE_OBLIGATION`;
 `12-controls` gained `POST /controls/{id}/obligation-links`), and authored
 [`09-security/01-security-management.md`](09-security/01-security-management.md) — the
@@ -41,13 +44,16 @@ Ownership Responsibilities, and Cross-Context APIs table still labeled `COMPLIAN
 `AUDIT` rows as "Reserved"). No entity, aggregate, workflow, or ownership assignment was
 redesigned by any of these corrections.
 
-**Repository state**: Scaffolding (all 22 `docs/NN-*/README.md` section indexes plus
-`docs/reference/`) was already initialized and validated internally consistent against
-`CLAUDE.md` prior to Session 1. Six authoritative specs now exist: `RISK`, `CONTROLS`, the
-Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, and `SECURITY` — and, as of Session 7, the
-Enterprise Domain Model's own Bounded Context Map names all five business-domain modules
-(`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five still-reserved contexts
-(`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`) —
+**Repository state**: Scaffolding (all 22 original `docs/NN-*/README.md` section indexes plus
+`docs/reference/`, extended with `23-policy` through `27-user-experience` at Session 9) was
+already initialized and validated internally consistent against `CLAUDE.md` prior to Session
+1. **Seven authoritative specs now exist as of Session 10**: `RISK`, `CONTROLS`, the
+Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, and `POLICY`. The Enterprise
+Domain Model's own Bounded Context Map, however, still names only five authored business-
+domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`) plus five reserved
+contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`,
+`BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s own status-label amendment is proposed, not
+yet applied (Assumption 33) —
 ten total, all cross-references internally consistent. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
@@ -77,6 +83,15 @@ index-only section and constraining `27-user-experience` to presentation content
 reuse PRSMTD's existing frontend architecture. This was governance-only: no business
 specification was authored in any of the five new sections, and Phases 2–29 remain not
 started. See the Session 9 log entry and each phase's own updated status below.
+
+**Session 10** executed Master Execution Plan Phase 6: the repository's **seventh authoritative
+specification**, [`23-policy/01-policy-management.md`](23-policy/01-policy-management.md)
+(module code `POLICY`), is authored — the enterprise source of truth for Policies, Standards,
+Procedures, and Guidelines, their governed lifecycle, versioning, periodic re-attestation,
+employee acknowledgement, and exceptions. Two of its three inbound integrations
+(`COMPLIANCE`, `SECURITY`) activate with **zero** additive change to either frozen spec; a
+third (`CONTROLS`) and a `04-domain-model` status-label amendment remain **proposed, not
+applied** — see the Session 10 log entry and Assumption 33 below. No frozen spec was modified.
 
 ## Completed Work
 
@@ -614,6 +629,81 @@ started. See the Session 9 log entry and each phase's own updated status below.
   deferred to a future session/turn, so each can be scoped and reviewed on its own rather than
   begun as a side effect of closing out Phase 1.
 
+### Session 10 — 2026-07-21
+
+- Began Phase 2 of the owner-approved Master Execution Plan: reviewed the repository
+  governance updates from Session 9 (`CLAUDE.md`'s Frontend/UI shell row, `05-modules/`
+  index-only rule, `27-user-experience` presentation-only boundary), this file in full (all
+  nine prior session entries, the complete Master Execution Plan, Assumptions, Risks, Open
+  Decisions), and the six frozen authoritative specs' own forward references to `POLICY`
+  (`12-controls`' Control Taxonomy; `11-compliance`'s "Integration with Future Policy
+  Management"; `09-security`'s `SecurityPolicyDomain` taxonomy and its own "Integration with
+  Future Policy Management" section) before making any change, per this session's explicit
+  instruction. Treated all six frozen specs as authoritative inputs, not to be redesigned —
+  none was modified.
+- **Executed Master Execution Plan Phase 6 (Policy Management Module)**: authored the
+  repository's **seventh authoritative specification**,
+  [`23-policy/01-policy-management.md`](23-policy/01-policy-management.md) — module code
+  `POLICY`, the enterprise source of truth for Policies, Standards, Procedures, and Guidelines
+  (unified under one `document_type`-discriminated aggregate root, avoiding premature
+  decomposition into four separate roots), covering: a `PolicyCategory` taxonomy seeded in
+  deliberate parallel to `11-compliance`'s `ObligationCategory` (both grounded in Annexures
+  §2.6.2.1(i) a–q, re-cited rather than re-extracted); the governed `Policy`/`PolicyVersion`
+  lifecycle (draft → submit → review → approve → publish → retire, via `pending_action`,
+  mirroring the `RiskAssessment`/`ControlTest`/`ComplianceAssessment` root/child governed-
+  lifecycle shape exactly); `PolicyReview` as a distinct governed periodic re-attestation
+  entity (a `REAFFIRMED` outcome does not itself create a new `PolicyVersion`, mirroring
+  `11-compliance` Assumption 8's "a governed approval never auto-creates rows in a different
+  aggregate" precedent); `PolicyAcknowledgement` as a lightweight, ungoverned, append-only
+  individual record (the third instance of the "not every mutation needs governance"
+  precedent, after `RiskAppetite` and `ControlFamily`/`ComplianceCalendarEntry`);
+  `PolicyException` (immediate-raise, governed-closure, identical shape to
+  `ControlException`/`ComplianceException`); and a single polymorphic `PolicyReferenceLink`
+  mirror table (rather than one mirror table per citing module) so a future third or fourth
+  citing context needs only a new enum value, not a new migration — nine tables total (2
+  reference, 7 core), full security/authorization/audit/reporting/API surface.
+- **Closed two of this module's three forward-reference activations with zero additive
+  change to any frozen spec** — a first for a module with more than one inbound integration
+  point: `11-compliance`'s `module_compliance_obligation_policy_link`/`POST
+  /obligations/{id}/policy-links` (built Session 4, explicitly reserved "inert until a Policy
+  module ships") and `09-security`'s `GET /policy-domains` endpoint (built Session 6) were
+  both already exactly the shape this module needed. `POLICY`'s own manifest declares
+  `dependencies: [SECURITY]` immediately (an active, not proposed, dependency — the same
+  zero-additive-change activation `13-audit` achieved at its own authoring) for the
+  `SecurityPolicyDomain` tag; `COMPLIANCE`'s own manifest gaining `dependencies: [POLICY]` at
+  implementation time confirms, rather than proposes, a note `11-compliance`'s own Architecture
+  section already carried.
+- **Proposed, but did not apply, two additive changes**, following the now-six-times-used
+  propose-in-the-new-spec/apply-in-a-later-approved-session pattern: (a) a
+  `module_controls_control_policy_link`/`POST /controls/{id}/policy-links` extension to
+  `12-controls` (which, unlike `11-compliance`, had reserved no policy link at all — verified
+  by direct search of `12-controls/01-*.md`); (b) the `04-domain-model` status-label amendment
+  `POLICY (reserved)` → `POLICY (authored)` (Bounded Context Map, Ownership Responsibilities,
+  Cross-Context APIs), the same amendment shape `09-security` proposed for its own onboarding
+  (Session 6, applied Session 7). **No change was made to `12-controls/01-*.md` or
+  `04-domain-model/01-*.md`** by this session.
+- Updated [`23-policy/README.md`](23-policy/README.md) status to reflect the authored spec.
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  with the Policy spec's Business↔Regulatory, Capability↔PRSMTD, and Requirement↔Spec entries
+  — adding the Policy Management row, the two new proposed-not-applied additive-change gap
+  rows, and a Session 10 Status paragraph.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary, Scope and Method, Question 2, Platform Capability Matrix (`Policy
+  Management`: Not Started → Planned), Compliance Coverage Matrix / Regulatory Readiness
+  Matrix (Cyber Security Framework and ISO 27001 rows updated to reflect `POLICY`'s
+  existence), Control-Level Matrix (`+1` row; ISO 27001 Annex A.5 row updated from "No (no
+  Policy module)" to "Yes"), Enterprise Capability Matrix, Gap Assessment (`POLICY` scoping
+  gap closed; two new proposed-not-applied gap rows added), Roadmap Validation, Specification
+  Progress Matrix (`+1` row), Repository Maturity, and Percentage Completion. **Specification
+  Completion deliberately stays at 5/10 = 50%, not 6/10, this session** — `04-domain-model`'s
+  own Bounded Context Map has not yet been amended to relabel `POLICY` "(authored)," the same
+  one-session lag `SECURITY` itself had between Sessions 6 and 7; Platform Capability
+  Completion moves from 7/7/10 to 7/8/9 (out of 24), since `Policy Management` is the only row
+  whose status changed.
+- Updated this file (this entry; Phase Summary table and Phase 6's own detail entry marked
+  complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -705,7 +795,7 @@ a future session.
 | 3 | 0 — Foundational Backfill | Business Architecture Specification (`02-business-architecture`) | Yes | No | Medium | Phase 2 |
 | 4 | 0 — Foundational Backfill | Enterprise Architecture Specification (`03-enterprise-architecture`) | Yes | No | Medium | Phase 3; six frozen specs |
 | 5 | 0 — Decisions | Governance ADR Backfill (`20-adr`) | Yes (ADRs) | No | Low | Phase 1 |
-| 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) | Yes | Yes (`04-domain-model`) | High | Phase 1 |
+| 6 | 1 — Remaining Modules | Policy Management Module (`POLICY`) — **Complete, Session 10** | Yes | Yes (`04-domain-model`, proposed; `12-controls`, proposed) | High | Phase 1 |
 | 7 | 1 — Remaining Modules | Incident / Issue / CAPA Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`, `09-security`) | High | Phase 1 |
 | 8 | 1 — Remaining Modules | Third-Party Risk Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
 | 9 | 1 — Remaining Modules | Business Continuity Management Module | Yes | Yes (`04-domain-model`, `10-risk`, `12-controls`) | High | Phase 1 |
@@ -1013,8 +1103,17 @@ context being authored first; treat all frozen specs as inputs, not editable sur
 patterns `04-domain-model` names (taxonomy shape, governed-lifecycle shape,
 immediate-raise/governed-closure exception shape, opaque-reference shape, code-sequence shape).
 
-#### Phase 6 — Policy Management Module (`POLICY`)
+#### Phase 6 — Policy Management Module (`POLICY`) — **Complete, Session 10**
 
+- **Outcome (Session 10)**: [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md)
+  is authored. Two of the three named inbound forward references (`COMPLIANCE`, `SECURITY`)
+  activated with **zero** additive change to either frozen spec — both had already built
+  exactly the shape needed. The third (`CONTROLS`, which unlike `COMPLIANCE` had reserved no
+  policy link at all) and the `04-domain-model` `POLICY (reserved)` → `POLICY (authored)`
+  status-label amendment are **proposed, not applied** — open items for a future approved
+  session, per the established propose-then-apply pattern. See that document's own
+  Traceability block and Amendment history, and this file's Session 10 log entry, for the full
+  record.
 - **Objective**: Author the `POLICY` bounded context — named as an Open Host Service dependency
   by `12-controls`, `11-compliance`'s "Integration with Future Policy Management", and
   `09-security`'s `SecurityPolicyDomain` taxonomy (which explicitly anticipates a future formal
@@ -2135,6 +2234,26 @@ Carried forward from both authored specs — re-verify if stale:
     beyond directory-structure inspection (component/feature *content* was not read this
     session) — re-verify by reading the actual component/feature source before Phase 15/16
     treats this as settled.
+33. **New (Session 10)**: `23-policy/01-policy-management.md` proposes, but does not apply,
+    two additive changes — a `module_controls_control_policy_link`/`POST
+    /controls/{id}/policy-links` extension to `12-controls` (which, unlike `11-compliance`,
+    had reserved no policy link at all prior to this session), and the `04-domain-model`
+    `POLICY (reserved)` → `POLICY (authored)` status-label amendment. Both are open
+    implementation-time TODOs, the same discipline every prior additive-change proposal in
+    this repository has used before a later, explicitly-approved session applied it. Until
+    applied, `04-domain-model`'s own Bounded Context Map continues to label `POLICY`
+    "(reserved)" even though an authoritative `POLICY` spec now exists — the same one-session
+    lag `SECURITY` had between Sessions 6 and 7 (see
+    `22-traceability/02-compliance-coverage-assessment.md`'s Percentage Completion section,
+    which deliberately keeps counting 5/10 rather than 6/10 until the amendment lands).
+34. **New (Session 10)**: unlike every prior module's single dominant integration point
+    (`RISK`↔`CONTROLS`, `CONTROLS`↔`COMPLIANCE`, etc.), `POLICY` has three named inbound/
+    outbound integration points at once (`CONTROLS`, `COMPLIANCE`, `SECURITY`) and closed two
+    of the three with **zero** additive change to any frozen spec — the first module in this
+    repository to do so for more than one integration simultaneously. This is presented as a
+    leading indicator that the shared-kernel modeling patterns (`04-domain-model`'s Common
+    Domain Patterns) are working as intended, not as evidence the remaining `CONTROLS`
+    proposal is somehow lower-priority — it remains a real, open gap (Assumption 33).
 
 ## Risks
 
@@ -2153,6 +2272,8 @@ Carried forward from both authored specs — re-verify if stale:
 | A domain-model-level document (`04-domain-model`) can silently drift out of sync with later-authored module specs it names, if nothing prompts a revisit — this is what actually happened to `COMPLIANCE`/`AUDIT`'s status labels between Sessions 4–5 and Session 7 | A future module's own authoring could cite a stale cross-reference (a "(reserved)" label, a dashed edge, a broken anchor) from `04-domain-model` as if it were still accurate, compounding the drift | Assumption 25 (Session 7) names this explicitly as a precedent: treat "does this session's new module require `04-domain-model` to be revisited?" as a standing checklist item for every future module-authoring session, not just when a gap is separately reported |
 | **New (Session 8)**: the Master Execution Plan is a 29-phase plan authored in one session without executing any phase — every "recommended resolution," complexity estimate, and dependency claim in it is a planning judgment, not a verified fact the way a frozen spec's own content is | A future session could treat the plan's estimates or recommended resolutions as settled decisions rather than proposals awaiting the same explicit confirmation this repository requires for every other proposed-not-applied change | Treat every "recommended" / "proposed" phrasing in the Master Execution Plan as exactly that — get explicit user confirmation before executing Phase 1's structure decision or any phase whose scope depends on it, the same discipline already applied to every additive-change proposal in Sessions 2–7 |
 | **New (Session 8)**: this file has grown to carry both the session-by-session progress log (Sessions 1–7 and onward) and the full Master Execution Plan in one document, now over 2,000 lines | A single very large file is harder to navigate and more prone to merge friction than smaller, focused documents | Not addressed this session (out of scope — the session's instruction was explicitly to consolidate into this one file); revisit if the file's size becomes an actual editing obstacle in a future session, at which point splitting the Master Execution Plan into its own file under `19-roadmap/` (with this file linking to it) is the natural mitigation |
+| **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`'
+  policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
 
 ## Open Decisions
 
@@ -2183,11 +2304,9 @@ Carried forward from both authored specs — re-verify if stale:
   gaps, neither urgent nor currently blocking any module's MVP (Assumption 22, reaffirmed
   Assumption 26). Revisit if a concrete regulatory driver (e.g., CERT-In's incident-reporting
   timeline) or tenant requirement makes either concrete.
-- **Order of next specs** — the persona-to-module-role-mapping ADR vs. the `system.md §18`
-  ADR vs. scoping `POLICY` vs. starting `INCIDENT`/`ISSUE`/`CAPA`. With Session 7's activation
-  work complete, current recommendation is the ADR consolidation first (low effort, no new
-  bounded context required), then `POLICY` scoping or `INCIDENT`/`ISSUE`/`CAPA` (see Next
-  Milestone); open for reconsideration.
+- **Order of next specs (historical, Sessions 6–7)** — superseded by the Master Execution
+  Plan (Session 8 onward) and its own "Order of next work" entry above; preserved here only
+  as the pre-Plan historical record, not an active decision.
 - **New (Session 5)**: **documentation location for cross-cutting assessment artifacts that
   don't fit `docs/NN-section-name/`'s per-spec granularity** — resolved this session for the
   compliance coverage assessment specifically (nested under `22-traceability/` as
@@ -2213,6 +2332,21 @@ Carried forward from both authored specs — re-verify if stale:
   session need to make that call before Phase 5 can even be scheduled? Not resolved this
   session — Phase 5's own entry states the ADR must record a real decision, one way or the
   other, rather than leaving the question open a third time, but does not itself decide it.
+- **Resolved (Session 10)**: Master Execution Plan Phase 6 (`POLICY`) is complete —
+  [`23-policy/01-policy-management.md`](23-policy/01-policy-management.md) is authored. No
+  longer open as a "which module next" question.
+- **New (Session 10), open**: **applying `23-policy/01-*`'s two proposed additive changes**
+  (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) —
+  tracked as Assumption 33 and a Risks row above; not yet scheduled as its own Master
+  Execution Plan phase (unlike Phases 6–9, which are full module specs, this is a small,
+  low-effort consolidation more like Phase 5's ADR backfill). Recommend bundling with Phase 7
+  (`INCIDENT`/`ISSUE`/`CAPA`) or a future ADR-consolidation session, open for reconsideration.
+- **Order of next work** — with Phase 6 (`POLICY`) now complete, the choice is between Phase 7
+  (`INCIDENT`/`ISSUE`/`CAPA` — the most cross-referenced remaining context, five prior modules
+  already name it), Phase 8 (`THIRD-PARTY RISK`), Phase 9 (`BUSINESS CONTINUITY`), applying
+  `23-policy/01-*`'s two proposed additive changes, or the still-open persona-to-module-role/
+  `system.md §18` ADR consolidation (Phase 5). See Next Milestone below for the current
+  recommendation; open for reconsideration.
 
 ## Traceability
 

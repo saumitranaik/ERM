@@ -34,4 +34,14 @@ taxonomy.
 
 ## Status
 
-Not yet authored.
+**Complete — Session 10.** [`01-policy-management.md`](01-policy-management.md) is authored:
+the `Policy`/`PolicyVersion`/`PolicyReview`/`PolicyAcknowledgement`/`PolicyException`/
+`PolicyEvidence` domain and data model, the governed draft → review → approve → publish →
+retire lifecycle (with periodic re-attestation as its own governed sub-flow), the full
+security/authorization/audit/reporting/API surface, and activation of the forward references
+`12-controls`, `11-compliance`, and `09-security` each carried. `12-controls` gains a
+**proposed, not yet applied**, additive `module_controls_control_policy_link`/`POST
+/controls/{id}/policy-links` extension; `11-compliance` and `09-security` needed **no**
+additive change — both already exposed exactly what this module activates. See
+[`01-policy-management.md`](01-policy-management.md)'s own Traceability block and
+[`../roadmap.md`](../roadmap.md#phase-6--policy-management-module-policy) for the full record.
