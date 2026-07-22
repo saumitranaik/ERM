@@ -191,18 +191,21 @@ named in the second column.
     the first module in this repository to discover this specific gap, because every prior
     module that integrated with `RISK` only ever *wrote* a `Risk.source` value (a one-way,
     manual, cross-context creation) — none needed to *read* a Risk back for display inside
-    something it owned. This spec proposes, but does not apply, the addition (see [Integration
-    with Risk Management](#integration-with-risk-management)).
-12. **`AUDIT` does not currently expose a `GET /findings/{id}/reference` or
-    `GET /engagements/{id}/reference` endpoint.** Verified against `13-audit/01-audit-management.md`'s
+    something it owned. **Activated (Session 15)** — see [Integration
+    with Risk Management](#integration-with-risk-management) and `10-risk/01-*.md`'s own
+    Amendment log.
+12. **`AUDIT` did not, at this document's own authoring, expose a `GET /findings/{id}/reference`
+    or `GET /engagements/{id}/reference` endpoint.** Verified against `13-audit/01-audit-management.md`'s
     own API Surface table directly: only full-detail `GET /findings`, `GET /engagements/{id}`
-    exist. `AUDIT` was designed as this repository's Conformist consumer/graph-sink, so no prior
-    module needed to cite *into* it — this module is the first to need to. Proposed, not
-    applied (see [Integration with Audit Management](#integration-with-audit-management)).
-13. **`INCIDENT`'s already-open `GET /incidents/{id}/reference` gap is inherited, not
-    re-proposed, by this spec.** `26-business-continuity/01-*` Assumption 10 already proposed
-    this exact addition; this module is simply another citer waiting on the same one, precisely
-    scoped change (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)).
+    existed. `AUDIT` was designed as this repository's Conformist consumer/graph-sink, so no prior
+    module needed to cite *into* it — this module was the first to need to. **Activated
+    (Session 15)** (see [Integration with Audit Management](#integration-with-audit-management)
+    and `13-audit/01-*.md`'s own Amendment log).
+13. **`INCIDENT`'s `GET /incidents/{id}/reference` gap, first proposed by
+    `26-business-continuity/01-*` Assumption 10, is now built.** This module was simply another
+    citer waiting on the same, precisely scoped change — **activated (Session 15)** (see
+    [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa) and
+    `24-incident-issue-capa/01-*.md`'s own Amendment log).
 14. **The Report Catalogue's per-module seed rows are a first-time-complete consolidation, not
     new invention.** Every row tagged to a `primary_source_module` other than `CROSS_MODULE` in
     [Report Catalogue](#report-catalogue) restates (does not re-derive) a report already named
@@ -863,16 +866,13 @@ Three distribution mechanisms, none of which is an automated delivery (Assumptio
 1. **Bulk pulls (zero additive change)**: `GET /api/v1/modules/risk/reports/risk-register`,
    `/reports/heat-map`, and `/reports/kri-dashboard` are consumed as-is for
    `RPT-RISK-001`–`RPT-RISK-008`.
-2. **Point citation — proposed, not applied**: this module is the first to discover `RISK`
-   exposes no `GET /risks/{id}/reference` endpoint (Assumption 11), since every prior
+2. **Point citation — activated (Session 15)**: this module was the first to discover `RISK`
+   exposed no `GET /risks/{id}/reference` endpoint (Assumption 11), since every prior
    integration with `RISK` only wrote a `Risk.source` value, never read one back for display.
-   This spec proposes, but does not apply, that addition to `10-risk`. Until applied, a Risk
-   citation inside a `ReportCitation` row can still record the opaque `source_entity_ref_id` and
-   resolve it via the full-detail `GET /risks/{id}` (`RISK_VIEW`-gated) as an interim resolution
-   path — a convenience gap, not a functional blocker.
+   `10-risk` has since added that endpoint — see that document's own Amendment log.
 
-**What this module builds without `RISK` changing**: every bulk risk report in the catalogue,
-fully functioning today.
+**What this module builds**: every bulk risk report in the catalogue plus point-citation
+coverage, fully functioning today.
 
 ## Integration with Controls Management
 
@@ -902,16 +902,14 @@ coverage, zero additive change required.
 1. **Bulk pulls (zero additive change)**: `AUDIT`'s existing `/reports/*` namespace is consumed
    as-is for `RPT-AUD-001`–`RPT-AUD-008`, including the Non-Compliance Rate/Rectification Index
    trend used directly by `RPT-AUD-005` and, in rolled-up form, `RPT-ENT-005`.
-2. **Point citation — proposed, not applied**: `AUDIT` exposes no `GET /findings/{id}/reference`
-   or `GET /engagements/{id}/reference` endpoint (Assumption 12), since `AUDIT` was designed as
-   this repository's own Conformist consumer/graph-sink — no prior module needed to cite *into*
-   it. This spec proposes, but does not apply, both additions. Until applied, a Finding/
-   Engagement citation can still record the opaque `source_entity_ref_id` and resolve it via the
-   full-detail `GET /findings`/`GET /engagements/{id}` (`AUDIT_VIEW`-gated) as an interim
-   resolution path.
+2. **Point citation — activated (Session 15)**: `AUDIT` previously exposed neither
+   `GET /findings/{id}/reference` nor `GET /engagements/{id}/reference` (Assumption 12), since
+   `AUDIT` was designed as this repository's own Conformist consumer/graph-sink — no prior
+   module needed to cite *into* it. `13-audit` has since added both — see that document's own
+   Amendment log.
 
-**What this module builds without `AUDIT` changing**: every bulk audit report in the catalogue,
-fully functioning today, including the Rectification Index rollup.
+**What this module builds**: every bulk audit report in the catalogue plus point-citation
+coverage, fully functioning today, including the Rectification Index rollup.
 
 ## Integration with Security Management
 
@@ -1023,18 +1021,14 @@ module.
 - **`15-analytics` (KPI/metric catalog, dashboard visualization composition)**: explicitly out
   of scope for this phase — see [Scope](#scope), Assumption 16.
   `DashboardWidget.widget_type = METRIC_REFERENCE` reserves the slot.
-- **`GET /risks/{id}/reference`**: proposed, not applied, to `10-risk` — see [Integration with
-  Risk Management](#integration-with-risk-management).
-- **`GET /findings/{id}/reference` and `GET /engagements/{id}/reference`**: proposed, not
-  applied, to `13-audit` — see [Integration with Audit Management](#integration-with-audit-management).
-- **`GET /incidents/{id}/reference`**: this module depends on, but does not re-propose, the
-  addition `26-business-continuity/01-*` already proposed to `24-incident-issue-capa` — see
-  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa).
-- **`04-domain-model` status-label amendment**: `REPORTING (reserved)` →
-  `REPORTING (authored)` — proposed, not applied — the last of the ten bounded contexts that
-  document's own map would then label fully consistently, once this and the four prior
-  still-open amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`) all
-  land.
+- **Resolved (Session 15)**: `GET /risks/{id}/reference` (`10-risk`),
+  `GET /findings/{id}/reference` and `GET /engagements/{id}/reference` (`13-audit`), and
+  `GET /incidents/{id}/reference` (`24-incident-issue-capa`, first proposed by
+  `26-business-continuity/01-*`) are all built — see each target document's own Amendment log.
+- **Resolved (Session 15)**: the `04-domain-model` status-label amendment
+  (`REPORTING (reserved)` → `REPORTING (authored)`) is applied, alongside the four prior
+  amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`) — all ten
+  bounded contexts that document's map names are now labeled consistently.
 - **A generic PDF/CSV/export-rendering pipeline**: not designed here (Assumption 9); a
   candidate future PRSMTD platform capability, possibly reconciled with the unresolved
   `system.md` §18 PF-CT-3/PF-CW-8 evidence-pack contract.
@@ -1089,10 +1083,16 @@ module.
   `26-business-continuity`) — none modified by this spec.
 - **Future Work**: Author `15-analytics/01-*.md` (KPI/metric catalog, dashboard visualization
   composition), building on this module's `DashboardDefinition`/`DashboardWidget` shape
-  (Assumption 16); apply this module's own `04-domain-model` status-label amendment and its two
-  new reference-resolution-endpoint proposals (`10-risk`, `13-audit`) in a future explicitly-
-  approved consolidation session, alongside the seventeen additive changes already carried
-  forward from `23-policy`/`24-incident-issue-capa`/`25-third-party-risk`/`26-business-continuity`
-  (see `docs/roadmap.md` Assumption 40 and Risks register); evaluate whether a scheduled-job/
-  batch-execution mechanism and a generic export-rendering pipeline should be chartered as new
-  PRSMTD platform capabilities.
+  (Assumption 16); evaluate whether a scheduled-job/batch-execution mechanism and a generic
+  export-rendering pipeline should be chartered as new PRSMTD platform capabilities.
+
+**Amendment log** (additive only; no entity, table, or workflow redesigned):
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied all three additive changes
+  this document originally proposed without building: `GET /risks/{id}/reference` on
+  `10-risk`; `GET /findings/{id}/reference` and `GET /engagements/{id}/reference` on
+  `13-audit`; and the `04-domain-model` `REPORTING (reserved)` → `REPORTING (authored)`
+  status-label amendment — the last of the ten such amendments this repository carried,
+  closing the full backlog alongside `23-policy`/`24-incident-issue-capa`/`25-third-party-risk`/
+  `26-business-continuity`'s own now-applied proposals. Updated Assumptions 11–13, both
+  affected Integration sections, and Future Extension Points from "proposed, not applied" to
+  "activated." No entity, table, or workflow in this document was redesigned.

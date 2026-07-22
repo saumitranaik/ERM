@@ -419,7 +419,7 @@ pattern.
 | FR-15 | A Vendor shall support zero or more opaque, non-FK links to `CONTROLS` controls (`module_tpr_vendor_control_link`) and `COMPLIANCE` obligations (`module_tpr_vendor_obligation_link`), resolved via each module's existing reference-resolution API. | — |
 | FR-16 | A `VendorContract` shall support an optional opaque, non-FK citation of the governing `POLICY` Outsourcing Policy, resolved and mirror-registered via `POLICY`'s existing reference APIs with zero additive change. | Activates `23-policy` FR-15 |
 | FR-17 | A `MAJOR_FINDINGS`/`UNSATISFACTORY` outcome on a `SECURITY_ASSESSMENT`-type Vendor Assessment may be used to create a `SecurityFinding` in `SECURITY` using its already-reserved `finding_type = THIRD_PARTY_RISK` value, resolved by manual cross-context action, not a synchronous service call. | Activates `09-security`'s reserved `finding_type` value with zero additive change |
-| FR-18 | A `HIGH`/`CRITICAL` Vendor Exception or Vendor risk rating may be used to create or link a Risk register entry via `RISK`'s proposed (not yet applied) `Risk.source = THIRD_PARTY` value. | Proposed activation of a new `10-risk` enum value |
+| FR-18 | A `HIGH`/`CRITICAL` Vendor Exception or Vendor risk rating may be used to create or link a Risk register entry via `RISK`'s `Risk.source = THIRD_PARTY` value, activated Session 15. | Activates `10-risk`'s enum value |
 | FR-19 | Visibility shall be role-scoped: `TPR_VIEWER` — full tenant register, read-only; `TPR_MAKER` — full read, edit own drafts/assessments/exceptions; `TPR_CHECKER` — full read, plus all pending approvals across the tenant. | — |
 | FR-20 | The independent due-diligence/assessment sign-off function shall be satisfiable purely by role assignment (Compliance Officer, Risk Management Committee, or an external due-diligence agency holding `TPR_MAKER`/`TPR_CHECKER` as appropriate) — no code change required per assignment choice. | Mirrors every prior module's identical FR |
 | FR-21 | Every governed state transition shall be captured in the platform audit trail using canonical, non-aliased `action_type` values. | system.md §10 |
@@ -697,9 +697,8 @@ enumerates what this module must expose as source data/views:
 proposal, not by a synchronous service call — the same "descriptive, not automated, `source`
 classification" pattern every prior risk-sourcing module uses:
 
-1. **Proposed `RISK`-side enum value**: `Risk.source = THIRD_PARTY` (opaque addition to
-   `module_risk_register.source`) — proposed, not applied, per this phase's explicit
-   instruction not to modify frozen specifications.
+1. **`RISK`-side enum value — activated (Session 15)**: `Risk.source = THIRD_PARTY` (opaque
+   addition to `module_risk_register.source`) — see `10-risk/01-*.md`'s own Amendment log.
 2. **No taxonomy change required**: `10-risk`'s own `SEBI_AMC` seed already carries "Other
    Business Risks → Third-Party Risks" as a `RiskCategory` sub-category since Session 1
    (Assumption 5) — a Vendor-sourced Risk uses this existing slot, not a new one.
@@ -725,16 +724,14 @@ relationships this module manages. What this module adds, entirely on the `TPR` 
    `GET /api/v1/modules/controls/controls/{id}/reference` resolves a `control_ref_id` for
    display against a Vendor. This endpoint is guarded only by `CONTROLS_VIEW` and makes no
    assumption about the calling module — reused as-is, confirmed reusable (Assumption 9).
-2. **Mirror direction (Controls' own reporting) — proposed, not applied**: `12-controls`'
-   existing `POST /controls/{id}/references` is documented as hardcoded to the `RISK` mirror's
-   column shape (`source_treatment_plan_id`, `source_risk_id`) and — per that document's own
-   text — "cannot serve" a second citing module's need without a dedicated endpoint, the exact
-   situation that produced `POST /controls/{id}/obligation-links` for `COMPLIANCE`. This spec
-   proposes, but does not apply, an analogous `POST /controls/{id}/vendor-links` endpoint on
-   `12-controls`, inserting into a proposed `module_controls_control_vendor_link` table
-   (identical shape to the existing `module_controls_control_risk_link`/
-   `control_obligation_link` tables).
-3. **`Control.source = THIRD_PARTY_RISK` — proposed, not applied**: a control created
+2. **Mirror direction (Controls' own reporting) — activated (Session 15)**: `12-controls`'
+   existing `POST /controls/{id}/references` was documented as hardcoded to the `RISK` mirror's
+   column shape and unable to serve a second citing module — `12-controls` has since added a
+   dedicated `POST /controls/{id}/vendor-links` endpoint, inserting into a new
+   `module_controls_control_vendor_link` table (identical shape to the existing
+   `module_controls_control_risk_link`/`control_obligation_link` tables). See
+   `12-controls/01-*.md`'s own Amendment log.
+3. **`Control.source = THIRD_PARTY_RISK` — activated (Session 15)**: a control created
    specifically in response to a vendor due-diligence or SLA-monitoring finding (e.g., a new
    compensating control mandated after a `VendorException`) could be tagged with this value,
    mirroring `Control.source`'s existing descriptive-not-automated role.
@@ -753,16 +750,16 @@ citing Annexures §2.6.2.1(i)(b), (d) — the compliance-side counterpart to thi
    `GET /api/v1/modules/compliance/obligations/{id}/reference` resolves an `obligation_ref_id`
    for display — a read-only endpoint guarded solely by `COMPLIANCE_VIEW`, making no
    assumption about caller identity. Reused as-is.
-2. **Mirror direction (Compliance's own reporting) — proposed, not applied**: `11-compliance`'s
-   existing `POST /obligations/{id}/references` is documented in that module's own APIs table
-   as registering "a mirror reference from `CONTROLS`," and its target table
-   (`module_compliance_obligation_control_link`) is named for that specific caller (Assumption
-   8) — the same single-caller shape that made `12-controls`' own equivalent endpoint
-   unusable by a second citing module. This spec proposes, but does not apply, either a
-   generalization of that endpoint/table to a polymorphic shape (mirroring `POLICY`'s already-
-   proven `PolicyReferenceLink` design) or a dedicated `module_compliance_obligation_vendor_link`
-   table plus endpoint — the precise shape is an implementation-time decision for whichever
-   session applies it, not fixed here.
+2. **Mirror direction (Compliance's own reporting) — activated (Session 15) by
+   generalization, not duplication**: `11-compliance`'s existing `POST
+   /obligations/{id}/references` was documented as hardcoded to `CONTROLS`' own mirror shape
+   (Assumption 8) — `11-compliance` has since widened that endpoint/table to a polymorphic
+   shape (renamed `source_control_id` column to `source_entity_ref_id`; `source_module_code`/
+   `source_entity_type` widened from fixed values to closed, extensible sets), the option this
+   spec itself named first, mirroring `POLICY`'s already-proven `PolicyReferenceLink` design.
+   `TPR` calls the same `POST /obligations/{id}/references` `CONTROLS` uses, passing
+   `{source_module_code: 'TPR', source_entity_type: 'VENDOR', source_entity_ref_id: vendorId}`.
+   See `11-compliance/01-*.md`'s own Amendment log.
 3. **`VendorAssessment.obligation_ref_id`** (`assessment_type = COMPLIANCE_ASSESSMENT`) records
    which Obligation a given compliance assessment of a Vendor evaluated against, resolved the
    same way as item 1.
@@ -786,7 +783,8 @@ module (Assumption 7):
    populates `module_policy_reference_link` — `POLICY`'s own polymorphic mirror table,
    explicitly designed by `23-policy/01-*` so that "a future third or fourth citing module
    needs only a new enum value, not a new migration." `TPR` is that third citing module
-   (`CONTROLS` and `COMPLIANCE` were the first two, both still proposed as of this session).
+   (`CONTROLS` and `COMPLIANCE` were the first two — `COMPLIANCE`'s own citation was already
+   activated at this module's own authoring; `CONTROLS`' was activated Session 15).
 
 ```mermaid
 sequenceDiagram
@@ -827,12 +825,15 @@ Two independent, both zero-additive-change activations:
    integration when `09-security` was originally authored (Session 6), the same
    already-live-and-waiting shape `Risk.source = INCIDENT` had for four sessions before
    `24-incident-issue-capa` finally activated it.
-3. **`SecurityFinding.linked_vendor_id` — proposed, not applied**: a structured opaque link
+3. **`SecurityFinding.linked_vendor_id` — activated (Session 15)**: a structured opaque link
    from a `SecurityFinding` back to the originating Vendor, mirroring the shape of that
    table's existing `linked_control_exception_id`/`linked_compliance_exception_id`/
    `linked_audit_finding_id` columns. Not required for item 2 above to function (the
-   `finding_type` value alone is sufficient to raise the finding); this closes the loop for
-   `SECURITY`'s own reporting.
+   `finding_type` value alone is sufficient to raise the finding). Deliberately **not**
+   resolved by `SECURITY` itself — `TPR` already depends on `SECURITY` for policy-domain
+   tagging, so a reciprocal `SECURITY → TPR` dependency would cycle (`04-domain-model`
+   Dependency Rule 6); a third module with no conflicting edge (e.g. `14-reporting`) resolves
+   it on demand via this module's own `GET /vendors/{id}/reference` instead.
 
 ## Integration with Audit Management
 
@@ -846,15 +847,12 @@ its own `GET /vendors/{id}/reference` endpoint so that value has something real 
    stable DTO (`id`, `vendor_code`, `name`, `vendor_category`, `criticality`, `status`,
    `inherent_risk_rating`, `residual_risk_rating`), guarded by `TPR_VIEW`, following the exact
    shape every prior module's own reference-resolution endpoint uses.
-2. **`AUDIT`-side — proposed, not applied**: an additive `related_vendor_ref_id` (opaque uuid,
+2. **`AUDIT`-side — activated (Session 15)**: an additive `related_vendor_ref_id` (opaque uuid,
    nullable, no FK) column on `module_audit_universe_entry`, populated when `entry_type =
-   VENDOR`, resolved via item 1. Until applied, `AUDIT`'s Chief Internal Auditor can still
-   populate a `VENDOR`-type universe entry today (the `entry_type` value has always been
-   live), just without a structured link back to this module's own Vendor record — a
-   convenience gap, not a functional blocker.
+   VENDOR`, resolved via item 1. See `13-audit/01-*.md`'s own Amendment log.
 
-**Manifest consequence (once applied)**: `AUDIT`'s manifest (already `dependencies: [RISK,
-CONTROLS, COMPLIANCE, SECURITY]`) would gain `[..., TPR]`. `TPR`'s own manifest carries no
+**Manifest consequence**: `AUDIT`'s manifest (already `dependencies: [RISK, CONTROLS,
+COMPLIANCE, SECURITY]`) gains `INCIDENT, TPR, BCP`. `TPR`'s own manifest carries no
 reciprocal dependency — pure-provider side of this relationship, consistent with
 `04-domain-model` Dependency Rule 5 (`AUDIT` is a graph sink).
 
@@ -869,14 +867,13 @@ repository built directly rather than proposed (Assumption 6):
    exceptionId}`, storing the returned `capa_ref_id` on `module_tpr_vendor_exception`.
 2. **`INCIDENT`-side**: no change required — `POST /capa-requests` was built generically from
    its own original authoring, accepting any `source_module_code`/`source_entity_type` pair.
-3. **`Incident.vendor_ref_id` — proposed, not applied**: `24-incident-issue-capa`'s own
-   `Incident.category` already reserves a "Third-Party / Vendor" value (sub-categories
-   "Vendor Service Disruption; Vendor Data Incident") with the explicit note that "a dedicated
-   cross-reference is deferred until those modules exist." This module now exists — this spec
-   proposes, but does not apply, an additive `vendor_ref_id` (opaque uuid, nullable, no FK)
-   column on `module_incident_incident`, resolved via this module's own `GET
-   /vendors/{id}/reference` (see [Integration with Audit Management](#integration-with-audit-management)
-   item 1).
+3. **`Incident.vendor_ref_id` — activated (Session 15)**: `24-incident-issue-capa`'s own
+   `Incident.category` already reserved a "Third-Party / Vendor" value (sub-categories
+   "Vendor Service Disruption; Vendor Data Incident"). An additive `vendor_ref_id` (opaque
+   uuid, nullable, no FK) column has since been added on `module_incident`, resolved via this
+   module's own `GET /vendors/{id}/reference` (see [Integration with Audit
+   Management](#integration-with-audit-management) item 1). See
+   `24-incident-issue-capa/01-*.md`'s own Amendment log.
 
 **Manifest consequence**: `TPR`'s manifest carries `dependencies: [INCIDENT]` from authoring
 time (item 1 is a real synchronous call). `INCIDENT`'s own manifest carries no reciprocal
@@ -933,23 +930,20 @@ as every prior module.
 
 ## Future Extension Points
 
-- **`Risk.source = THIRD_PARTY`**: proposed, not applied, to `10-risk` — see
-  [Integration with Risk Management](#integration-with-risk-management).
-- **`Control.source = THIRD_PARTY_RISK`, `module_controls_control_vendor_link`, and
-  `POST /controls/{id}/vendor-links`**: proposed, not applied, to `12-controls` — see
-  [Integration with Controls Management](#integration-with-controls-management).
-- **`COMPLIANCE`'s obligation mirror-registration generalization** (or a dedicated
-  vendor-shaped equivalent): proposed, not applied, to `11-compliance` — see
-  [Integration with Compliance Management](#integration-with-compliance-management).
-- **`SecurityFinding.linked_vendor_id`**: proposed, not applied, to `09-security` — see
-  [Integration with Security Management](#integration-with-security-management).
-- **`AuditUniverseEntry.related_vendor_ref_id`**: proposed, not applied, to `13-audit` — see
-  [Integration with Audit Management](#integration-with-audit-management).
-- **`Incident.vendor_ref_id`**: proposed, not applied, to `24-incident-issue-capa` — see
-  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa).
-- **`04-domain-model` status-label amendment**: `THIRD-PARTY RISK (reserved)` →
-  `THIRD-PARTY RISK (authored)`, plus a closing note on the `VendorCategory`/`RiskCategory`
-  question (Assumption 5) — proposed, not applied.
+- **Resolved (Session 15)**: all six additive changes this document originally proposed are
+  now applied — `Risk.source = THIRD_PARTY` (`10-risk`); `Control.source = THIRD_PARTY_RISK`,
+  `module_controls_control_vendor_link`, and `POST /controls/{id}/vendor-links` (`12-controls`);
+  the `COMPLIANCE` obligation mirror-registration generalization (`11-compliance`, resolved by
+  generalizing the existing endpoint/table rather than adding a dedicated one);
+  `SecurityFinding.linked_vendor_id` (`09-security`); `AuditUniverseEntry.related_vendor_ref_id`
+  (`13-audit`); `Incident.vendor_ref_id` (`24-incident-issue-capa`) — see each target
+  document's own Amendment log and [Integration with Risk
+  Management](#integration-with-risk-management) through [Integration with
+  Incident/Issue/CAPA](#integration-with-incidentissuecapa) above.
+- **Resolved (Session 15)**: the `04-domain-model` status-label amendment
+  (`THIRD-PARTY RISK (reserved)` → `THIRD-PARTY RISK (authored)`) plus the closing note on the
+  `VendorCategory`/`RiskCategory` question (Assumption 5) are applied — see
+  `04-domain-model/01-*.md`'s own Amendment log.
 - **Vendor exit-strategy / alternate-provider pool tracking** (Annexures §2.9.3.2(i)(b),
   recommendatory): not designed at MVP — a natural `VendorCategory`-scoped register extension
   once real tenant demand confirms the recommendatory element is being adopted.
@@ -984,11 +978,21 @@ as every prior module.
   newly introduced — inherits, not duplicates, the platform document/object storage gap.
 - **ERM Capability**: Third-Party Risk Management (module code `TPR`) — ninth entry in
   `22-traceability/`; activates the `THIRD-PARTY RISK` bounded context `04-domain-model`
-  reserved, resolves that document's own open `VendorCategory`/`RiskCategory` question
-  (Assumption 5), and activates six of seven inbound/outbound integrations with either zero
-  additive change (`POLICY`, `SECURITY`'s two integrations, `INCIDENT`, `CONTROLS`'/
-  `COMPLIANCE`'s resolution directions) or a precisely-scoped proposed change (`RISK`,
-  `CONTROLS`'/`COMPLIANCE`'s mirror-registration directions, `AUDIT`, `24-incident-issue-capa`,
-  `04-domain-model`'s status label).
+  reserved (now labeled `(authored)`, Session 15) and resolves that document's own open
+  `VendorCategory`/`RiskCategory` question (Assumption 5). As of Session 15, all nine
+  inbound/outbound integrations are activated — none remain proposed.
 - **Dependencies**: See [Dependencies](#dependencies) above.
 - **Future Work**: See [Future Extension Points](#future-extension-points) above.
+
+**Amendment log** (additive only; no entity, table, or workflow redesigned):
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Updated
+  [Integration with Risk Management](#integration-with-risk-management) through
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa), Future Extension
+  Points, and this Traceability block from "proposed, not applied" to "activated," reflecting
+  that all six additive changes this document originally proposed
+  (`Risk.source = THIRD_PARTY`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link
+  endpoint; the `COMPLIANCE` obligation mirror-registration generalization;
+  `SecurityFinding.linked_vendor_id`; `AuditUniverseEntry.related_vendor_ref_id`;
+  `Incident.vendor_ref_id`) plus the `04-domain-model` status-label amendment have since been
+  applied to their respective target documents this same session. This document's own domain
+  model, data model, and workflows are unchanged.

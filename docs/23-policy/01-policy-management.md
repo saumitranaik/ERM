@@ -252,20 +252,23 @@ follows the generic module framework exactly as every prior module does (system.
   (OWN-07).
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see [Authorization Model](#authorization-model).
-- `dependencies: [SECURITY]`. Unlike this module's own forward reference from `SECURITY`
-  (a conceptual note in a frozen spec, not yet resolvable), this dependency is **immediately
-  active, not proposed**: `09-security`'s `GET /policy-domains` endpoint already exists in the
-  frozen spec (Session 6), so this module can declare and exercise the dependency the moment
-  it is authored — the same zero-additive-change activation `13-audit` achieved toward
-  `RISK`/`CONTROLS`/`COMPLIANCE` at its own authoring, because every context it needed to read
-  already existed fully-built. `POLICY` declares **no** dependency on `CONTROLS` or
-  `COMPLIANCE` — per `04-domain-model` Dependency Rule 4, `POLICY` is (like `COMPLIANCE`) a
-  pure provider toward both: **`CONTROLS`' manifest would gain `dependencies: [POLICY]`**
-  once the proposed control-policy link is built (proposed, not applied here — see
-  [Integration with Controls](#integration-with-controls)), and **`COMPLIANCE`'s manifest
-  would gain `dependencies: [POLICY]`** once its already-built reservation is wired through
-  (`11-compliance`'s own Architecture section already anticipated exactly this note — see
-  [Integration with Compliance](#integration-with-compliance)).
+- **`dependencies: [SECURITY, INCIDENT]`** (`INCIDENT` added Session 15, for the new
+  `POST /exceptions/{id}/capa-request` call, see [Integration with
+  Incident/Issue/CAPA](#integration-with-incidentissuecapa)). `SECURITY` was **immediately
+  active, not proposed**, from this module's own original authoring: `09-security`'s
+  `GET /policy-domains` endpoint already existed in the frozen spec (Session 6), so this
+  module could declare and exercise the dependency the moment it was authored — the same
+  zero-additive-change activation `13-audit` achieved toward `RISK`/`CONTROLS`/`COMPLIANCE` at
+  its own authoring. `POLICY` declares **no** dependency on `CONTROLS` or `COMPLIANCE` — per
+  `04-domain-model` Dependency Rule 4, `POLICY` is (like `COMPLIANCE`) a pure provider toward
+  both: **`CONTROLS`' manifest gains `dependencies: [POLICY]`** once the proposed
+  control-policy link is applied (still proposed, not applied — see [Integration with
+  Controls](#integration-with-controls)), and **`COMPLIANCE`'s manifest gains
+  `dependencies: [POLICY]`** — **activated (Session 10)**, corrected from a stale future-tense
+  description this session's consistency review found (`11-compliance`'s own reservation was
+  already exactly the shape needed at this module's own authoring, requiring zero additive
+  change — see [Integration with Compliance](#integration-with-compliance)). Neither `INCIDENT`
+  nor `SECURITY` declares a reciprocal dependency back on `POLICY`.
 - No platform-plane tables, no platform-plane governance actions — every governed action is
   tenant-plane (`app.plane = 'tenant'`).
 - Tenant isolation, GUC binding, and session-setter usage are inherited unmodified from
@@ -402,6 +405,7 @@ module's own taxonomy deliberately mirrors, not restated in full to avoid duplic
 | Information Governance | Information Security Policy; Gifts & Entertainment Policy; Record Retention Policy; Dealing Room Policy | §2.6.2.1(i)(m)–(p) |
 | Regulatory Reporting & Disclosure | Marketing Material Review Procedure; Disclosure Standard | §2.6.2.1(i)(q), (ii)(a)–(c), (e) |
 | Licensing & Registration | Licensing & Registration Renewal Procedure | §2.6.2.1(ii)(g) |
+| Technology & Operational Resilience | Business Continuity Policy; Disaster Recovery Policy | SEBI Risk Mgmt circular Appendix A Part 1 item 1; Annexures System Audit Program Checklist item 8 (re-cited from `26-business-continuity`); **added Session 15**, per `26-business-continuity/01-*`'s Integration with Policy Management section, mirroring the matching `ObligationCategory` `11-compliance` gained the same session |
 
 Sub-categories use the same self-referencing `parent_category_id` mechanism every prior
 taxonomy uses; shown above only where illustrative. Not every `PolicyCategory` row requires a
@@ -433,6 +437,8 @@ taxonomy uses; shown above only where illustrative. Not every `PolicyCategory` r
 | FR-19 | A `HIGH`/`CRITICAL` Policy Exception may be used to create or link a Risk register entry, resolved by manual cross-context action, not a synchronous service call, recorded in `PolicyException.linked_risk_id` (opaque, nullable). | Mirrors `11-compliance`/`12-controls`'s identical exception-to-risk pattern |
 | FR-20 | The system shall expose a policy register report, an acknowledgement-completion report, a review calendar (upcoming/overdue), and an exception register/aging report. | Annexures §2.6.2.1(i)/(iii) |
 | FR-21 | Every governed state transition shall be captured in the platform audit trail using canonical, non-aliased `action_type` values. | system.md §10 |
+| FR-22 | A Policy Exception shall expose a `capa_ref_id` resolving to a CAPA record via `INCIDENT`'s existing `POST /capa-requests` endpoint. **Added Session 15.** | Activates `24-incident-issue-capa` with zero additive change on that module's own side |
+| FR-23 | The system shall provide a "Technology & Operational Resilience" `PolicyCategory`, seeded per regulatory profile. **Added Session 15.** | SEBI Risk Mgmt circular Appendix A Part 1 item 1; Annexures System Audit Program Checklist item 8 |
 
 ## Non-Functional Requirements
 
@@ -476,9 +482,9 @@ it.
 | `module_policy_version` | `policy_id` (FK), `version_number int`, `storage_ref`, `content_hash`, `summary_of_changes`, `drafted_by`, `drafted_at`, `status`, `reviewed_by` (nullable), `review_notes` (nullable), `approved_by` (nullable), `approved_at` (nullable), `published_at` (nullable), `effective_date` (nullable), `superseded_at` (nullable), `superseded_by_version_id` (self-FK, nullable), `updated_at` | Append-only history; immutable once `PUBLISHED` (Assumption 14). `status` ∈ `DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, PUBLISHED, SUPERSEDED, REJECTED`. `version_number` is monotonic per `policy_id`, assigned at `DRAFT` creation. |
 | `module_policy_review` | `policy_id` (FK), `reviewed_version_id` (FK), `review_date`, `reviewer_user_id`, `outcome`, `notes`, `status`, `approved_by` (nullable), `approved_at` (nullable) | `outcome` ∈ `REAFFIRMED, REVISION_REQUIRED, RETIRE_RECOMMENDED`. `status` ∈ `SUBMITTED, APPROVED, REJECTED`. Governed (Assumption 7), distinct from `module_policy_version`'s own governance. |
 | `module_policy_acknowledgement` | `policy_id` (FK), `policy_version_id` (FK), `user_id`, `acknowledged_at`, `acknowledgement_statement_hash` | Append-only; no `status` column — a row's existence is the acknowledgement (Assumption 8). Not `pending_action`-governed. One row per user per version per acknowledging event (a user may re-acknowledge a still-current version, e.g. an annual re-attestation cadence — each is its own row, never an update). |
-| `module_policy_exception` | `exception_code`, `policy_id` (FK), `policy_version_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `SCOPE_DEVIATION, TEMPORARY_WAIVER, NON_APPLICABILITY, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package**, symmetric to `ControlException.linked_risk_id`/`ComplianceException.linked_risk_id`. |
+| `module_policy_exception` | `exception_code`, `policy_id` (FK), `policy_version_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `capa_ref_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `SCOPE_DEVIATION, TEMPORARY_WAIVER, NON_APPLICABILITY, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package**, symmetric to `ControlException.linked_risk_id`/`ComplianceException.linked_risk_id`. `capa_ref_id` — **added Session 15**, opaque, no FK, resolved via `24-incident-issue-capa`'s existing `POST /capa-requests` — see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa). |
 | `module_policy_evidence` | `policy_id` (FK, nullable), `policy_version_id` (FK, nullable), `review_id` (FK, nullable), `exception_id` (FK, nullable), `evidence_type`, `title`, `description`, `storage_ref`, `file_name`, `mime_type`, `file_size_bytes`, `content_hash`, `collected_at`, `collected_by`, `uploaded_at`, `uploaded_by`, `status` | Exactly one of `policy_id`/`policy_version_id`/`review_id`/`exception_id` is non-null (application-layer invariant, the same four-way rule `ComplianceEvidence` established). `evidence_type` ∈ `DOCUMENT, TRAINING_CERTIFICATE, BOARD_APPROVAL_MINUTES, SYSTEM_EXTRACT, OTHER`. `status` ∈ `ACTIVE, SUPERSEDED, ARCHIVED`. `storage_ref` is opaque per Assumption 5. |
-| `module_policy_reference_link` | `policy_id` (FK), `source_module_code`, `source_entity_type`, `source_entity_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | Local **mirror** of an inbound `CONTROLS`/`COMPLIANCE` policy citation, populated via an inbound API call from the citing module — see [Integration with Controls](#integration-with-controls)/[Integration with Compliance](#integration-with-compliance). `source_module_code` ∈ `CONTROLS, COMPLIANCE` (open for future values, e.g. a future `BUSINESS CONTINUITY` citation, without a schema change — see Domain Model). `source_entity_type` ∈ `CONTROL, OBLIGATION`. `status` ∈ `ACTIVE, REMOVED`. |
+| `module_policy_reference_link` | `policy_id` (FK), `source_module_code`, `source_entity_type`, `source_entity_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | Local **mirror** of an inbound policy citation, populated via an inbound API call from the citing module — see [Integration with Controls](#integration-with-controls)/[Integration with Compliance](#integration-with-compliance)/[Integration with Third-Party Risk Management](#integration-with-third-party-risk-management)/[Integration with Business Continuity Management](#integration-with-business-continuity-management). `source_module_code` ∈ `CONTROLS, COMPLIANCE, TPR, BCP` (open for further future values without a schema change — see Domain Model; widened this session to reflect `TPR`'s and `BCP`'s own already-live, zero-additive-change activations, corrected from a stale two-value list). `source_entity_type` ∈ `CONTROL, OBLIGATION, VENDOR_CONTRACT, CONTINUITY_PLAN`. `status` ∈ `ACTIVE, REMOVED`. |
 
 No bespoke audit table is defined — audit trail is the platform's `audit_log` per system.md
 §10, reused as-is, exactly as every prior module does.
@@ -926,18 +932,20 @@ context, the same relationship it already has toward `RISK`/`CONTROLS`/`COMPLIAN
 No API or schema commitment is made here beyond reserving these shapes, matching the same
 restraint every prior module exercised toward `13-audit`.
 
-## Integration with Future Incident/CAPA
+## Integration with Incident/Issue/CAPA
 
-Per `04-domain-model`, the future `INCIDENT`/`ISSUE`/`CAPA` context is Customer-Supplier with
-`RISK` and `CONTROLS` as customers; a `HIGH`/`CRITICAL` `PolicyException`'s remediation is a
-natural third customer once that context ships — the same deferred note `ControlException`/
-`ComplianceException` already carry:
+Per `04-domain-model`, `INCIDENT`/`ISSUE`/`CAPA` is Customer-Supplier with `RISK` and
+`CONTROLS` as customers; `POLICY` is a third customer of structured CAPA, mirroring exactly how
+`12-controls`'/`11-compliance`'s exception remediation now reference a real CAPA record:
 
-- `PolicyException.remediation_plan`/`remediation_owner_user_id`/`target_closure_date`
-  free-text fields are expected to migrate toward referencing a structured CAPA record once
-  that module exists, the same "CAPA-style structured remediation... deferred to a future CAPA
-  module" note `10-risk`/`12-controls` each already flagged for their own exception-shaped
-  entities.
+- `PolicyException.capa_ref_id` (opaque, no FK) — **added Session 15** (Data Model).
+- **Activated (Session 15)**: `POST /exceptions/{id}/capa-request` (guarded by
+  `POLICY_EXCEPTION_CLOSE`) calls `INCIDENT`'s existing `POST /capa-requests
+  {source_module_code: 'POLICY', source_entity_type: 'POLICY_EXCEPTION', source_entity_ref_id:
+  exceptionId}` (server-to-server, OWN-09), storing the returned `capa_ref_id` on
+  `module_policy_exception`. No change required on `INCIDENT`'s side.
+- **Manifest consequence**: this module's manifest gains `dependencies: [INCIDENT]` (see
+  [Architecture](#architecture)). `INCIDENT`'s own manifest carries no reciprocal dependency.
 
 ## Integration with Future Regulatory Reporting
 
@@ -975,6 +983,7 @@ every prior module.
 | GET | `/policies/{id}/reviews` | `POLICY_VIEW` | Review history |
 | POST | `/policies/{id}/exceptions` | `POLICY_EXCEPTION_RAISE` | Raise an exception (immediate) |
 | POST | `/exceptions/{id}/closure` | `POLICY_EXCEPTION_CLOSE` | Propose closure/risk-acceptance → creates `pending_action` |
+| POST | `/exceptions/{id}/capa-request` | `POLICY_EXCEPTION_CLOSE` | Request a CAPA via `INCIDENT`'s `POST /capa-requests` (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)); added Session 15 |
 | GET | `/exceptions` | `POLICY_VIEW` | List exceptions |
 | POST | `/policies/{id}/acknowledgements` | `POLICY_ACKNOWLEDGE` | Record the caller's own acknowledgement of the current `PUBLISHED` version (immediate, ungoverned) |
 | GET | `/policies/{id}/acknowledgements` | `POLICY_VIEW` | Acknowledgement records for a Policy (completion tracking) |
@@ -996,10 +1005,21 @@ specified; this spec only reserves the naming, same as every prior module.
 
 ## Future Extension Points
 
-- **`CONTROLS`-side policy-link initiating endpoint**: the additive
-  `module_controls_control_policy_link` table and `POST /controls/{id}/policy-links`
-  extension proposed in [Integration with Controls](#integration-with-controls) — proposed,
-  not applied, the same discipline every prior cross-spec proposal in this repository used.
+- **Resolved (Session 15)**: the `CONTROLS`-side policy-link initiating endpoint proposed in
+  [Integration with Controls](#integration-with-controls) — `module_controls_control_policy_link`
+  and `POST /controls/{id}/policy-links` are now built, see `12-controls/01-*.md`'s own
+  Amendment log. **No change was made to this document's own domain model, data model, or
+  workflows** by that activation.
+- **Resolved (Session 15)**: `TPR`'s and `BCP`'s own citations of `PolicyReferenceLink`
+  (confirmed zero-additive-change at each of their own authoring sessions, 12 and 13) are now
+  reflected in this document's own `module_policy_reference_link.source_module_code`/
+  `source_entity_type` enum lists (Canonical Data Model) — corrected from a stale two-value
+  list this session's consistency review found.
+- **Resolved (Session 15)**: `PolicyException.capa_ref_id` and
+  `POST /exceptions/{id}/capa-request` are built (Canonical Data Model, APIs,
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)).
+- **Resolved (Session 15)**: a "Technology & Operational Resilience" `PolicyCategory` is
+  seeded, matching the `ObligationCategory` `11-compliance` gained the same session.
 - **`04-domain-model` status-label amendment**: this spec proposes, but does not apply,
   updating the `POLICY (reserved)` heading and its Bounded Context Map/Ownership
   Responsibilities/Cross-Context APIs entries to `POLICY (authored)`, the same additive,
@@ -1067,3 +1087,17 @@ specified; this spec only reserves the naming, same as every prior module.
   /controls/{id}/policy-links` additive extension to `12-controls`.
 - **Dependencies**: See [Dependencies](#dependencies) above.
 - **Future Work**: See [Future Extension Points](#future-extension-points) above.
+
+**Amendment log** (additive only; no entity, table, or workflow redesigned):
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied/corrected four items,
+  none of which required a redesign of this module's own domain model or workflows: (1) added
+  `module_policy_exception.capa_ref_id` plus `POST /exceptions/{id}/capa-request` (Canonical
+  Data Model, APIs, renamed [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)
+  section), per `24-incident-issue-capa/01-*`; (2) added a "Technology & Operational
+  Resilience" `PolicyCategory` seed row, per `26-business-continuity/01-*`; (3) corrected
+  `module_policy_reference_link`'s `source_module_code`/`source_entity_type` enum
+  documentation, which still listed only `CONTROLS, COMPLIANCE` despite `TPR` and `BCP` having
+  already activated this table with zero additive change at their own Session 12/13 authoring
+  — a staleness this session's consistency review caught, not a new change; (4) manifest
+  `dependencies:` updated from `[SECURITY]` to `[SECURITY, INCIDENT]` (Architecture) to reflect
+  the new `INCIDENT` call. No entity, table, or workflow redesigned.

@@ -256,16 +256,18 @@ for consistency with the established repository pattern:
   `com.prsbnjs.modules.compliance` (OWN-07).
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see [Authorization](#authorization-model).
-- `dependencies: []`. `COMPLIANCE` is a pure provider, per `04-domain-model`'s Dependency
-  Rule 4 ("`COMPLIANCE` and `POLICY` are expected to be pure providers, like `CONTROLS`...
-  other contexts read them"). It declares **no** dependency on `RISK` or `CONTROLS` — the
-  reverse is expected: **`CONTROLS`' manifest would gain `dependencies: [COMPLIANCE]`** once
-  the obligation-control link is activated (an additive future change to `12-controls`'
-  manifest, proposed not built here — mirroring exactly how `12-controls` itself proposed
-  "`RISK`'s manifest gains `dependencies: [CONTROLS]`" without editing `10-risk`). This
-  module's own manifest will gain `dependencies: [POLICY]` once a Policy module ships (see
-  [Integration with Future Policy Management](#integration-with-future-policy-management)) —
-  a note for this module's own future, since `POLICY` does not exist yet.
+- **`dependencies: [POLICY, INCIDENT]`** (updated Session 15 — Additive Change Consolidation;
+  was `dependencies: []` at original authoring). `COMPLIANCE` remains a **pure provider toward
+  `RISK`, `CONTROLS`, and `AUDIT`** — per `04-domain-model`'s Dependency Rule 4, no edge is
+  ever declared in that direction: **`CONTROLS`' manifest gains `dependencies: [COMPLIANCE]`**
+  (activated Session 6, see [Integration with Controls](#integration-with-controls)). The two
+  dependencies above are genuinely new synchronous calls this module itself makes outward:
+  `POLICY` — activated Session 10, for the `POST /obligations/{id}/policy-links` mirror-
+  registration call (see [Integration with Future Policy Management](#integration-with-future-policy-management));
+  `INCIDENT` — added Session 15, for the new `POST /exceptions/{id}/capa-request` call (see
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)). Neither `POLICY`
+  nor `INCIDENT` declares a reciprocal dependency back on `COMPLIANCE` for either edge — each
+  remains the pure-supply side of its own relationship, so no cycle is introduced.
 - No platform-plane tables, no platform-plane governance actions — every governed action is
   tenant-plane (`app.plane = 'tenant'`).
 - Tenant isolation, GUC binding, and session-setter usage are inherited unmodified from
@@ -418,6 +420,7 @@ flowchart TB
 | Information Governance | Information Security & Data Privacy; Gifts and Entertainment; Record Retention; Dealing Room Policy | §2.6.2.1(i)(m)–(p) |
 | Regulatory Reporting & Disclosure | Filing to Regulator/Board/Trustees; Marketing Material Pre-Use Review; Investment/Holdings Disclosure Consistency; Derivative/Off-Balance-Sheet Disclosures | §2.6.2.1(i)(q), (ii)(a)–(c), (e) |
 | Licensing & Registration | Maintenance of Licenses, Registrations, Approvals, Permissions | §2.6.2.1(ii)(g) |
+| Technology & Operational Resilience | Business Continuity / Disaster Recovery obligations; IT/cyber operational resilience | SEBI *Risk Management System* circular, Appendix A Part 1 item 1; Annexures System Audit Program Checklist item 8 (re-cited from `26-business-continuity`); **added Session 15**, per `26-business-continuity/01-*`'s Integration with Compliance Management section — the first module to discover its own primary regulatory driver had no fitting slot in this seed set |
 
 Sub-categories use the same self-referencing `parent_category_id` mechanism
 `RiskCategory`/`ControlFamily` use; shown above only where illustrative.
@@ -438,7 +441,7 @@ Sub-categories use the same self-referencing `parent_category_id` mechanism
 | FR-10 | The system shall track `next_review_date` per Obligation and surface overdue reviews, and shall support recurring Compliance Calendar entries (filing, review, renewal, attestation-due) with due-date tracking. | Annexures §2.6.2.1(ii)(a), (iv)(a)–(b) |
 | FR-11 | Evidence shall attach to exactly one of an Obligation, a Compliance Assessment, a Compliance Exception, or a Compliance Attestation, and shall record an integrity hash of the underlying artifact. | — |
 | FR-12 | An Obligation shall expose a cross-module reference-resolution API so that `CONTROLS`' existing opaque `module_controls_control_obligation_link.obligation_ref_id` resolves to a real Obligation record without a direct FK. | Activates `12-controls` FR-13 |
-| FR-13 | An Obligation shall support zero or more opaque, non-FK links to a future Policy module's records (`module_compliance_obligation_policy_link`), inert until that module ships. | — |
+| FR-13 | An Obligation shall support zero or more opaque, non-FK links to `POLICY` records (`module_compliance_obligation_policy_link`), activated via `POST /obligations/{id}/policy-links`. | — |
 | FR-14 | The system shall support Regulatory Change records that track a circular/amendment and link to zero or more Obligations (`NEW`, `AMENDS`, `SUPERSEDES`, or `CLARIFIES`), with the impact-assessment-to-obligations-updated transition subject to governed approval. | 11-compliance README scope: "regulatory change management workflow" |
 | FR-15 | The system shall support Compliance Attestations, either Obligation-scoped or tenant-wide for a reporting period, subject to governed approval. | Annexures §2.6.2.1(ii)(a) reporting responsibility |
 | FR-16 | Visibility shall be role-scoped: `COMPLIANCE_VIEWER` — full tenant register, read-only; `COMPLIANCE_MAKER` — full read, edit own drafts/assessments/exceptions; `COMPLIANCE_CHECKER` — full read, plus all pending approvals across the tenant. | — |
@@ -446,6 +449,9 @@ Sub-categories use the same self-referencing `parent_category_id` mechanism
 | FR-18 | A `NON_COMPLIANT` assessment result or a `HIGH`/`CRITICAL` Compliance Exception may be used to create or link a Risk register entry via `RISK`'s `Risk.source = COMPLIANCE_OBLIGATION` value, resolved by manual cross-context action, not a synchronous service call. | Activates the `10-risk`/`04-domain-model`-reserved `source` enum value |
 | FR-19 | The system shall expose a compliance register report, a compliance status dashboard, a compliance calendar view (upcoming/overdue), an exception register/aging report, a regulatory change impact report, and an attestation register. | Annexures §2.6.2.1(ii)(a), (iv)(a)–(b) |
 | FR-20 | Every governed state transition shall be captured in the platform audit trail using canonical, non-aliased `action_type` values. | system.md §10 |
+| FR-21 | A Compliance Exception shall expose a `capa_ref_id` resolving to a CAPA record via `INCIDENT`'s existing `POST /capa-requests` endpoint. **Added Session 15.** | Activates `24-incident-issue-capa` with zero additive change on that module's own side |
+| FR-22 | `POST /obligations/{id}/references` shall accept an explicit `{source_module_code, source_entity_type, source_entity_ref_id}` payload rather than a hardcoded `CONTROLS`/`CONTROL` pair, so a second citing module (`TPR`) can register its own mirror row in `module_compliance_obligation_control_link` without a schema or endpoint change. **Added Session 15.** | Activates `25-third-party-risk`'s proposed obligation mirror-registration extension |
+| FR-23 | The system shall provide a "Technology & Operational Resilience" `ObligationCategory`, seeded per regulatory profile. **Added Session 15.** | SEBI Risk Mgmt circular Appendix A Part 1 item 1; Annexures System Audit Program Checklist item 8 |
 
 ## Non-Functional Requirements
 
@@ -489,12 +495,12 @@ written against it.
 |---|---|---|
 | `module_compliance_obligation` | `obligation_code`, `framework_id` (FK), `category_id` (FK), `subcategory_id` (FK, nullable), `title`, `description`, `citation_reference`, `obligation_type`, `obligation_owner_user_id`, `status`, `compliance_status`, `source`, `filing_frequency` (nullable), `effective_from`, `effective_to` (nullable), `last_assessed_date`, `next_review_date`, `review_frequency_days`, `updated_at` | The aggregate root. `obligation_type` ∈ `MANDATORY, RECOMMENDATORY`. `status` ∈ `DRAFT, SUBMITTED, UNDER_REVIEW, ACTIVE, SUPERSEDED, RETIRED`. `compliance_status` ∈ `COMPLIANT, PARTIALLY_COMPLIANT, NON_COMPLIANT, NOT_ASSESSED`. `source` ∈ `MANUAL, REGULATORY_CHANGE` (descriptive classification only, mirroring `Risk.source`/`Control.source`). `filing_frequency` ∈ `CONTINUOUS, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL, AD_HOC, EVENT_DRIVEN`, same cadence enum shape `12-controls` uses for `frequency`/`test_frequency`. |
 | `module_compliance_assessment` | `obligation_id` (FK), `assessment_date`, `assessor_user_id`, `compliance_status`, `rationale`, `status`, `approved_by`, `approved_at` | Append-only history; `status` ∈ `DRAFT, SUBMITTED, APPROVED, REJECTED`. `compliance_status` is the assessment's own result value, projected onto `Obligation.compliance_status` on `APPROVED`. |
-| `module_compliance_exception` | `exception_code`, `obligation_id` (FK), `source_assessment_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `ASSESSMENT_FAILURE, FILING_MISSED, POLICY_GAP, CONTROL_GAP, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package**, symmetric to `ControlException.linked_risk_id`. |
+| `module_compliance_exception` | `exception_code`, `obligation_id` (FK), `source_assessment_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `capa_ref_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `ASSESSMENT_FAILURE, FILING_MISSED, POLICY_GAP, CONTROL_GAP, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package**, symmetric to `ControlException.linked_risk_id`. `capa_ref_id` — **added Session 15**, opaque, no FK, resolved via `24-incident-issue-capa`'s existing `POST /capa-requests` — see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa). |
 | `module_compliance_attestation` | `attestation_code`, `scope_type`, `obligation_id` (FK, nullable), `period_start`, `period_end`, `attested_by`, `attestation_statement`, `status`, `approved_by`, `approved_at` | `scope_type` ∈ `OBLIGATION, TENANT_WIDE`. `obligation_id` is `NULL` when `scope_type = TENANT_WIDE`. `status` ∈ `DRAFT, SUBMITTED, ATTESTED, REJECTED`. |
 | `module_compliance_calendar_entry` | `obligation_id` (FK, nullable), `title`, `entry_type`, `due_date`, `recurrence`, `status`, `completed_date`, `completed_by`, `reminder_days_before`, `updated_at` | `entry_type` ∈ `FILING, REVIEW, RENEWAL, ATTESTATION_DUE, OTHER`. `recurrence` ∈ `ONE_TIME, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL`. `status` ∈ `UPCOMING, DUE, COMPLETED, OVERDUE`. Not `pending_action`-governed (Assumption 9). |
 | `module_compliance_evidence` | `obligation_id` (FK, nullable), `assessment_id` (FK, nullable), `exception_id` (FK, nullable), `attestation_id` (FK, nullable), `evidence_type`, `title`, `description`, `storage_ref`, `file_name`, `mime_type`, `file_size_bytes`, `content_hash`, `collected_at`, `collected_by`, `uploaded_at`, `uploaded_by`, `status` | Exactly one of `obligation_id`/`assessment_id`/`exception_id`/`attestation_id` is non-null (application-layer invariant, extending `ControlEvidence`'s three-way rule to four). `evidence_type` ∈ `DOCUMENT, FILING_RECEIPT, SYSTEM_EXTRACT, ATTESTATION, LEGAL_OPINION, OTHER`. `status` ∈ `ACTIVE, SUPERSEDED, ARCHIVED`. `storage_ref` is opaque per Assumption 5. |
-| `module_compliance_obligation_control_link` | `obligation_id` (FK), `source_module_code` (fixed `'CONTROLS'`), `source_entity_type` (fixed `'CONTROL'`), `source_control_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | Local **mirror** of `CONTROLS`' own `module_controls_control_obligation_link` row, populated via an inbound API call from `CONTROLS` — see [Integration with Controls](#integration-with-controls). `status` ∈ `ACTIVE, REMOVED`. |
-| `module_compliance_obligation_policy_link` | `obligation_id` (FK), `policy_ref_id` (opaque uuid, no FK) | Inert until a Policy module ships — identical shape to `12-controls`' own reserved `module_controls_control_obligation_link`, direction inverted (here, `COMPLIANCE` is the customer initiating the link). |
+| `module_compliance_obligation_control_link` | `obligation_id` (FK), `source_module_code`, `source_entity_type`, `source_entity_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | Local **mirror** of a citing module's own control/vendor-obligation link row, populated via an inbound API call — see [Integration with Controls](#integration-with-controls) and [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management). **Generalized Session 15**: `source_module_code ∈ CONTROLS, TPR` and `source_entity_type ∈ CONTROL, VENDOR` (both closed sets, extensible by new enum values only, no migration) — previously `source_module_code`/`source_entity_type` were documented as fixed to `'CONTROLS'`/`'CONTROL'` and the resolution column was named `source_control_id`; both are widened this session (column renamed `source_entity_ref_id`) so a second citing module (`TPR`) can register its own mirror row without a schema or endpoint change, mirroring `23-policy`'s already-proven `PolicyReferenceLink` polymorphic design. No physical schema growth — the table already carried generic-shaped `source_module_code`/`source_entity_type` columns; only their documented domain and the one opaque-reference column's name changed, and only the table's pre-implementation specification, since no migration has ever been written against it. `status` ∈ `ACTIVE, REMOVED`. |
+| `module_compliance_obligation_policy_link` | `obligation_id` (FK), `policy_ref_id` (opaque uuid, no FK) | **Activated (Session 10)** — corrected a stale "inert" note this session (Session 15 consistency review); resolves via `POST /obligations/{id}/policy-links`, `COMPLIANCE` is the customer initiating the link toward `POLICY`. |
 | `module_compliance_regulatory_change` | `change_code`, `framework_id` (FK), `title`, `description`, `source_reference`, `detected_date`, `effective_date`, `status`, `assessed_by`, `assessed_at`, `impact_summary`, `approved_by` (nullable), `approved_at` (nullable) | `status` ∈ `DETECTED, UNDER_ASSESSMENT, IMPACT_ASSESSED, OBLIGATIONS_UPDATED, CLOSED`. |
 | `module_compliance_regulatory_change_obligation_link` | `regulatory_change_id` (FK), `obligation_id` (FK), `link_type`, `notes` (nullable) | `link_type` ∈ `NEW, AMENDS, SUPERSEDES, CLARIFIES`. |
 
@@ -903,7 +909,12 @@ ships." Nothing about that table changes. What this module adds, entirely on the
    `POST /api/v1/modules/compliance/obligations/{id}/references` is called by `CONTROLS`'
    backend, server-to-server, populating `module_compliance_obligation_control_link` — this
    module's own "which controls satisfy this obligation" view, without ever querying
-   `CONTROLS`' tables directly (OWN-08/OWN-09 compliant).
+   `CONTROLS`' tables directly (OWN-08/OWN-09 compliant). **Generalized (Session 15)**: this
+   endpoint now accepts an explicit `{source_module_code: 'CONTROLS', source_entity_type:
+   'CONTROL', source_entity_ref_id}` payload rather than hardcoding those first two fields —
+   `CONTROLS`' own existing call is unaffected (it now passes explicitly what was previously
+   implicit), and the same endpoint/table is reused, not duplicated, by `TPR` — see
+   [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management).
 3. **Activated (2026-07-20): a `CONTROLS`-side initiating endpoint.** For step 2 to be
    exercised, `CONTROLS` needed its own endpoint — this spec originally proposed
    `POST /api/v1/modules/controls/controls/{id}/obligation-links {obligation_ref_id}`,
@@ -971,6 +982,51 @@ the documented, versioned basis an Obligation's satisfaction cites, mirroring ex
   document — `COMPLIANCE` would be the customer calling into it, the same role `CONTROLS`
   plays toward `COMPLIANCE` above.
 
+## Integration with Third-Party Risk Management
+
+**Added Session 15 (Additive Change Consolidation)**, resolving `25-third-party-risk/01-*`'s
+own proposed, not-yet-applied extension — that document's Assumption 8 explicitly declined to
+assume `POST /obligations/{id}/references` was reusable without verification, since it was
+documented as shaped specifically for `CONTROLS` (a single-caller endpoint, the same limitation
+`12-controls`' own `POST /controls/{id}/references` had before `11-compliance` first exposed
+this pattern). Resolved here by **generalizing, not duplicating**, per the option that
+document's own text named first:
+
+1. **Resolution direction (`TPR` → `COMPLIANCE`, zero additive change, unchanged)**:
+   `GET /api/v1/modules/compliance/obligations/{id}/reference` resolves
+   `module_tpr_vendor_obligation_link.obligation_ref_id` for display — already built,
+   guarded solely by `COMPLIANCE_VIEW`, making no assumption about caller identity.
+2. **Mirror direction (Compliance's own reporting) — now generalized**: `TPR`'s backend calls
+   the same `POST /api/v1/modules/compliance/obligations/{id}/references
+   {source_module_code: 'TPR', source_entity_type: 'VENDOR', source_entity_ref_id: vendorId}`
+   `CONTROLS` already calls, populating the same, now-polymorphic
+   `module_compliance_obligation_control_link` table (see [Canonical Data
+   Model](#canonical-data-model)) — no new table, no new endpoint, mirroring exactly how
+   `23-policy`'s `PolicyReferenceLink` was designed from the start to need "only a new enum
+   value, not a new migration" for a third or fourth citing module.
+3. **`VendorAssessment.obligation_ref_id`** (`assessment_type = COMPLIANCE_ASSESSMENT`),
+   already built on `TPR`'s own side, resolves via item 1 with no change here.
+
+**What this module builds without redesigning anything**: a second citing module (`TPR`)
+fully served by the same endpoint and table `CONTROLS` already uses — the same "propose a
+generalization, not a dedicated second table" resolution `23-policy`'s own polymorphic design
+proved out first.
+
+## Integration with Incident/Issue/CAPA
+
+**Added Session 15**, per `24-incident-issue-capa/01-*`'s own proposed, not-yet-applied
+extension:
+
+- **`POST /exceptions/{id}/capa-request`** (guarded by `COMPLIANCE_EXCEPTION_CLOSE`) — calls
+  `INCIDENT`'s existing `POST /capa-requests {source_module_code: 'COMPLIANCE',
+  source_entity_type: 'COMPLIANCE_EXCEPTION', source_entity_ref_id: exceptionId}`
+  (server-to-server, OWN-09), storing the returned `capa_ref_id` on
+  `module_compliance_exception`. No change required on `INCIDENT`'s side — `POST
+  /capa-requests` was built generically from its own original authoring.
+- **Manifest consequence**: this module's manifest gains `dependencies: [INCIDENT]` (see
+  [Architecture](#architecture)). `INCIDENT`'s own manifest carries no reciprocal dependency —
+  pure-provider side, consistent with every other module's activation of this same endpoint.
+
 ## Integration with Future Regulatory Reporting
 
 Per `04-domain-model`, `REPORTING` is **Conformist, read-only** over every core-domain
@@ -1001,13 +1057,14 @@ records — this module exposes *propose* endpoints, not bespoke *approve* endpo
 | GET | `/obligations/{id}` | `COMPLIANCE_VIEW` | Obligation detail |
 | PUT | `/obligations/{id}` | `COMPLIANCE_EDIT` | Edit a `DRAFT` Obligation |
 | GET | `/obligations/{id}/reference` | `COMPLIANCE_VIEW` | Minimal cross-module resolution DTO (consumed by `CONTROLS`) |
-| POST | `/obligations/{id}/references` | `COMPLIANCE_VIEW` | Register a mirror reference from `CONTROLS` (server-to-server; see [Integration with Controls](#integration-with-controls)) |
+| POST | `/obligations/{id}/references` | `COMPLIANCE_VIEW` | Register a mirror reference from a citing module — `CONTROLS` or, since Session 15, `TPR` (server-to-server; accepts explicit `source_module_code`/`source_entity_type`; see [Integration with Controls](#integration-with-controls) and [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management)) |
 | POST | `/obligations/{id}/assessments` | `COMPLIANCE_ASSESS` | Submit assessment → creates `pending_action` |
 | GET | `/obligations/{id}/assessments` | `COMPLIANCE_VIEW` | Assessment history |
 | POST | `/obligations/{id}/exceptions` | `COMPLIANCE_EXCEPTION_RAISE` | Raise an exception (immediate) |
 | POST | `/exceptions/{id}/closure` | `COMPLIANCE_EXCEPTION_CLOSE` | Propose closure/risk-acceptance → creates `pending_action` |
 | GET | `/exceptions` | `COMPLIANCE_VIEW` | List exceptions |
-| POST | `/obligations/{id}/policy-links` | `COMPLIANCE_EDIT` | Link an opaque policy reference (reserved, inert until Policy module ships) |
+| POST | `/obligations/{id}/policy-links` | `COMPLIANCE_EDIT` | Link an opaque `POLICY` reference; calls `POLICY`'s mirror-registration API server-to-server — **activated Session 10** |
+| POST | `/exceptions/{id}/capa-request` | `COMPLIANCE_EXCEPTION_CLOSE` | Request a CAPA via `INCIDENT`'s `POST /capa-requests` (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)); added Session 15 |
 | POST | `/attestations` | `COMPLIANCE_ATTEST` | Propose an attestation → creates `pending_action` |
 | GET | `/attestations` | `COMPLIANCE_VIEW` | List attestations |
 | GET/POST | `/calendar-entries` | `COMPLIANCE_VIEW` / `COMPLIANCE_CALENDAR_MANAGE` | List/create calendar entries |
@@ -1046,6 +1103,19 @@ modules) are not yet specified; this spec only reserves the naming, same as
 - **`Risk.source = COMPLIANCE_OBLIGATION` enum value**: proposed in
   [Integration with Risk](#integration-with-risk) — **activated 2026-07-20**, see
   `10-risk/01-*.md`'s Amendment log.
+- **Resolved (Session 15)**: `POLICY`-side policy-link activation (Session 10) and the stale
+  "inert"/"reserved" notes on `module_compliance_obligation_policy_link` and FR-13 that never
+  reflected it are corrected (Canonical Data Model, Functional Requirements, APIs).
+- **Resolved (Session 15)**: the `TPR` obligation mirror-registration gap
+  `25-third-party-risk/01-*` Assumption 8 named is closed by generalizing
+  `POST /obligations/{id}/references`/`module_compliance_obligation_control_link` to a
+  polymorphic shape — see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management).
+- **Resolved (Session 15)**: `ComplianceException.capa_ref_id` plus
+  `POST /exceptions/{id}/capa-request` are built (Canonical Data Model, APIs,
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)).
+- **Resolved (Session 15)**: a "Technology & Operational Resilience" `ObligationCategory` is
+  seeded, closing the gap `26-business-continuity/01-*` discovered (its own primary regulatory
+  driver had no fitting slot in this module's original eight-category seed set).
 - **Platform document/object storage capability**: `ComplianceEvidence.storage_ref` is
   opaque pending this platform capability, same confirmed gap `12-controls` Assumption 4
   already flagged — not designed here, and not re-counted as a second gap.
@@ -1108,3 +1178,22 @@ document redesigned):
   `Risk.source = COMPLIANCE_OBLIGATION`; `12-controls`' `POST /controls/{id}/obligation-links`)
   have since been applied to their respective frozen documents, per `docs/roadmap.md`'s Next
   Milestone. This spec's own domain model, data model, and workflows are unchanged.
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied/corrected five items, none
+  of which required a redesign of this module's own domain model or workflows: (1) added
+  `module_compliance_exception.capa_ref_id` plus `POST /exceptions/{id}/capa-request` (Canonical
+  Data Model, APIs, new [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)
+  section), per `24-incident-issue-capa/01-*`; (2) added a "Technology & Operational Resilience"
+  `ObligationCategory` seed row, per `26-business-continuity/01-*`; (3) generalized
+  `module_compliance_obligation_control_link` (column `source_control_id` renamed
+  `source_entity_ref_id`; `source_module_code`/`source_entity_type` widened from fixed values to
+  closed, extensible sets) and `POST /obligations/{id}/references` (now accepts explicit source
+  fields) so `TPR` can register its own mirror row via the same endpoint/table `CONTROLS`
+  already uses — closing `25-third-party-risk/01-*` Assumption 8's gap by generalization, not
+  duplication (new [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management)
+  section); (4) corrected two stale notes found during this session's consistency review —
+  `module_compliance_obligation_policy_link` and FR-13 both still read "inert"/"reserved" despite
+  `POST /obligations/{id}/policy-links` having been activated, with zero additive change, since
+  `23-policy`'s own Session 10 authoring; (5) manifest `dependencies:` updated from `[]` to
+  `[POLICY, INCIDENT]` (Architecture) to reflect the now-activated `POLICY` call and the new
+  `INCIDENT` call — `COMPLIANCE` remains a pure provider toward `RISK`, `CONTROLS`, and `AUDIT`.
+  No entity, aggregate, or workflow redesigned.

@@ -200,16 +200,27 @@ the §18 Product Framework contract):
   (OWN-07).
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see [Authorization](#authorization).
-- `dependencies: []`. CONTROLS has no hard dependency on any other module — it is a pure
-  provider. **`RISK`'s manifest gains `dependencies: [CONTROLS]`** once this module ships and
-  the cross-module reference is wired at implementation time (an additive manifest/metadata
-  change to `RISK`, not a redesign of its domain or data model — `10-risk`'s own Architecture
-  section already anticipated exactly this: "A `dependencies: [CONTROLS]` declaration becomes
-  appropriate once the Controls module ships"). Symmetrically, **this module's own manifest
-  gains `dependencies: [COMPLIANCE]`** once the `POST /controls/{id}/obligation-links`
-  endpoint (added below, per `11-compliance/01-compliance-management.md`'s proposed,
-  now-activated extension) is wired — additive metadata, not a redesign of this module's
-  domain or data model.
+- **`dependencies: [COMPLIANCE, POLICY, INCIDENT, TPR, BCP]`** (updated Session 15 — Additive
+  Change Consolidation). CONTROLS remains a **pure provider toward `RISK` and `AUDIT`** — no
+  edge is ever declared in that direction — but is no longer a zero-dependency module overall:
+  each of the five dependencies above backs exactly one of this module's own initiating,
+  cross-module link endpoints, added additively this session (see [Integration with Compliance
+  Management](#activating-the-control--obligation-link), [Integration with Policy
+  Management](#integration-with-policy-management), [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa),
+  [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management),
+  and [Integration with Business Continuity Management](#integration-with-business-continuity-management)
+  below) — `POST /controls/{id}/obligation-links` (`COMPLIANCE`, Session 6),
+  `POST /controls/{id}/policy-links` (`POLICY`), `POST /exceptions/{id}/capa-request`
+  (`INCIDENT`), and the resolution-direction lookups `POST /controls/{id}/vendor-links` makes
+  against `TPR` and `POST /controls/{id}/continuity-links` makes against `BCP`. **`RISK`'s
+  manifest gains `dependencies: [CONTROLS]`** once this module ships and the cross-module
+  reference is wired at implementation time (an additive manifest/metadata change to `RISK`,
+  not a redesign of its domain or data model — `10-risk`'s own Architecture section already
+  anticipated exactly this: "A `dependencies: [CONTROLS]` declaration becomes appropriate once
+  the Controls module ships"). None of `COMPLIANCE`/`POLICY`/`INCIDENT`/`TPR`/`BCP` declares a
+  reciprocal dependency back on `CONTROLS` for any of these five edges — each remains the
+  pure-supply side of its own relationship, so no cycle is introduced (see `04-domain-model`
+  Dependency Rule 1, updated this session to reflect this evolved posture).
 - No platform-plane tables, no platform-plane governance actions — every governed action is
   tenant-plane (`app.plane = 'tenant'`).
 - Tenant isolation, GUC binding, and session-setter usage are inherited unmodified from
@@ -426,12 +437,17 @@ gap for its own Risk-side remediation tracking.
 | FR-10 | The system shall track `next_test_due_date` per Control per test type and surface overdue tests. | Annexures §2.11.2.1(iii) |
 | FR-11 | Evidence shall attach to exactly one of a Control, a ControlTest, or a ControlException, and shall record an integrity hash of the underlying artifact. | — |
 | FR-12 | A Control shall expose a cross-module reference-resolution API so that `RISK`'s existing opaque `module_risk_treatment_control_link.control_ref_id` resolves to a real Control record without a direct FK. | Activates `10-risk` FR-08 |
-| FR-13 | A Control shall support zero or more opaque, non-FK links to future Compliance-module obligations (`module_controls_control_obligation_link`), inert until `11-compliance` ships. | — |
+| FR-13 | A Control shall support zero or more opaque, non-FK links to Compliance-module obligations (`module_controls_control_obligation_link`), activated via `POST /controls/{id}/obligation-links`. | — |
 | FR-14 | Visibility shall be role-scoped: `CONTROLS_VIEWER` — full tenant library, read-only; `CONTROLS_MAKER` — full read, edit own drafts/tests/exceptions; `CONTROLS_CHECKER` — full read, plus all pending approvals across the tenant. | — |
 | FR-15 | The system shall expose a control library report, a control testing calendar/overdue report, a control effectiveness dashboard (by family and by nature), and an exception register/aging report. | — |
 | FR-16 | Every governed state transition shall be captured in the platform audit trail using canonical, non-aliased `action_type` values. | system.md §10 |
 | FR-17 | The independent control-testing/approval function shall be satisfiable purely by role assignment (Compliance Officer, Internal Audit, or an external assurance provider holding `CONTROLS_CHECKER`) — no code change required per assignment choice. | Mirrors `10-risk` FR-17 |
 | FR-18 | A `FAIL`/`INEFFECTIVE` control test outcome may be used to create or link a Risk register entry via `RISK`'s already-reserved `Risk.source = CONTROL_TEST` value, resolved by cross-module API call, not direct database access. | Activates `10-risk`'s reserved `source` enum value |
+| FR-19 | A Control shall support zero or more opaque, non-FK links to `POLICY` records (`module_controls_control_policy_link`), activated via `POST /controls/{id}/policy-links`. **Added Session 15.** | — |
+| FR-20 | A Control shall support zero or more opaque, non-FK links to `TPR` Vendor records (`module_controls_control_vendor_link`), activated via `POST /controls/{id}/vendor-links`. **Added Session 15.** | Annexures §2.9 (re-cited from `25-third-party-risk`) |
+| FR-21 | A Control shall support zero or more opaque, non-FK links to `BCP` Continuity Plan records (`module_controls_control_continuity_link`), activated via `POST /controls/{id}/continuity-links`. **Added Session 15.** | Annexure 8, item 8 (re-cited from `26-business-continuity`) |
+| FR-22 | A Control Exception shall expose a `capa_ref_id` resolving to a CAPA record via `INCIDENT`'s existing `POST /capa-requests` endpoint. **Added Session 15.** | Activates `24-incident-issue-capa` with zero additive change on that module's own side |
+| FR-23 | `Control.source` shall support `THIRD_PARTY_RISK` and `BUSINESS_CONTINUITY` values, classification metadata only. **Added Session 15.** | — |
 
 ## Non-Functional Requirements
 
@@ -468,12 +484,15 @@ duplicates it.
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `module_controls_control` | `control_code`, `name`, `description`, `control_family_id` (FK), `control_nature`, `execution_type`, `frequency`, `test_frequency`, `control_owner_user_id`, `control_operator_user_id` (nullable), `status`, `design_effectiveness`, `operating_effectiveness`, `key_control boolean`, `automation_tool_ref` (nullable), `source`, `effective_from`, `effective_to` (nullable), `last_tested_date`, `next_test_due_date`, `last_reviewed_date`, `next_review_date`, `review_frequency_days`, `updated_at` | The aggregate root. `frequency` (operating cadence) and `test_frequency` (testing cadence) are independent — e.g. a `CONTINUOUS` automated control tested `QUARTERLY`. `frequency`/`test_frequency` ∈ `CONTINUOUS, DAILY, WEEKLY, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL, AD_HOC, EVENT_DRIVEN`. `status` ∈ `DRAFT, SUBMITTED, UNDER_REVIEW, ACTIVE, RETIRED`. `design_effectiveness` ∈ `EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_ASSESSED`. `operating_effectiveness` ∈ `EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_TESTED`. `source` ∈ `MANUAL, RISK_TREATMENT, AUDIT_FINDING, REGULATORY_REQUIREMENT` (classification metadata only — creation is always a manual maker action regardless of `source`, mirroring `Risk.source`'s own descriptive-not-automated role). |
+| `module_controls_control` | `control_code`, `name`, `description`, `control_family_id` (FK), `control_nature`, `execution_type`, `frequency`, `test_frequency`, `control_owner_user_id`, `control_operator_user_id` (nullable), `status`, `design_effectiveness`, `operating_effectiveness`, `key_control boolean`, `automation_tool_ref` (nullable), `source`, `effective_from`, `effective_to` (nullable), `last_tested_date`, `next_test_due_date`, `last_reviewed_date`, `next_review_date`, `review_frequency_days`, `updated_at` | The aggregate root. `frequency` (operating cadence) and `test_frequency` (testing cadence) are independent — e.g. a `CONTINUOUS` automated control tested `QUARTERLY`. `frequency`/`test_frequency` ∈ `CONTINUOUS, DAILY, WEEKLY, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL, AD_HOC, EVENT_DRIVEN`. `status` ∈ `DRAFT, SUBMITTED, UNDER_REVIEW, ACTIVE, RETIRED`. `design_effectiveness` ∈ `EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_ASSESSED`. `operating_effectiveness` ∈ `EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_TESTED`. `source` ∈ `MANUAL, RISK_TREATMENT, AUDIT_FINDING, REGULATORY_REQUIREMENT, THIRD_PARTY_RISK, BUSINESS_CONTINUITY` (classification metadata only — creation is always a manual maker action regardless of `source`, mirroring `Risk.source`'s own descriptive-not-automated role; `THIRD_PARTY_RISK` and `BUSINESS_CONTINUITY` **added Session 15** per `25-third-party-risk/01-*`'s and `26-business-continuity/01-*`'s own Integration with Controls Management sections — a control created specifically in response to a vendor-assessment or continuity-exercise finding may be tagged with either value). |
 | `module_controls_test` | `control_id` (FK), `test_type`, `test_date`, `tester_user_id`, `methodology`, `sample_size` (nullable), `population_size` (nullable), `test_procedure`, `result`, `effectiveness_rating`, `rationale`, `source`, `status`, `approved_by`, `approved_at`, `next_test_due_date` | Append-only once `APPROVED`. `test_type` ∈ `DESIGN, OPERATING`. `methodology` ∈ `INSPECTION, OBSERVATION, REPERFORMANCE, INQUIRY`. `result` ∈ `PASS, FAIL, PARTIAL_PASS`. `effectiveness_rating` ∈ `EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE`. `status` ∈ `DRAFT, SUBMITTED, APPROVED, REJECTED`. `source` ∈ `MANUAL, INTEGRATION` (reserves automated/continuous-control-monitoring feeds, mirroring `KRIMeasurement.source`). |
-| `module_controls_exception` | `exception_code`, `control_id` (FK), `source_test_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `TEST_FAILURE, CONTROL_OVERRIDE, COMPENSATING_CONTROL_ACTIVATED, CONTROL_NOT_OPERATING, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package per OWN-09**, symmetric to how `10-risk` treats its own `control_ref_id`. |
+| `module_controls_exception` | `exception_code`, `control_id` (FK), `source_test_id` (FK, nullable), `category`, `description`, `identified_date`, `identified_by`, `severity`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `status`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `capa_ref_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | `category` ∈ `TEST_FAILURE, CONTROL_OVERRIDE, COMPENSATING_CONTROL_ACTIVATED, CONTROL_NOT_OPERATING, OTHER`. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_risk_id` is **opaque, no FK — resolved via `RISK`'s `.api`/`.client` package per OWN-09**, symmetric to how `10-risk` treats its own `control_ref_id`. `capa_ref_id` — **added Session 15**, opaque, no FK, resolved via `24-incident-issue-capa`'s existing `POST /capa-requests` — see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa). |
 | `module_controls_evidence` | `control_id` (FK, nullable), `test_id` (FK, nullable), `exception_id` (FK, nullable), `evidence_type`, `title`, `description`, `storage_ref`, `file_name`, `mime_type`, `file_size_bytes`, `content_hash`, `collected_at`, `collected_by`, `uploaded_at`, `uploaded_by`, `status` | Exactly one of `control_id`/`test_id`/`exception_id` is non-null (application-layer invariant — see [Evidence Management](#evidence-management)). `evidence_type` ∈ `DOCUMENT, SCREENSHOT, SYSTEM_EXTRACT, ATTESTATION, LOG_EXTRACT, OTHER`. `status` ∈ `ACTIVE, SUPERSEDED, ARCHIVED`. `storage_ref` is opaque per Assumption 4. |
 | `module_controls_control_risk_link` | `control_id` (FK), `source_module_code` (fixed `'RISK'`), `source_entity_type` (fixed `'RISK_TREATMENT_PLAN'`), `source_treatment_plan_id` (opaque uuid, no FK), `source_risk_id` (opaque uuid, nullable, no FK, for display convenience), `linked_at`, `linked_by`, `status` | Local mirror of `RISK`'s own `module_risk_treatment_control_link` row, populated via API call — see [Integration with Risk Management](#integration-with-risk-management). `status` ∈ `ACTIVE, REMOVED`. |
-| `module_controls_control_obligation_link` | `control_id` (FK), `obligation_ref_id` (opaque uuid, no FK) | Inert until `11-compliance` ships — identical shape to `10-risk`'s own reserved link. |
+| `module_controls_control_obligation_link` | `control_id` (FK), `obligation_ref_id` (opaque uuid, no FK) | **Activated (Session 6)** — corrected a stale "inert" note this session (Session 15 consistency review); resolves via `POST /controls/{id}/obligation-links`, see [Activating the Control → Obligation Link](#activating-the-control--obligation-link). |
+| `module_controls_control_policy_link` | `control_id` (FK), `policy_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | **Added Session 15**, identical shape to `module_controls_control_obligation_link`. Resolves via `POST /controls/{id}/policy-links` — see [Integration with Policy Management](#integration-with-policy-management). `status` ∈ `ACTIVE, REMOVED`. |
+| `module_controls_control_vendor_link` | `control_id` (FK), `vendor_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | **Added Session 15**, identical shape to `module_controls_control_obligation_link`. Resolves via `POST /controls/{id}/vendor-links` — see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management). `status` ∈ `ACTIVE, REMOVED`. |
+| `module_controls_control_continuity_link` | `control_id` (FK), `continuity_plan_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | **Added Session 15**, identical shape to `module_controls_control_obligation_link`. Resolves via `POST /controls/{id}/continuity-links` — see [Integration with Business Continuity Management](#integration-with-business-continuity-management). `status` ∈ `ACTIVE, REMOVED`. |
 
 No bespoke audit table is defined — audit trail is the platform's `audit_log` per system.md
 §10, reused as-is, exactly as `10-risk` does.
@@ -491,7 +510,11 @@ erDiagram
     CONTROL_TEST ||--o{ CONTROL_EVIDENCE : "supported by"
     CONTROL_EXCEPTION ||--o{ CONTROL_EVIDENCE : "supported by"
     CONTROL ||--o{ CONTROL_RISK_LINK : "mitigates (mirror)"
-    CONTROL ||--o{ CONTROL_OBLIGATION_LINK : "satisfies (future)"
+    CONTROL ||--o{ CONTROL_OBLIGATION_LINK : satisfies
+    CONTROL ||--o{ CONTROL_POLICY_LINK : "designed per"
+    CONTROL ||--o{ CONTROL_VENDOR_LINK : covers
+    CONTROL ||--o{ CONTROL_CONTINUITY_LINK : corroborates
+    CONTROL_EXCEPTION ||--o| CAPA : "may escalate to (opaque, INCIDENT)"
 ```
 
 ## Workflows
@@ -769,6 +792,87 @@ this module's domain or data model:
   `COMPLIANCE`'s own manifest stays `dependencies: []` — it remains the pure-provider side of
   the relationship, per `04-domain-model`'s Dependency Rule 4.
 
+## Integration with Policy Management
+
+**Added Session 15 (Additive Change Consolidation)**, per `23-policy/01-policy-management.md`'s
+own proposed, not-yet-applied extension — the one integration `23-policy` itself could not
+build unilaterally, since (unlike `11-compliance`'s obligation link) this module had reserved
+no policy link at all prior to this session:
+
+- **`POST /controls/{id}/policy-links {policy_ref_id}`** (guarded by `CONTROLS_EDIT`) — inserts
+  a row into the new `module_controls_control_policy_link` table, then calls `POLICY`'s
+  existing, confirmed-polymorphic `POST /api/v1/modules/policy/policies/{policy_ref_id}/references
+  {source_module_code: 'CONTROLS', source_entity_type: 'CONTROL', source_entity_ref_id:
+  controlId}` (server-to-server, OWN-09) to populate `POLICY`'s own `module_policy_reference_link`
+  mirror — the identical resolution/mirror shape this module's own `POST
+  /controls/{id}/obligation-links` already established for `COMPLIANCE`.
+- `GET /api/v1/modules/policy/policies/{id}/reference` (already specified in `23-policy`)
+  resolves the policy for this module's own presentation layer — no new endpoint needed on the
+  `POLICY` side; `23-policy/01-*` itself states `CONTROLS` was one of the two citing modules
+  its `PolicyReferenceLink` was designed for from the start.
+- **Manifest consequence**: this module's manifest gains `dependencies: [POLICY]` (see
+  [Architecture](#architecture)). `POLICY`'s own manifest, once this proposal is applied
+  alongside this session's changes, gains `dependencies: [..., CONTROLS]` in addition to its
+  existing `dependencies: [SECURITY]` — it remains the pure-provider side of the mirror-write,
+  per `04-domain-model`'s Dependency Rule 4.
+
+## Integration with Incident/Issue/CAPA
+
+**Added Session 15**, per `24-incident-issue-capa/01-*`'s own proposed, not-yet-applied
+extension:
+
+- **`POST /exceptions/{id}/capa-request`** (guarded by `CONTROLS_EXCEPTION_CLOSE`) — calls `INCIDENT`'s
+  existing `POST /capa-requests {source_module_code: 'CONTROLS', source_entity_type:
+  'CONTROL_EXCEPTION', source_entity_ref_id: exceptionId}` (server-to-server, OWN-09), storing
+  the returned `capa_ref_id` on `module_controls_exception`. No change required on `INCIDENT`'s
+  side — `POST /capa-requests` was built generically from its own original authoring to serve
+  exactly this kind of exception-bearing citing module.
+- **Manifest consequence**: this module's manifest gains `dependencies: [INCIDENT]` (see
+  [Architecture](#architecture)). `INCIDENT`'s own manifest carries no reciprocal dependency —
+  pure-provider side, consistent with every other module's activation of this same endpoint
+  (`23-policy`, `25-third-party-risk`, `26-business-continuity` each already do so).
+
+## Integration with Third-Party Risk Management
+
+**Added Session 15**, per `25-third-party-risk/01-*`'s own proposed, not-yet-applied
+extension — mirroring exactly how `11-compliance` first proposed the analogous obligation-link
+endpoint before this module's existing `POST /controls/{id}/references` (hardcoded to `RISK`'s
+mirror shape) was confirmed unable to serve a second citing module:
+
+- **`POST /controls/{id}/vendor-links {vendor_ref_id}`** (guarded by `CONTROLS_EDIT`) — inserts
+  a row into the new `module_controls_control_vendor_link` table, giving Controls its own
+  "which controls cover which vendors" view (e.g. a control from the seeded "Third-Party /
+  Outsourcing Oversight" control family covering a specific vendor's SLA monitoring).
+  `TPR`'s existing `GET /api/v1/modules/tpr/vendors/{id}/reference` resolves the vendor for
+  this module's own presentation layer. Unlike the `POLICY`/`COMPLIANCE` links, `TPR` does not
+  itself maintain a reciprocal "which controls mitigate this vendor" mirror table — that view,
+  if ever needed, belongs to a future `14-reporting`-style aggregation, not a `TPR` schema
+  change, so no mirror-registration call is made toward `TPR`.
+- **Manifest consequence**: this module's manifest gains `dependencies: [TPR]` (see
+  [Architecture](#architecture)). `TPR`'s own manifest carries no reciprocal dependency —
+  pure-provider side, per `04-domain-model` Dependency Rule 6 (a hard edge only where a genuine
+  synchronous call, here the resolution GET, is made).
+
+## Integration with Business Continuity Management
+
+**Added Session 15**, per `26-business-continuity/01-*`'s own proposed, not-yet-applied
+extension, resolving the plan-vs-test boundary that document's Assumption 6 already committed
+to (`CONTROLS` keeps the effectiveness decision, `BCP` owns the plan/targets) at this module's
+own side:
+
+- **`POST /controls/{id}/continuity-links {continuity_plan_ref_id}`** (guarded by
+  `CONTROLS_EDIT`) — inserts a row into the new `module_controls_control_continuity_link`
+  table, giving Controls its own view of which Continuity Plan(s) its seeded "Business
+  Continuity & Disaster Recovery" control family (`BCP Testing`, `DR Failover` sub-families)
+  corroborates — complementing, not duplicating, `BCP`'s own `ContinuityExercise.control_ref_id`
+  resolution-direction link (already built, zero additive change, per that document's own
+  Integration with Controls Management section). `BCP`'s existing
+  `GET /api/v1/modules/bcp/continuity-plans/{id}/reference` resolves the plan for this module's
+  own presentation layer.
+- **Manifest consequence**: this module's manifest gains `dependencies: [BCP]` (see
+  [Architecture](#architecture)). `BCP`'s own manifest carries no reciprocal dependency —
+  pure-provider side, per `04-domain-model` Dependency Rule 6.
+
 ## APIs
 
 Base path: `/api/v1/modules/controls` (OWN-07 API namespace ownership). Resource paths use
@@ -787,10 +891,14 @@ exposes *propose* endpoints, not bespoke *approve* endpoints, same as `10-risk`.
 | GET | `/controls/{id}/reference` | `CONTROLS_VIEW` | Minimal cross-module resolution DTO (consumed by `RISK`) |
 | POST | `/controls/{id}/references` | `CONTROLS_VIEW` | Register a mirror reference from another module (server-to-server; see Integration with Risk Management) |
 | POST | `/controls/{id}/obligation-links` | `CONTROLS_EDIT` | Link an opaque `COMPLIANCE` obligation reference; calls `COMPLIANCE`'s reference API server-to-server (see [Activating the Control → Obligation Link](#activating-the-control--obligation-link)) |
+| POST | `/controls/{id}/policy-links` | `CONTROLS_EDIT` | Link an opaque `POLICY` reference; calls `POLICY`'s mirror-registration API server-to-server (see [Integration with Policy Management](#integration-with-policy-management)); added Session 15 |
+| POST | `/controls/{id}/vendor-links` | `CONTROLS_EDIT` | Link an opaque `TPR` vendor reference (see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management)); added Session 15 |
+| POST | `/controls/{id}/continuity-links` | `CONTROLS_EDIT` | Link an opaque `BCP` continuity-plan reference (see [Integration with Business Continuity Management](#integration-with-business-continuity-management)); added Session 15 |
 | POST | `/controls/{id}/tests` | `CONTROLS_TEST` | Submit a design/operating test → creates `pending_action` |
 | GET | `/controls/{id}/tests` | `CONTROLS_VIEW` | Test history |
 | POST | `/controls/{id}/exceptions` | `CONTROLS_EXCEPTION_RAISE` | Raise an exception (immediate) |
 | POST | `/exceptions/{id}/closure` | `CONTROLS_EXCEPTION_CLOSE` | Propose closure/risk-acceptance → creates `pending_action` |
+| POST | `/exceptions/{id}/capa-request` | `CONTROLS_EXCEPTION_CLOSE` | Request a CAPA via `INCIDENT`'s `POST /capa-requests` (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)); added Session 15 |
 | GET | `/exceptions` | `CONTROLS_VIEW` | List exceptions |
 | POST | `/controls/{id}/evidence` | Matches parent entity's mutation permission | Attach evidence to a Control |
 | POST | `/tests/{id}/evidence` | `CONTROLS_TEST` | Attach evidence to a test |
@@ -827,9 +935,9 @@ modules) are not yet specified; this spec only reserves the naming, same as `10-
 - **Automated/continuous control monitoring**: `ControlTest.source = INTEGRATION` reserves
   the slot for `17-integrations` connectors (e.g. SIEM- or GRC-tool-fed automated test
   results) instead of manual entry, mirroring `10-risk`'s `KRIMeasurement.source` pattern.
-- **CAPA-structured remediation**: once an Issue/CAPA module exists, `ControlException`'s
-  free-text remediation fields become candidates for a structured CAPA link, mirroring how
-  `10-risk` reserves `Risk.source = INCIDENT`/CAPA slots for the same future module.
+- **Resolved (Session 15)**: `ControlException`'s CAPA link is no longer a future candidate —
+  `capa_ref_id` plus `POST /exceptions/{id}/capa-request` are built (Data Model, APIs,
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)).
 - **Standardized evidence-pack export**: a deterministic, signed, point-in-time evidence
   export (the shape PRSMTD's own §18.7 doctrine anticipates for governed frameworks
   generally) is a natural `13-audit` or platform capability once that module or the §18
@@ -870,3 +978,25 @@ modules) are not yet specified; this spec only reserves the naming, same as `10-
   tracked as the repository's only remaining inert forward reference among the five authored
   modules. No schema change — `module_controls_control_obligation_link` already carried this
   exact shape. No other change made to this document.
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied five additive changes
+  proposed across four later specs, none of which required any redesign of this module's own
+  domain or data model: (1) `Control.source` gained `THIRD_PARTY_RISK`/`BUSINESS_CONTINUITY`
+  (Data Model), per `25-third-party-risk/01-*`/`26-business-continuity/01-*`; (2)
+  `module_controls_control_policy_link` table plus `POST /controls/{id}/policy-links` (Data
+  Model, APIs, new [Integration with Policy Management](#integration-with-policy-management)
+  section), per `23-policy/01-*`; (3) `module_controls_control_vendor_link` table plus
+  `POST /controls/{id}/vendor-links` (Data Model, APIs, new [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management) section), per
+  `25-third-party-risk/01-*`; (4) `module_controls_control_continuity_link` table plus
+  `POST /controls/{id}/continuity-links` (Data Model, APIs, new [Integration with Business
+  Continuity Management](#integration-with-business-continuity-management) section), per
+  `26-business-continuity/01-*`; (5) `module_controls_exception.capa_ref_id` plus
+  `POST /exceptions/{id}/capa-request` (Data Model, APIs, new [Integration with
+  Incident/Issue/CAPA](#integration-with-incidentissuecapa) section), per
+  `24-incident-issue-capa/01-*`. Manifest `dependencies:` updated from `[]` to `[COMPLIANCE,
+  POLICY, INCIDENT, TPR, BCP]` (Architecture) to reflect these five genuine synchronous
+  cross-module calls — `CONTROLS` remains a pure provider toward `RISK` and `AUDIT`. Also
+  corrected a stale note on `module_controls_control_obligation_link` (Data Model) and FR-13
+  (Functional Requirements), both of which still read "inert"/"future" despite this link having
+  been activated since Session 6 — a staleness this session's consistency review caught, not a
+  new change. No entity, table, or workflow redesigned.

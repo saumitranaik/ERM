@@ -142,8 +142,9 @@ clause-level content for the first time.
    sketch" role `25-third-party-risk` played for `VendorCategory`/`RiskCategory` (that
    document's own Assumption 5). `ContinuityTestResult` is resolved as `ContinuityExercise`
    (Assumption 6). `ContinuityPlan` is built as anticipated, extended with a `plan_type`
-   discriminator (Assumption 7). This spec proposes, but does not apply, the corresponding
-   `04-domain-model` Future Enhancements closure — see [Dependencies](#dependencies).
+   discriminator (Assumption 7). The corresponding `04-domain-model` Future Enhancements
+   closure is applied — see [Dependencies](#dependencies) and `04-domain-model/01-*.md`'s own
+   Amendment log (Session 15).
 6. **The plan-vs-test boundary against `12-controls`' seeded "Business Continuity & Disaster
    Recovery" control family is resolved exactly as `04-domain-model` recommended, not left
    open.** That document's own `BUSINESS CONTINUITY (reserved)` entry stated: "`CONTROLS`
@@ -189,16 +190,13 @@ clause-level content for the first time.
    existing `GET /vendors/{id}/reference`) directly, with **zero** additive change to either
    frozen spec — see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)
    and [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management).
-10. **`INCIDENT` does not yet expose a dedicated cross-module reference-resolution endpoint for
-    the `Incident` entity itself** — only `GET /incidents/{id}` (full detail, gated
-    `INCIDENT_VIEW`) exists; every other module's own reference-resolution convention is a
-    dedicated, minimal-DTO `/reference` endpoint (e.g. `GET /vendors/{id}/reference`,
-    `GET /controls/{id}/reference`). This spec proposes, but does not apply, a
-    `GET /incidents/{id}/reference` addition to `24-incident-issue-capa` for
-    `ContinuityPlanActivation.triggering_incident_ref_id` to resolve against — see
-    [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa). Until applied,
-    the opaque link is still recordable, just not resolvable to a display DTO through a
-    dedicated endpoint.
+10. **Resolved (Session 15)**: `INCIDENT` now exposes `GET /incidents/{id}/reference` — the
+    dedicated, minimal-DTO reference-resolution endpoint this spec's own Assumption 10
+    originally found missing (every other module's own convention, e.g. `GET
+    /vendors/{id}/reference`, `GET /controls/{id}/reference`, already had one).
+    `ContinuityPlanActivation.triggering_incident_ref_id` now resolves against it directly —
+    see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa) and
+    `24-incident-issue-capa/01-*.md`'s own Amendment log.
 11. **Continuity impact/threat rating is a qualitative band, not a duplicate quantitative
     scoring engine.** `BusinessImpactAnalysis`'s impact and threat fields use `LOW`/`MEDIUM`/
     `HIGH`/`SEVERE` bands rather than re-implementing `RISK`'s `RiskScoringMatrix`
@@ -259,53 +257,49 @@ clause-level content for the first time.
   (Outsourcing Risk, re-cited from `25-third-party-risk` for the vendor-BCP driver) —
   regulatory sources.
 - [`04-domain-model/01-enterprise-domain-model.md`](../04-domain-model/01-enterprise-domain-model.md)
-  — **not modified by this spec.** Its `BUSINESS CONTINUITY (reserved)` bounded-context entry
-  (Customer-Supplier toward `RISK` and `CONTROLS`) and its own anticipated-entities sketch are
-  the frozen inputs this spec activates and resolves (Assumptions 5–6) but does not edit. This
-  spec proposes, but does not apply, the `BUSINESS CONTINUITY (reserved)` →
-  `BUSINESS CONTINUITY (authored)` status-label amendment, the same amendment shape
-  `SECURITY`/`POLICY`/`INCIDENT`/`TPR` each proposed for their own onboarding.
+  — **applied additively this session (Session 15), not redesigned.** Its `BUSINESS
+  CONTINUITY (reserved)` bounded-context entry (Customer-Supplier toward `RISK` and
+  `CONTROLS`) and its own anticipated-entities sketch were the frozen inputs this spec
+  activated and resolved (Assumptions 5–6); the `BUSINESS CONTINUITY (reserved)` →
+  `BUSINESS CONTINUITY (authored)` status-label amendment this spec proposed is now applied —
+  see that document's own Amendment log.
 - [`10-risk/01-enterprise-risk-management.md`](../10-risk/01-enterprise-risk-management.md) —
-  **not modified.** This spec proposes, but does not apply, a `Risk.source = BUSINESS_CONTINUITY`
-  enum value; no `RiskCategory` taxonomy change is proposed (the existing "Operations → Failure
-  of Mission-Critical Systems & Infrastructure" sub-category already covers a continuity-driven
+  **applied additively this session.** `Risk.source = BUSINESS_CONTINUITY` is added; no
+  `RiskCategory` taxonomy change was needed (the existing "Operations → Failure of
+  Mission-Critical Systems & Infrastructure" sub-category already covers a continuity-driven
   Risk's natural classification).
-- [`12-controls/01-controls-management.md`](../12-controls/01-controls-management.md) — **not
-  modified.** Its already-seeded "Business Continuity & Disaster Recovery" control family
-  (`BCP Testing`, `DR Failover` sub-families) needs no change; `GET /controls/{id}/reference`
-  is reused with zero additive change (resolution direction); this spec proposes, but does not
-  apply, a `Control.source = BUSINESS_CONTINUITY` value plus a
-  `POST /controls/{id}/continuity-links` endpoint (mirroring exactly how `25-third-party-risk`
-  proposed `POST /controls/{id}/vendor-links`, since `12-controls`' existing
-  `POST /controls/{id}/references` is documented as hardcoded to `RISK`'s mirror shape).
+- [`12-controls/01-controls-management.md`](../12-controls/01-controls-management.md) —
+  **applied additively this session.** Its already-seeded "Business Continuity & Disaster
+  Recovery" control family (`BCP Testing`, `DR Failover` sub-families) needed no change;
+  `GET /controls/{id}/reference` was already reused with zero additive change (resolution
+  direction); `Control.source = BUSINESS_CONTINUITY` plus a
+  `POST /controls/{id}/continuity-links` endpoint are now built (mirroring exactly how
+  `25-third-party-risk` activated `POST /controls/{id}/vendor-links`).
 - [`11-compliance/01-compliance-management.md`](../11-compliance/01-compliance-management.md)
-  — **not modified.** `GET /obligations/{id}/reference` is reused with zero additive change;
-  this spec proposes, but does not apply, an additive "Technology & Operational Resilience"
-  `ObligationCategory` (Assumption 15) and, mirroring `25-third-party-risk`'s own caution
-  (that spec's Assumption 8), does not assume the mirror-registration direction
-  (`POST /obligations/{id}/references`) is reusable without a dedicated verification.
-- [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) — **not
-  modified.** Both `GET /policies/{id}/reference` and `POST /policies/{id}/references` are
-  reused with zero additive change, confirmed reusable by `25-third-party-risk` as this
-  module's own third confirming caller (that spec's Assumption 7); this spec proposes, but does
-  not apply, the matching additive "Technology & Operational Resilience" `PolicyCategory`
-  (Assumption 15).
+  — **applied additively this session.** `GET /obligations/{id}/reference` was already reused
+  with zero additive change; an additive "Technology & Operational Resilience"
+  `ObligationCategory` (Assumption 15) is now seeded.
+- [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) — **applied
+  additively this session.** Both `GET /policies/{id}/reference` and
+  `POST /policies/{id}/references` were already reused with zero additive change, confirmed
+  reusable by `25-third-party-risk` as this module's own third confirming caller (that spec's
+  Assumption 7); the matching additive "Technology & Operational Resilience" `PolicyCategory`
+  (Assumption 15) is now seeded.
 - [`09-security/01-security-management.md`](../09-security/01-security-management.md) — **not
   modified.** `GET /policy-domains` is reused with zero additive change, tagging against the
   already-seeded "Business Continuity and Disaster Recovery" Security Policy Domain.
-- [`13-audit/01-audit-management.md`](../13-audit/01-audit-management.md) — **not modified.**
-  Its already-live `AuditUniverseEntry.entry_type = PROCESS` value already covers a critical
-  business service conceptually (that document's own worked example cites "NAV Computation" as
-  a `PROCESS`-type entry); this spec proposes, but does not apply, a
-  `related_critical_service_ref_id` opaque column so it can resolve to a real
-  `CriticalBusinessService` record, mirroring exactly how `25-third-party-risk` proposed
-  `related_vendor_ref_id`.
+- [`13-audit/01-audit-management.md`](../13-audit/01-audit-management.md) — **applied
+  additively this session.** Its already-live `AuditUniverseEntry.entry_type = PROCESS` value
+  already covered a critical business service conceptually (that document's own worked example
+  cites "NAV Computation" as a `PROCESS`-type entry); a `related_critical_service_ref_id`
+  opaque column is now built so it can resolve to a real `CriticalBusinessService` record,
+  mirroring exactly how `25-third-party-risk` activated `related_vendor_ref_id`.
 - [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md)
-  — **not modified.** `POST /capa-requests` is reused with zero additive change (Assumption 9);
-  its already-seeded `Incident.category = OPERATIONAL` (sub-categories "System Outage; Process
-  Failure; Human Error") already covers a continuity-triggering incident with zero taxonomy
-  change; this spec proposes, but does not apply, a `GET /incidents/{id}/reference` addition
-  (Assumption 10).
+  — **applied additively this session.** `POST /capa-requests` was already reused with zero
+  additive change (Assumption 9); its already-seeded `Incident.category = OPERATIONAL`
+  (sub-categories "System Outage; Process Failure; Human Error") already covered a
+  continuity-triggering incident with zero taxonomy change; `GET /incidents/{id}/reference` is
+  now built (Assumption 10).
 - [`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md)
   — **not modified.** `GET /vendors/{id}/reference` is reused with zero additive change
   (Assumption 9), confirmed caller-agnostic by that spec's own design.
@@ -881,9 +875,9 @@ enumerates what this module must expose as source data/views:
 proposal, not by a synchronous service call — the same "descriptive, not automated, `source`
 classification" pattern every prior risk-sourcing module uses:
 
-1. **Proposed `RISK`-side enum value**: `Risk.source = BUSINESS_CONTINUITY` (opaque addition to
-   `module_risk_register.source`) — proposed, not applied, per this phase's explicit
-   instruction not to modify frozen specifications.
+1. **`RISK`-side enum value — activated (Session 15)**: `Risk.source = BUSINESS_CONTINUITY`
+   (opaque addition to `module_risk_register.source`) — see `10-risk/01-*.md`'s own Amendment
+   log.
 2. **No taxonomy change required**: `10-risk`'s own `SEBI_AMC` seed already carries "Operations
    → Failure of Mission-Critical Systems & Infrastructure" as a `RiskCategory` sub-category
    since Session 1 — a continuity-sourced Risk uses this existing slot, not a new one.
@@ -914,14 +908,14 @@ boundary this module's own Master Execution Plan entry requires stated explicitl
    display against a `ContinuityExercise`. This endpoint is guarded only by `CONTROLS_VIEW` and
    makes no assumption about the calling module — reused as-is, confirmed reusable by
    `25-third-party-risk`'s own confirmation of this pattern.
-2. **Mirror direction (Controls' own reporting) — proposed, not applied**: mirroring exactly
-   how `25-third-party-risk` proposed `POST /controls/{id}/vendor-links` after
-   `11-compliance` proposed `POST /controls/{id}/obligation-links`, this spec proposes, but
-   does not apply, an analogous `POST /controls/{id}/continuity-links` endpoint on
-   `12-controls`, inserting into a proposed `module_controls_control_continuity_link` table
-   (identical shape to the existing `module_controls_control_risk_link`/
-   `control_obligation_link`/`control_vendor_link` tables).
-3. **`Control.source = BUSINESS_CONTINUITY` — proposed, not applied**: a control created
+2. **Mirror direction (Controls' own reporting) — activated (Session 15)**: mirroring exactly
+   how `25-third-party-risk` activated `POST /controls/{id}/vendor-links` after
+   `11-compliance` activated `POST /controls/{id}/obligation-links`, `12-controls` has added an
+   analogous `POST /controls/{id}/continuity-links` endpoint, inserting into a new
+   `module_controls_control_continuity_link` table (identical shape to the existing
+   `module_controls_control_risk_link`/`control_obligation_link`/`control_vendor_link` tables).
+   See `12-controls/01-*.md`'s own Amendment log.
+3. **`Control.source = BUSINESS_CONTINUITY` — activated (Session 15)**: a control created
    specifically in response to a continuity-exercise finding (e.g., a new compensating control
    mandated after a failed DR drill) could be tagged with this value, mirroring
    `Control.source`'s existing descriptive-not-automated role.
@@ -941,15 +935,15 @@ Unlike every prior module's own obligation category, this module's primary regul
    `GET /api/v1/modules/compliance/obligations/{id}/reference` resolves an `obligation_ref_id`
    for display — a read-only endpoint guarded solely by `COMPLIANCE_VIEW`, making no assumption
    about caller identity. Reused as-is.
-2. **Proposed additive `ObligationCategory`**: "Technology & Operational Resilience," grounded
-   directly in the Risk Mgmt circular's Appendix A Part 1 item 1 mandate — proposed, not
-   applied, to `11-compliance`.
-3. **Mirror direction (Compliance's own reporting) — proposed, not applied, treated with the
-   same caution `25-third-party-risk` applied**: `11-compliance`'s existing
-   `POST /obligations/{id}/references` is documented as shaped specifically for `CONTROLS`
-   (that module's own Assumption 8) — this spec does not assume it is reusable without
-   verification, and proposes, but does not apply, whatever extension `COMPLIANCE`'s own
-   mirror-registration direction needs.
+2. **Additive `ObligationCategory` — activated (Session 15)**: "Technology & Operational
+   Resilience," grounded directly in the Risk Mgmt circular's Appendix A Part 1 item 1
+   mandate, is now seeded on `11-compliance`.
+3. **Mirror direction (Compliance's own reporting) — activated (Session 15) by
+   generalization**: `11-compliance`'s existing `POST /obligations/{id}/references` was
+   documented as shaped specifically for `CONTROLS` (that module's own Assumption 8) —
+   `11-compliance` has since widened it to a polymorphic shape, the same generalization
+   `25-third-party-risk` exercised first for its own `VENDOR` citation. A future citation from
+   this module's own `ContinuityPlanVersion` would use the same, now-generic endpoint.
 
 **What this module builds without `COMPLIANCE` changing**: `ContinuityPlanVersion`'s
 `obligation_ref_id`-style citation via the resolution-direction lookup — real, functioning
@@ -975,9 +969,10 @@ that `23-policy`'s `PolicyReferenceLink` design works exactly as intended for a 
    its fourth citing module, needing only a new `source_entity_type` enum value on `POLICY`'s
    own side (not itself modified here, since the mirror table's `source_entity_type` column is
    documented as open for future values without a schema change).
-3. **Proposed additive `PolicyCategory`**: "Technology & Operational Resilience," mirroring
-   the identical `ObligationCategory` proposal to `11-compliance` (Assumption 15), since
-   `23-policy`'s own taxonomy deliberately mirrors `COMPLIANCE`'s category-for-category.
+3. **Additive `PolicyCategory` — activated (Session 15)**: "Technology & Operational
+   Resilience," mirroring the identical `ObligationCategory` activation on `11-compliance`
+   (Assumption 15), since `23-policy`'s own taxonomy deliberately mirrors `COMPLIANCE`'s
+   category-for-category.
 
 **Manifest consequence**: `BCP`'s manifest carries `dependencies: [POLICY]` from authoring
 time, not as a later activation — the same immediate-dependency shape `25-third-party-risk`
@@ -1012,39 +1007,36 @@ own reference-resolution endpoints so that value has something real to resolve t
    `GET /api/v1/modules/bcp/continuity-plans/{id}/reference` — minimal, stable DTOs, guarded by
    `BCP_VIEW`, following the exact shape every prior module's own reference-resolution endpoint
    uses.
-2. **`AUDIT`-side — proposed, not applied**: an additive `related_critical_service_ref_id`
+2. **`AUDIT`-side — activated (Session 15)**: an additive `related_critical_service_ref_id`
    (opaque uuid, nullable, no FK) column on `module_audit_universe_entry`, populated when
    `entry_type = PROCESS` and the process is BCM-tracked, resolved via item 1, mirroring
-   exactly how `25-third-party-risk` proposed `related_vendor_ref_id`. Until applied, `AUDIT`'s
-   Chief Internal Auditor can still populate a `PROCESS`-type universe entry today (the
-   `entry_type` value has always been live), just without a structured link back to this
-   module's own Critical Business Service record — a convenience gap, not a functional
-   blocker.
+   exactly how `25-third-party-risk` activated `related_vendor_ref_id`. See
+   `13-audit/01-*.md`'s own Amendment log.
 
-**Manifest consequence (once applied)**: `AUDIT`'s manifest (already `dependencies: [RISK,
-CONTROLS, COMPLIANCE, SECURITY]`) would gain `[..., BCP]`. `BCP`'s own manifest carries no
+**Manifest consequence**: `AUDIT`'s manifest (already `dependencies: [RISK, CONTROLS,
+COMPLIANCE, SECURITY]`) gains `INCIDENT, TPR, BCP`. `BCP`'s own manifest carries no
 reciprocal dependency — pure-provider side of this relationship, consistent with
 `04-domain-model` Dependency Rule 5 (`AUDIT` is a graph sink).
 
 ## Integration with Incident/Issue/CAPA
 
-Two independent integration directions, one built directly and one proposed — the first
-module to do both in the same spec (Assumption 9):
+Two independent integration directions, both now built — the first module to do both in the
+same spec (Assumption 9):
 
-1. **CAPA request (`BCP`-side, built now, zero additive change)**:
+1. **CAPA request (`BCP`-side, built at this module's own authoring, zero additive change)**:
    `POST /exceptions/{id}/capa-request` (permission `BCP_EXCEPTION_CLOSE`) calls `INCIDENT`'s
    existing `POST /capa-requests` with `{source_module_code: 'BCP', source_entity_type:
    'CONTINUITY_EXCEPTION', source_entity_ref_id: exceptionId}`, storing the returned
    `capa_ref_id` on `module_bcp_continuity_exception`. No change required on `INCIDENT`'s
    side — `POST /capa-requests` was built generically from its own original authoring.
-2. **Crisis-triggering Incident citation — proposed, not applied**:
-   `ContinuityPlanActivation.triggering_incident_ref_id` needs a resolvable reference target.
+2. **Crisis-triggering Incident citation — activated (Session 15)**:
+   `ContinuityPlanActivation.triggering_incident_ref_id` needed a resolvable reference target.
    `24-incident-issue-capa`'s own `Incident.category = OPERATIONAL` (sub-categories "System
-   Outage; Process Failure; Human Error") already covers a continuity-triggering incident with
-   **zero** taxonomy change — but unlike every other citing integration in this spec,
-   `INCIDENT` does not yet expose a dedicated `GET /incidents/{id}/reference` endpoint
-   (Assumption 10). This spec proposes, but does not apply, that addition to
-   `24-incident-issue-capa`.
+   Outage; Process Failure; Human Error") already covered a continuity-triggering incident with
+   **zero** taxonomy change; `INCIDENT` now also exposes a dedicated `GET
+   /incidents/{id}/reference` endpoint (Assumption 10), the first module in this repository to
+   have proposed a genuinely missing reference-resolution endpoint, closed this session. See
+   `24-incident-issue-capa/01-*.md`'s own Amendment log.
 
 **Manifest consequence**: `BCP`'s manifest carries `dependencies: [INCIDENT]` from authoring
 time (item 1 is a real synchronous call). `INCIDENT`'s own manifest carries no reciprocal
@@ -1138,21 +1130,17 @@ the naming, same as every prior module.
 
 ## Future Extension Points
 
-- **`Risk.source = BUSINESS_CONTINUITY`**: proposed, not applied, to `10-risk` — see
-  [Integration with Risk Management](#integration-with-risk-management).
-- **`Control.source = BUSINESS_CONTINUITY`, `module_controls_control_continuity_link`, and
-  `POST /controls/{id}/continuity-links`**: proposed, not applied, to `12-controls` — see
-  [Integration with Controls Management](#integration-with-controls-management).
-- **"Technology & Operational Resilience" `ObligationCategory`**: proposed, not applied, to
-  `11-compliance` — see [Integration with Compliance Management](#integration-with-compliance-management).
-- **"Technology & Operational Resilience" `PolicyCategory`**: proposed, not applied, to
-  `23-policy` — see [Integration with Policy Management](#integration-with-policy-management).
-- **`AuditUniverseEntry.related_critical_service_ref_id`**: proposed, not applied, to
-  `13-audit` — see [Integration with Audit Management](#integration-with-audit-management).
-- **`GET /incidents/{id}/reference`**: proposed, not applied, to `24-incident-issue-capa` — see
-  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa).
-- **`04-domain-model` status-label amendment**: `BUSINESS CONTINUITY (reserved)` →
-  `BUSINESS CONTINUITY (authored)` — proposed, not applied.
+- **Resolved (Session 15)**: all six additive changes this document originally proposed are
+  now applied — `Risk.source = BUSINESS_CONTINUITY` (`10-risk`);
+  `Control.source = BUSINESS_CONTINUITY` plus `module_controls_control_continuity_link` and
+  `POST /controls/{id}/continuity-links` (`12-controls`); a "Technology & Operational
+  Resilience" `ObligationCategory` (`11-compliance`) and matching `PolicyCategory`
+  (`23-policy`); `AuditUniverseEntry.related_critical_service_ref_id` (`13-audit`); and
+  `GET /incidents/{id}/reference` (`24-incident-issue-capa`) — see each target document's own
+  Amendment log and the Integration sections above.
+- **Resolved (Session 15)**: the `04-domain-model` status-label amendment
+  (`BUSINESS CONTINUITY (reserved)` → `BUSINESS CONTINUITY (authored)`) is applied — see
+  `04-domain-model/01-*.md`'s own Amendment log.
 - **Platform-level DR/BCP for the ERM platform itself**: explicitly out of scope here
   (Scope) — belongs to `18-deployment`, Master Execution Plan Phase 14.
 - **An IT asset/CMDB register**: `CriticalServiceDependency.dependency_type = TECHNOLOGY_SYSTEM`
@@ -1196,8 +1184,22 @@ the naming, same as every prior module.
   /capa-requests`, `TPR`'s `GET /vendors/{id}/reference` — the first module to build both
   directly rather than merely propose either, Assumption 9), plus `POLICY`'s and `SECURITY`'s
   reference/tag resolution directions and `CONTROLS`'/`COMPLIANCE`'s resolution directions,
-  all with zero additive change. Six precisely-scoped changes remain proposed, not applied
-  (`RISK`, `CONTROLS` twice, `COMPLIANCE`, `POLICY`, `AUDIT`, `INCIDENT`), plus the
-  `04-domain-model` status-label amendment.
+  all with zero additive change. As of Session 15, the six additional precisely-scoped changes
+  this document proposed (`RISK`, `CONTROLS` twice, `COMPLIANCE`, `POLICY`, `AUDIT`,
+  `INCIDENT`) and the `04-domain-model` status-label amendment are all applied — none remain
+  outstanding.
 - **Dependencies**: See [Dependencies](#dependencies) above.
 - **Future Work**: See [Future Extension Points](#future-extension-points) above.
+
+**Amendment log** (additive only; no entity, table, or workflow redesigned):
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Updated Assumptions 9–10,
+  Dependencies, [Integration with Risk Management](#integration-with-risk-management) through
+  [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa), Future Extension
+  Points, and this Traceability block from "proposed, not applied" to "activated," reflecting
+  that all six additive changes this document originally proposed
+  (`Risk.source = BUSINESS_CONTINUITY`; `Control.source = BUSINESS_CONTINUITY` plus a
+  continuity-link endpoint; a "Technology & Operational Resilience" `ObligationCategory` and
+  matching `PolicyCategory`; `AuditUniverseEntry.related_critical_service_ref_id`; a
+  `GET /incidents/{id}/reference` endpoint) plus the `04-domain-model` status-label amendment
+  have since been applied to their respective target documents this same session. This
+  document's own domain model, data model, and workflows are unchanged.

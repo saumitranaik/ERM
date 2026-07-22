@@ -200,9 +200,9 @@ or entities to this document.
 
 | Subdomain type | Contexts | Rationale |
 |---|---|---|
-| **Core domain** | `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY` (all authored), and every remaining reserved context except Reporting (Policy, Incident/Issue/CAPA, Third-Party Risk, Business Continuity) | These are the differentiated business capability this repository exists to specify — the reason an AMC (and later other regulated enterprises) would adopt this platform over a generic workflow tool. `SECURITY` was added additively (Session 7) — see [SECURITY (authored)](#security-authored) and Amendment Log. |
-| **Supporting subdomain** | `REPORTING` (reserved) | Necessary and specific to the GRC domain's presentation needs, but it does not originate business facts — it composes read models over the core-domain contexts. See its [context-map entry](#reporting-reserved). |
-| **Generic subdomain** | PRSMTD substrate (table above) | Reused wholesale; no ERM-specific modeling investment beyond what `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`SECURITY` already do (reference by UUID, no re-modeling of identity/governance/audit). |
+| **Core domain** | `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY` — **all nine now authored** | These are the differentiated business capability this repository exists to specify — the reason an AMC (and later other regulated enterprises) would adopt this platform over a generic workflow tool. `SECURITY` was added additively (Session 7); `POLICY`/`INCIDENT`/`TPR`/`BCP` were authored Sessions 10–13 and their status labels corrected to "(authored)" this session (Session 15) — see each context's own entry below and the Amendment Log. |
+| **Supporting subdomain** | `REPORTING` (authored, Session 14) | Necessary and specific to the GRC domain's presentation needs, but it does not originate business facts — it composes read models over all nine core-domain contexts. See its [context-map entry](#reporting-authored). |
+| **Generic subdomain** | PRSMTD substrate (table above) | Reused wholesale; no ERM-specific modeling investment beyond what any core-domain context does (reference by UUID, no re-modeling of identity/governance/audit). |
 
 ### PRSMTD module boundaries vs. DDD bounded contexts
 
@@ -238,15 +238,16 @@ flowchart TB
     subgraph Core["Core Domain — ERM"]
         RISK[RISK]
         CONTROLS[CONTROLS]
-        COMPLIANCE[COMPLIANCE — reserved]
-        AUDIT[AUDIT — reserved]
-        POLICY[POLICY — reserved]
-        INCIDENT[INCIDENT / ISSUE / CAPA — reserved]
-        TPR[THIRD-PARTY RISK — reserved]
-        BCP[BUSINESS CONTINUITY — reserved]
+        COMPLIANCE[COMPLIANCE]
+        AUDIT[AUDIT]
+        SECURITY[SECURITY]
+        POLICY[POLICY]
+        INCIDENT[INCIDENT / ISSUE / CAPA]
+        TPR[THIRD-PARTY RISK]
+        BCP[BUSINESS CONTINUITY]
     end
     subgraph Supporting["Supporting Subdomain"]
-        REPORT[REPORTING & ANALYTICS — reserved]
+        REPORT[REPORTING]
     end
     Core --> Generic
     Supporting --> Core
@@ -280,11 +281,16 @@ merged; terms new at this cross-context layer are added.
 | Evidence | A metadata record (integrity hash + opaque storage pointer) supporting a Control, Control Test, or Control Exception. Term is `CONTROLS`-specific today; see [Evidence as a Cross-Cutting Concept](#evidence-as-a-cross-cutting-concept) for why it is expected to generalize. | `CONTROLS` |
 | Obligation | A specific regulatory or contractual requirement an AMC must satisfy, tracked to the control(s) and/or policy that satisfy it. | `COMPLIANCE` |
 | Finding | An audit-identified gap or non-conformance, distinct from a Control Exception (raised by the control's own owner) in that a Finding is raised by an independent Audit engagement. Distinct also from a Security Finding (typically detected by a technical control or scan, not an independent audit). | `AUDIT` |
-| Policy | *(reserved)* A published, versioned governance document that a Control's design or an Obligation's satisfaction may cite as its authoritative basis. | `POLICY` (reserved) |
-| Incident | *(reserved)* A realized adverse event, distinct from a Risk (a *potential* uncertainty) and from a Control Exception (a *control's* failure specifically) — an Incident may be caused by a realized Risk, a Control failure, or neither. | `INCIDENT` (reserved) |
-| CAPA (Corrective and Preventive Action) | *(reserved)* A structured remediation record, superseding the free-text remediation fields `RISK` and `CONTROLS` each carry today as an interim measure. | `INCIDENT`/`CAPA` (reserved) |
-| Vendor / Third Party | *(reserved)* An external counterparty whose own risk profile is tracked as a specialized Risk source. | `THIRD-PARTY RISK` (reserved) |
-| Continuity Plan | *(reserved)* A documented, tested plan for maintaining or resuming critical operations after a disruption — the entity the SEBI circular's DR/BCP mandate (flagged as a gap in `10-risk`) ultimately requires. | `BUSINESS CONTINUITY` (reserved) |
+| Policy | A published, versioned governance document (Policy, Standard, Procedure, or Guideline) that a Control's design, an Obligation's satisfaction, a Vendor Contract's Outsourcing Policy citation, or a Continuity Plan may cite as its authoritative basis. | `POLICY` |
+| Incident | A realized adverse event, distinct from a Risk (a *potential* uncertainty) and from a Control Exception (a *control's* failure specifically) — an Incident may be caused by a realized Risk, a Control failure, or neither. | `INCIDENT` |
+| Issue | An enterprise remediation-escalation register entry that aggregates symptoms reported by a Control/Compliance/Policy exception, an Audit or Security Finding, or a standalone Incident, without replacing any of those registers. | `INCIDENT` |
+| CAPA (Corrective and Preventive Action) | A structured remediation record — action plan, tracking, independent closure verification, and effectiveness review — superseding the free-text remediation fields every prior exception/finding entity once carried as an interim measure. | `INCIDENT` |
+| Vendor / Third Party | An external counterparty whose lifecycle (onboarding through offboarding), due diligence, risk/security/compliance assessment, contract/SLA terms, and ongoing monitoring are tracked; a Vendor's own risk profile is a specialized Risk source. | `THIRD-PARTY RISK` |
+| Critical Business Service | A business process or service classified by criticality tier, whose disruption is analyzed via a Business Impact Analysis and whose recovery is targeted by an RTO/RPO and covered by one or more Continuity Plans. | `BUSINESS CONTINUITY` |
+| Continuity Plan | A governed, versioned document — Business Continuity Plan, Disaster Recovery Plan, or both — for maintaining or resuming critical operations after a disruption, the entity the SEBI circular's DR/BCP mandate (flagged as a gap in `10-risk`) ultimately requires. | `BUSINESS CONTINUITY` |
+| Report Definition | A catalogued, named report or export — its category, primary source module(s), field-level provenance mapping, output format(s), and whether its instances require approval before submission. | `REPORTING` |
+| Report Instance | A generated, point-in-time, immutable-once-finalized snapshot of a Report Definition, carrying a full citation manifest back to every source-module fact it presents. | `REPORTING` |
+| Dashboard Definition | A named composition of Report Definition references for a given audience (Board, Executive, Operational, etc.) — content composition, not pixel-level UI design. | `REPORTING` |
 | Security Policy Domain | A named category of security governance concern (e.g., Access Control, Cryptography, Vulnerability Management) that a future Policy, an existing Obligation, or an existing Control may tag against by convention — a taxonomy, not a policy document itself. | `SECURITY` |
 | Security Baseline | A named, versioned hardening/configuration standard a tenant adopts; tested via a `CONTROLS` Control Test on a Control tagged to it, not a parallel testing entity. | `SECURITY` |
 | Security Finding | A detected vulnerability, misconfiguration, policy violation, or access anomaly — raised immediately (often by an automated scanner), tracked to a governed closure or formal risk-acceptance disposition. Distinct from a Control Exception and from an (Audit) Finding — see Finding's own definition above. | `SECURITY` |
@@ -303,36 +309,58 @@ flowchart LR
     CONTROLS["CONTROLS\n(authored)"] -->|"Customer-Supplier\n(RISK is customer)"| RISK["RISK\n(authored)"]
     COMPLIANCE["COMPLIANCE\n(authored)"] -->|"Open Host Service"| RISK
     COMPLIANCE -->|"Open Host Service"| CONTROLS
-    POLICY["POLICY\n(reserved)"] -.->|"Open Host Service"| COMPLIANCE
-    POLICY -.->|"Open Host Service"| CONTROLS
-    POLICY -.->|"Open Host Service"| SECURITY["SECURITY\n(authored)"]
+    COMPLIANCE -->|"Open Host Service"| TPR["THIRD-PARTY RISK\n(authored)"]
+    COMPLIANCE -->|"Open Host Service"| BCP["BUSINESS CONTINUITY\n(authored)"]
+    POLICY["POLICY\n(authored)"] -->|"Open Host Service"| COMPLIANCE
+    POLICY -->|"Open Host Service"| CONTROLS
+    POLICY -->|"Conformist\n(tags SecurityPolicyDomain)"| SECURITY["SECURITY\n(authored)"]
+    POLICY -->|"Open Host Service"| TPR
+    POLICY -->|"Open Host Service"| BCP
     AUDIT["AUDIT\n(authored)"] -->|"Conformist"| RISK
     AUDIT -->|"Conformist"| CONTROLS
     AUDIT -->|"Conformist"| COMPLIANCE
     AUDIT -->|"Conformist"| SECURITY
+    AUDIT -->|"Conformist"| TPR
+    AUDIT -->|"Conformist"| BCP
     SECURITY -->|"Corroborates\n(opaque ref, peer)"| CONTROLS
     SECURITY -->|"Corroborates\n(opaque ref, peer)"| COMPLIANCE
-    INCIDENT["INCIDENT / ISSUE / CAPA\n(reserved)"] -.->|"Customer-Supplier\n(RISK, CONTROLS are customers)"| RISK
-    INCIDENT -.->|"Customer-Supplier"| CONTROLS
-    TPR["THIRD-PARTY RISK\n(reserved)"] -.->|"Customer-Supplier\n(RISK is customer)"| RISK
-    BCP["BUSINESS CONTINUITY\n(reserved)"] -.->|"Customer-Supplier"| RISK
-    BCP -.->|"Customer-Supplier"| CONTROLS
-    REPORT["REPORTING & ANALYTICS\n(reserved)"] -.->|"Conformist, read-only"| RISK
-    REPORT -.->|"Conformist, read-only"| CONTROLS
-    REPORT -.->|"Conformist, read-only"| COMPLIANCE
-    REPORT -.->|"Conformist, read-only"| AUDIT
-    REPORT -.->|"Conformist, read-only"| SECURITY
+    INCIDENT["INCIDENT / ISSUE / CAPA\n(authored)"] -->|"Customer-Supplier\n(RISK is customer)"| RISK
+    INCIDENT -->|"Customer-Supplier\n(CONTROLS is customer)"| CONTROLS
+    INCIDENT -->|"Customer-Supplier\n(COMPLIANCE is customer)"| COMPLIANCE
+    INCIDENT -->|"Customer-Supplier\n(POLICY is customer)"| POLICY
+    INCIDENT -->|"Customer-Supplier\n(AUDIT is customer)"| AUDIT
+    INCIDENT -->|"Customer-Supplier\n(SECURITY is customer)"| SECURITY
+    INCIDENT -->|"Customer-Supplier\n(TPR is customer)"| TPR
+    INCIDENT -->|"Customer-Supplier\n(BCP is customer)"| BCP
+    TPR -->|"Customer-Supplier\n(RISK is customer)"| RISK
+    TPR -->|"Customer-Supplier\n(TPR is customer, resolution)"| CONTROLS
+    TPR -->|"Customer-Supplier\n(TPR is customer, tag+finding_type)"| SECURITY
+    BCP -->|"Customer-Supplier"| RISK
+    BCP -->|"Customer-Supplier"| CONTROLS
+    BCP -->|"Conformist\n(tags SecurityPolicyDomain)"| SECURITY
+    BCP -->|"Customer-Supplier\n(BCP is customer, resolution)"| TPR
+    REPORT["REPORTING\n(authored)"] -->|"Conformist, read-only"| RISK
+    REPORT -->|"Conformist, read-only"| CONTROLS
+    REPORT -->|"Conformist, read-only"| COMPLIANCE
+    REPORT -->|"Conformist, read-only"| AUDIT
+    REPORT -->|"Conformist, read-only"| SECURITY
+    REPORT -->|"Conformist, read-only"| POLICY
+    REPORT -->|"Conformist, read-only"| INCIDENT
+    REPORT -->|"Conformist, read-only"| TPR
+    REPORT -->|"Conformist, read-only"| BCP
 ```
 
-Solid edge = activated integration (both endpoints authored). Dashed edges = reserved —
-direction and relationship type are fixed now so a future spec inherits the shape rather than
-choosing one ad hoc, but the supplying context does not exist yet. **`COMPLIANCE` and `AUDIT`
-are corrected from "(reserved)" to "(authored)" and their edges from dashed to solid in this
-session (Session 7)** — both were authored in Sessions 4–5 but this diagram was never revisited
-to reflect that, a staleness this session's consistency review caught and fixed (see Amendment
-Log); no relationship type or direction changed, only the status label and line style.
-**`SECURITY` is added as a tenth, authored context in this session**, per
-[SECURITY (authored)](#security-authored) below.
+**All edges are now solid — every one of the ten bounded contexts named in this map is
+authored (Session 15 is the last of five status-label amendments this document owed: `POLICY`,
+`INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, and `BUSINESS CONTINUITY` — proposed by each of
+their own authoring sessions — plus `REPORTING`, proposed at its own Session 14 authoring, are
+all applied together this session).** No relationship type or direction already drawn was
+changed by this amendment — only status labels, line styles, and the addition of edges for
+integrations each context's own spec built or activated after this diagram was last drawn (the
+same "additive amendment, not a redesign" discipline this document's own Amendment Log has used
+every time it was revisited). **`COMPLIANCE` and `AUDIT`** were corrected from "(reserved)" to
+"(authored)" in Session 7; **`SECURITY`** was added as a tenth context the same session; see
+each context's own subsection below and the Amendment Log for the full history.
 
 #### RISK (authored)
 
@@ -430,92 +458,134 @@ is a candidate `Risk` source (`Risk.source = SECURITY_FINDING`, activated Sessio
 `10-risk`'s own Amendment log) — the same Customer-Supplier shape every other Risk-sourcing
 context in this map uses, without `SECURITY` itself becoming a customer of `RISK`.
 
-#### POLICY (reserved)
+#### POLICY (authored)
 
-Not yet given its own top-level `docs/` section README beyond being named in `CLAUDE.md`'s
-long-term vision and `05-modules/README.md`'s illustrative module list; scoped here only at
-the boundary this document owes it.
+Authored Session 10, closing the reserved boundary this document originally scoped. Full
+definition: [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) Domain
+Model section. Aggregate root: `Policy` (`document_type`-discriminated across Policy/Standard/
+Procedure/Guideline, per that spec's own Assumption 6). Entities: `PolicyVersion`,
+`PolicyReview`, `PolicyAcknowledgement`, `PolicyException`, `PolicyEvidence`,
+`PolicyReferenceLink`. Reference data: `PolicyCategory`.
 
-**Relationship — Open Host Service to `CONTROLS` and `COMPLIANCE`.** A Policy is the
-documented, versioned basis a Control's design or an Obligation's satisfaction cites. Neither
-`CONTROLS` nor `COMPLIANCE` owns policy content; both reference it by opaque identifier, the
-same pattern `CONTROLS` uses today for its own not-yet-existing obligation link.
+**Relationship — Open Host Service to `CONTROLS`, `COMPLIANCE`, `THIRD-PARTY RISK`, and
+`BUSINESS CONTINUITY`** (a Policy is the documented, versioned basis a Control's design, an
+Obligation's satisfaction, a Vendor Contract's Outsourcing Policy citation, or a Continuity
+Plan's governing policy refers to — none of the four owns policy content, all four reference
+it by opaque identifier via `PolicyReferenceLink`'s deliberately polymorphic mirror table);
+**Conformist consumer of `SECURITY`'s Security Policy Domain taxonomy** (tags against it via
+`GET /policy-domains`, zero additive change on either side — a relationship this document's
+own diagram already drew but its prose never named until this session's consistency review);
+**Customer of `INCIDENT`** for CAPA-request escalation of Policy Exceptions (activated Session
+15). All five integrations are activated; none remain proposed.
 
-**Anticipated entities**: Policy (aggregate root, versioned, governed publication lifecycle),
-PolicyCategory (reference data, same taxonomy shape).
+#### INCIDENT / ISSUE / CAPA (authored)
 
-#### INCIDENT / ISSUE / CAPA (reserved)
+Authored Session 11 (module code `INCIDENT`, resolving this document's own open naming
+question), closing the reserved boundary this document originally scoped. Full definition:
+[`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md)
+Domain Model section. Aggregate roots: `Incident`, `Issue`, `CAPA`. Entities: `RootCauseAnalysis`,
+`IssueSourceLink`, `CAPAActionItem`, `CAPAClosureVerification`, `CAPAEffectivenessReview`,
+`Escalation`, `IncidentEvidence`. Reference data: `IncidentCategory`, `IssueCategory`.
 
-**Scope**: no PRSMTD module or ERM section exists for this yet (confirmed absent in both
-`10-risk` and `12-controls`, which each independently flagged the same gap for their own
-remediation-tracking needs). Named as one reserved context because Incident, Issue, and CAPA
-are tightly coupled in every GRC platform's own domain language (an Incident is investigated
-into one or more Issues, an Issue is remediated by one or more CAPAs) and splitting them into
-three contexts now, before any of the three has a real spec, would be premature decomposition.
+**Relationship — Customer-Supplier, with every other core-domain context as a customer of its
+structured CAPA record.** `Risk.source = INCIDENT` was live before this context was even
+authored (zero additive change, the first such relationship in this repository's history);
+`ControlException`, `ComplianceException`, `PolicyException`, `FollowUpAction` (`AUDIT`), and
+`SecurityFinding` each expose a `capa_ref_id` resolving through this context's own
+`POST /capa-requests` (all five activated — the first four additively, Session 15; `AUDIT`'s
+and `SECURITY`'s columns were reserved from their own original authoring). `THIRD-PARTY RISK`
+and `BUSINESS CONTINUITY`, both authored after `INCIDENT`, built their own `capa_ref_id`
+citations directly rather than merely proposing them. `Incident.vendor_ref_id` opaquely cites
+`THIRD-PARTY RISK`'s `Vendor` (activated Session 15). `GET /incidents/{id}/reference` — the
+one genuinely missing reference-resolution endpoint any module in this repository has ever
+found (every other context had one from its own authoring) — is now built (Session 15),
+closing the gap `BUSINESS CONTINUITY` first surfaced.
 
-**Relationship — Customer-Supplier, `RISK` and `CONTROLS` are customers.** This context is
-upstream: it supplies risk sources (`Risk.source = INCIDENT`, already reserved) and, once it
-exists, a structured CAPA record that both `10-risk`'s treatment-plan remediation free-text
-and `12-controls`' `ControlException.remediation_plan`/`remediation_owner_user_id`/
-`target_closure_date` free-text fields are expected to migrate toward referencing (both specs
-flagged this as their own Future Extension Point, phrased almost identically —
-"CAPA-style structured remediation... deferred to a future CAPA module").
+#### THIRD-PARTY RISK (authored)
 
-**Anticipated entities**: Incident (aggregate root), Issue, CAPA (a governed remediation
-record with its own maker-checker closure, mirroring `ControlException`'s closure shape).
+Authored Session 12 (module code `TPR`), closing the reserved boundary this document
+originally scoped and resolving its own open `VendorCategory`/`RiskCategory` question (a
+Vendor-sourced Risk uses `RISK`'s already-seeded "Other Business Risks → Third-Party Risks"
+sub-category directly; `VendorCategory` classifies vendor *type*, not risk, and is not a
+specialization of `RiskCategory`). Full definition:
+[`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md)
+Domain Model section. Aggregate root: `Vendor`. Entities: `VendorContract`,
+`VendorAssessment`, `VendorException`, `VendorSLA`, `VendorSLAMeasurement`, `VendorEvidence`,
+`VendorControlLink`, `VendorObligationLink`. Reference data: `VendorCategory`.
 
-#### THIRD-PARTY RISK (reserved)
+**Relationship — Customer-Supplier, `RISK` is the customer** (`Risk.source = THIRD_PARTY`,
+activated Session 15); **Customer of `CONTROLS`, `COMPLIANCE`, `POLICY`, `SECURITY`** (resolves
+each one's reference API for display; `CONTROLS` and `COMPLIANCE` additionally maintain a
+local mirror of the citation, `POLICY`'s via its own polymorphic `PolicyReferenceLink`);
+**Customer of `INCIDENT`** for CAPA-request escalation of Vendor Exceptions (built directly at
+this context's own authoring, the first module to do so rather than merely propose it); a
+**supplier to `AUDIT`** (`AuditUniverseEntry.related_vendor_ref_id`, activated Session 15) and
+to `BUSINESS CONTINUITY` (`CriticalServiceDependency.vendor_ref_id`/
+`ContinuityStrategy.vendor_ref_id`, built directly at `BUSINESS CONTINUITY`'s own authoring).
+All nine integrations are activated; none remain proposed.
 
-**Relationship — Customer-Supplier, `RISK` is the customer.** A vendor's risk profile is
-modeled as a specialization of `RISK`'s existing register (a `RiskCategory` value plus
-vendor-specific context), not a duplicate risk register. What this context adds *beyond*
-`RISK`'s existing shape is vendor lifecycle data `RISK` has no reason to own: Vendor,
-Contract, and Due-Diligence Assessment entities. This context is therefore a supplier of risk
-sources to `RISK` (same integration shape as Incident) plus the owner of a genuinely new
-entity set `RISK` does not anticipate today.
+#### BUSINESS CONTINUITY (authored)
 
-**Anticipated entities**: Vendor (aggregate root), VendorContract, VendorDueDiligenceAssessment,
-VendorRiskCategory (specializing `RISK`'s existing category taxonomy, not replacing it).
+Authored Session 13 (module code `BCP`), directly answering the gap `10-risk`'s Regulatory
+Drivers table flagged at this repository's founding session: "Disaster Recovery / Business
+Contingency Plan... belongs to `18-deployment` (platform-level DR/BCP) and a future Business
+Continuity capability." Resolves this document's own anticipated-entities sketch (RTO/RPO/MTPD
+are columns on the `CriticalBusinessService` aggregate root, updated by a governed `Business
+ImpactAnalysis`, not a standalone `RecoveryObjective` entity) and its own plan-vs-test-boundary
+recommendation, adopted as the actual decision: `CONTROLS` keeps the effectiveness pass/fail
+call on its seeded "Business Continuity & Disaster Recovery" control family; `BUSINESS
+CONTINUITY` owns the Plan and the RTO/RPO targets the test is measured against, corroborating
+the Control by opaque reference (`ContinuityExercise.control_ref_id`). Full definition:
+[`26-business-continuity/01-business-continuity-management.md`](../26-business-continuity/01-business-continuity-management.md)
+Domain Model section. Aggregate roots: `CriticalBusinessService`, `ContinuityPlan`. Entities:
+`BusinessImpactAnalysis`, `CriticalServiceDependency`, `ContinuityStrategy`,
+`ContinuityPlanVersion`, `ContinuityPlanReview`, `ContinuityPlanCoverageLink`,
+`ContinuityPlanActivation`, `ContinuityExercise`, `ContinuityException`,
+`ContinuityEvidence`. Reference data: `CriticalServiceCategory`.
 
-#### BUSINESS CONTINUITY (reserved)
+**Relationship — Customer-Supplier toward `RISK`** (`Risk.source = BUSINESS_CONTINUITY`,
+activated Session 15) **and `CONTROLS`** (`Control.source = BUSINESS_CONTINUITY` plus a
+continuity-link mirror, activated Session 15; resolution direction was zero additive change
+from this context's own authoring); **Customer of `COMPLIANCE`** (a new "Technology &
+Operational Resilience" `ObligationCategory`, activated Session 15 — the first module to
+discover neither existing eight-category taxonomy fit its own primary regulatory driver) **and
+`POLICY`** (matching `PolicyCategory`, same session, plus `PolicyReferenceLink`'s fourth
+confirmed citing module, zero additive change); **Conformist consumer of `SECURITY`'s
+"Business Continuity and Disaster Recovery" Security Policy Domain** (zero additive change,
+seeded before this context existed); **Customer of `INCIDENT`** for CAPA-request escalation
+(built directly, zero additive change — the first module to build this integration rather than
+propose it) **and of `THIRD-PARTY RISK`** (`GET /vendors/{id}/reference`, built directly, zero
+additive change) — the first module in this repository to build two integrations directly in
+the same spec; a **supplier to `AUDIT`** (`AuditUniverseEntry.related_critical_service_ref_id`,
+activated Session 15, the already-live `entry_type = PROCESS` value's worked example). All ten
+integrations are activated; none remain proposed.
 
-Directly answers the gap `10-risk`'s Regulatory Drivers table flagged and explicitly
-deferred: "Disaster Recovery / Business Contingency Plan... belongs to `18-deployment`
-(platform-level DR/BCP) and a future Business Continuity capability."
+#### REPORTING (authored)
 
-**Relationship — Customer-Supplier toward both `RISK` (continuity risk is a Risk source) and
-`CONTROLS` (BCP/DR testing is already a seeded `CONTROLS` family — "Business Continuity &
-Disaster Recovery" under the `SEBI_AMC` control taxonomy, per `12-controls`' Control Taxonomy
-table).** This context does not duplicate that seeded family; it is the aggregate-owning
-context for the Continuity Plan itself, while `CONTROLS` continues to own the *testing
-control* that verifies the plan works. The relationship is Customer-Supplier in the same
-direction as Third-Party Risk and Incident (the new context supplies; `RISK`/`CONTROLS` are
-customers) plus an explicit note that this context and `CONTROLS`' existing seed taxonomy
-must not be allowed to drift into two competing models of "what a DR test is" — a future
-`13-audit`-style ADR should confirm which context owns the *test record* (this document's
-recommendation, not a decision: `CONTROLS` keeps owning the test, since `ControlTest` already
-generalizes design/operating effectiveness testing for any control family including this
-one; `BUSINESS CONTINUITY` owns the Plan and RTO/RPO objectives the test is measured against).
+Authored Session 14 (module code `REPORTING`), the tenth and final bounded context this
+document's own map reserves. Resolves this document's own open question ("may be
+platform-level rather than a tenant module") explicitly: `REPORTING` is tenant-plane, like
+every other context — a genuinely platform-level, cross-tenant reporting surface, if ever
+required, is a distinct future concern akin to `18-deployment`, not this context. Full
+definition: [`14-reporting/01-reporting-management.md`](../14-reporting/01-reporting-management.md)
+Domain Model section. Aggregate roots: `ReportDefinition`, `ReportInstance`,
+`DashboardDefinition` — the literal realization of this document's own Assumption 5 ("no
+aggregate roots of its own beyond report/dashboard *definitions*"), elaborated to also cover
+the generated instance as a governable artifact. Entities: `ReportFieldMapping`,
+`ReportSchedule`, `ReportCitation`, `ReportDistribution`, `DashboardWidget`.
 
-**Anticipated entities**: ContinuityPlan (aggregate root), RecoveryObjective (RTO/RPO per
-critical process), ContinuityTestResult (opaque link to a `CONTROLS` `ControlTest`, not a
-duplicate test entity).
-
-#### REPORTING (reserved)
-
-**Scope** (per `docs/14-reporting/README.md` and `docs/15-analytics/README.md` — not read in
-full for this document beyond confirming they exist as regulatory/executive reporting and
-KPI/dashboard sections respectively): regulatory and executive reporting, KPIs, metrics,
-dashboards.
-
-**Relationship — Conformist, read-only, over every core-domain context.** This is the
-Supporting Subdomain named in [Strategic Classification](#strategic-classification). It owns
-no business facts of its own — every number it presents is a projection of `RISK`,
-`CONTROLS`, and (once they exist) `COMPLIANCE`/`AUDIT` data, exactly as both existing specs'
-own "Reporting Requirements" sections already describe (Risk Register Report, Heat Map, KRI
-Dashboard for `RISK`; Control Library Report, Effectiveness Dashboard for `CONTROLS`). Its
-only owned entities are the *definitions* of what to render (ReportDefinition,
-DashboardDefinition), never the underlying data.
+**Relationship — Conformist, read-only, over all nine other core-domain contexts.** This is
+the Supporting Subdomain named in [Strategic Classification](#strategic-classification). It
+owns no business facts of its own — every number it presents is a projection of `RISK`,
+`CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, and
+`BUSINESS CONTINUITY` data, per each one's own Reporting Requirements section, consolidated
+into a 69-row seed Report Catalogue. Seven of its nine source-module integrations activated
+with **zero** additive change; it discovered and closed (Session 15) two genuinely new
+point-citation gaps — `RISK` and `AUDIT` had never before needed to expose a
+reference-resolution endpoint for their own entities, since every prior module that integrated
+with either only ever *wrote* a value, never *read* one back for display. `REPORTING`
+originates no manifest dependency in return — per Dependency Rule 5, it is (with `AUDIT`) a
+designated graph sink; no context ever declares a dependency on it.
 
 ### Common Domain Patterns (Shared Kernel of Modeling Conventions)
 
@@ -565,9 +635,17 @@ settled pattern for any future context's own evidence entity.
 | `AUDIT` | `SECURITY` | `GET /findings/{id}/reference` (`SECURITY`-evidence reference; `Finding.linked_security_finding_id` corroboration) | **Activated** (Session 7 — `13-audit`/`09-security`) |
 | `SECURITY` | `CONTROLS`, `COMPLIANCE` | `GET /controls/{id}/reference`, corroboration via opaque `linked_control_exception_id`/`linked_compliance_exception_id` | **Activated** (Session 7 — `09-security`), peer/corroboration shape, not Customer-Supplier |
 | — (manual, cross-context) | `RISK` | `Risk.source = SECURITY_FINDING` (manual creation, not a service call) | **Activated** (Session 7 — `10-risk`/`09-security`) |
-| `INCIDENT` (reserved) | `RISK` | `Risk.source = INCIDENT` | Reserved, enum value already live |
-| `INCIDENT` (reserved) | `CONTROLS` | `ControlException` remediation fields, pending CAPA structuring | Reserved |
-| `REPORTING` (reserved) | `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY` | The report/dashboard source-data views each spec's own Reporting Requirements section already enumerates | Reserved; source views already named, aggregation layer not designed |
+| `POLICY` | `CONTROLS`, `COMPLIANCE`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY` | `GET /policies/{id}/reference`; `POST /policies/{id}/references` (polymorphic mirror registration) | **Activated** (Session 10 for `COMPLIANCE`; Session 12/13 for `TPR`/`BCP`, zero additive change; Session 15 for `CONTROLS`, `POST /controls/{id}/policy-links` added) |
+| `POLICY` | `SECURITY` | `GET /policy-domains` (Conformist tag resolution) | **Activated** (Session 6, zero additive change — this document's own prose named this relationship for the first time in Session 15's consistency review, though the diagram edge already existed) |
+| `INCIDENT` | `RISK` | `Risk.source = INCIDENT` (manual creation, not a service call) | **Activated** since `10-risk`'s own Session 1 authoring — never required a change |
+| `INCIDENT` | `CONTROLS`, `COMPLIANCE`, `POLICY`, `AUDIT`, `SECURITY`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY` | `POST /capa-requests` (`capa_ref_id` resolved via `GET /capas/{id}/reference`) | **Activated** — `AUDIT`/`SECURITY` had reserved `capa_ref_id` columns from their own original authoring; `CONTROLS`/`COMPLIANCE`/`POLICY` gained theirs additively (Session 15); `TPR`/`BCP` each built theirs directly at their own authoring (Sessions 12–13) |
+| `INCIDENT` | `THIRD-PARTY RISK` | `Incident.vendor_ref_id` resolved via `GET /vendors/{id}/reference` | **Activated** (Session 15) |
+| `THIRD-PARTY RISK` | `RISK` | `Risk.source = THIRD_PARTY` (manual creation, not a service call) | **Activated** (Session 15) |
+| `THIRD-PARTY RISK` | `CONTROLS`, `COMPLIANCE`, `POLICY`, `SECURITY` | `GET /controls/{id}/reference`, `GET /obligations/{id}/reference`, `GET /policies/{id}/reference`, `GET /policy-domains` | **Activated** — all zero additive change except `COMPLIANCE`'s mirror-registration direction, generalized Session 15 |
+| `AUDIT` | `THIRD-PARTY RISK`, `BUSINESS CONTINUITY` | `AuditUniverseEntry.related_vendor_ref_id`/`related_critical_service_ref_id` resolved via `GET /vendors/{id}/reference`/`GET /critical-services/{id}/reference` | **Activated** (Session 15), the already-live `entry_type = VENDOR`/`PROCESS` values |
+| `BUSINESS CONTINUITY` | `RISK` | `Risk.source = BUSINESS_CONTINUITY` (manual creation, not a service call) | **Activated** (Session 15) |
+| `BUSINESS CONTINUITY` | `CONTROLS`, `COMPLIANCE`, `POLICY`, `SECURITY`, `THIRD-PARTY RISK` | `GET /controls/{id}/reference` + `POST /controls/{id}/continuity-links`, `GET /obligations/{id}/reference`, `GET /policies/{id}/reference` (mirror), `GET /policy-domains`, `GET /vendors/{id}/reference` | **Activated** — all zero additive change except `CONTROLS`' continuity-link endpoint, added Session 15 |
+| `REPORTING` | `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY` | Each context's own `GET /reports/*` bulk namespace plus `GET .../{id}/reference` point-citation endpoints, consolidated into a 69-row seed Report Catalogue | **Activated** (Session 14) — seven of nine integrations zero additive change; `RISK`'s and `AUDIT`'s own reference-resolution endpoints added Session 15 |
 
 ### Ownership Responsibilities
 
@@ -578,11 +656,11 @@ settled pattern for any future context's own evidence entity.
 | `COMPLIANCE` | Compliance Officer / Company Secretary | `COMPLIANCE` (authored) |
 | `AUDIT` | Chief Internal Auditor / Board Audit Committee | `AUDIT` (authored) |
 | `SECURITY` | CISO / Head of Information Security (`SECURITY_CHECKER`) | `SECURITY` (authored) |
-| `POLICY` (reserved) | Compliance / Legal | `POLICY` (anticipated) |
-| `INCIDENT`/`ISSUE`/`CAPA` (reserved) | Operational Risk / Compliance | `INCIDENT` or `ISSUE` (name open — see [Future Enhancements](#future-enhancements)) |
-| `THIRD-PARTY RISK` (reserved) | Procurement / Vendor Management, with Risk oversight | `TPR` (anticipated) |
-| `BUSINESS CONTINUITY` (reserved) | Business Continuity Office / COO function | `BCP` (anticipated) |
-| `REPORTING` (reserved) | Cross-functional; consumed by Board, Trustees, SEBI-facing reporting owners | `REPORTING`/`ANALYTICS` (anticipated, may be platform-level rather than a tenant module — open question) |
+| `POLICY` | Compliance / Legal | `POLICY` (authored) |
+| `INCIDENT`/`ISSUE`/`CAPA` | Operational Risk / Compliance | `INCIDENT` (authored, resolving the naming question) |
+| `THIRD-PARTY RISK` | Procurement / Vendor Management, with Risk oversight | `TPR` (authored) |
+| `BUSINESS CONTINUITY` | Business Continuity Office / COO function | `BCP` (authored) |
+| `REPORTING` | Cross-functional; consumed by Board, Trustees, SEBI-facing reporting owners | `REPORTING` (authored) — resolved as a tenant-plane module, like every other context, not a platform-level surface |
 
 ### Dependency Rules
 
@@ -590,9 +668,15 @@ Every rule below restates OWN-08 (acyclic, declared dependencies only) and OWN-0
 (API-mediated access only) at the ERM-context level — neither rule is new; this section is
 the acyclic graph those two guards will enforce once more contexts exist as real modules.
 
-1. **`CONTROLS` has zero ERM dependencies today and should keep it that way.** It is the
-   platform's first pure-provider context; any future context needing controls (Compliance,
-   Audit, Business Continuity) is a customer of `CONTROLS`, never the reverse.
+1. **`CONTROLS` remains a pure provider toward `RISK` and `AUDIT` — no edge is ever declared in
+   that direction.** **Updated (Session 15)**: `CONTROLS` is no longer a zero-dependency
+   context overall — its manifest now declares `dependencies: [COMPLIANCE, POLICY, INCIDENT,
+   TPR, BCP]`, one edge per initiating cross-module link endpoint it built additively this
+   session (`POST /controls/{id}/obligation-links`, `/policy-links`, `/vendor-links`,
+   `/continuity-links`, and `/exceptions/{id}/capa-request`). This does not violate this rule's
+   own intent — `CONTROLS` still supplies `RISK` and `AUDIT` without ever depending on either —
+   it only means "pure provider" was never a claim that `CONTROLS` reads from *nothing*, only
+   that nothing it reads from is `RISK` or `AUDIT`.
 2. **`RISK` declares `dependencies: [CONTROLS]`** once the treatment-control reference is
    implemented (already stated in both source specs; restated here as the first edge in the
    graph this document tracks).
@@ -603,14 +687,28 @@ the acyclic graph those two guards will enforce once more contexts exist as real
    arrive — a new context integrating with `RISK` must not force a change to `RISK`'s own
    `dependencies:` declaration beyond what `CONTROLS` already requires, the same non-invasive
    activation `12-controls` achieved this session.
-4. **`COMPLIANCE` and `POLICY` are expected to be pure providers**, like `CONTROLS` — nothing
-   in their anticipated scope needs to read `RISK`, `CONTROLS`, `AUDIT`, or any other core
-   context's internals; other contexts read *them*.
-5. **`AUDIT` and `REPORTING` are expected to be the graph's sinks** — every other core-domain
-   context is a potential dependency of theirs; neither should ever appear on the right-hand
-   side of another context's `dependencies:` declaration. **Confirmed (Session 7)**: `AUDIT`'s
-   manifest now declares `dependencies: [RISK, CONTROLS, COMPLIANCE, SECURITY]` — `SECURITY`'s
-   addition does not violate this rule, since `SECURITY` does not itself depend on `AUDIT`.
+4. **`COMPLIANCE` and `POLICY` remain pure providers toward `RISK`, `CONTROLS`, and `AUDIT`** —
+   nothing in their scope reads any of those three's internals; those three read *them*.
+   **Updated (Session 15)**: both now declare real outward dependencies elsewhere —
+   `COMPLIANCE` declares `dependencies: [POLICY, INCIDENT]` (the `POLICY` mirror-registration
+   call, activated Session 10; the new `INCIDENT` capa-request call); `POLICY` declares
+   `dependencies: [SECURITY, INCIDENT]` (unchanged `SECURITY` tag resolution; the new
+   `INCIDENT` capa-request call). Neither addition creates a cycle: neither `POLICY` nor
+   `INCIDENT` depends back on `COMPLIANCE`; neither `SECURITY` nor `INCIDENT` depends back on
+   `POLICY`.
+5. **`AUDIT` and `REPORTING` are the graph's sinks** — every other core-domain context is a
+   potential dependency of theirs; neither ever appears on the right-hand side of another
+   context's `dependencies:` declaration. **Confirmed (Session 7)**: `AUDIT`'s manifest
+   declared `dependencies: [RISK, CONTROLS, COMPLIANCE, SECURITY]` — `SECURITY`'s addition did
+   not violate this rule, since `SECURITY` does not itself depend on `AUDIT`. **Updated
+   (Session 15)**: `AUDIT`'s manifest gains `INCIDENT`, `TPR`, `BCP` (new `FollowUpAction`
+   capa-request call; new `AuditUniverseEntry` reference-resolution reads), reaching
+   `dependencies: [RISK, CONTROLS, COMPLIANCE, SECURITY, INCIDENT, TPR, BCP]` — the largest
+   declaration of any context except `REPORTING`'s own. `REPORTING`'s manifest, per its own
+   Session 14 authoring, already declares `dependencies:` on all nine other business-domain
+   contexts — the largest in this repository, exactly as this rule anticipates for the graph's
+   other designated sink. Neither `AUDIT` nor `REPORTING` is ever the target of another
+   context's `dependencies:` edge — confirmed across all nine other contexts' own manifests.
 6. **A cycle is a modeling error, not a case to route around with an opaque reference.** The
    opaque-reference pattern (see [Common Domain Patterns](#common-domain-patterns-shared-kernel-of-modeling-conventions))
    exists precisely so that a context can be *referenced* by another without creating a
@@ -620,11 +718,39 @@ the acyclic graph those two guards will enforce once more contexts exist as real
    is genuinely required, not merely when one context's data conceptually relates to
    another's.
 7. **`SECURITY` behaves like `CONTROLS`/`COMPLIANCE`: a peer referencer, not a dependent**
-   (added Session 7). It declares `dependencies: []` at MVP — its references toward `CONTROLS`
-   and `COMPLIANCE` are opaque, no-FK links resolved via reference-resolution API, per Rule 6,
-   not a hard dependency edge — and is, like them, a potential dependency of `AUDIT`'s, never
-   the reverse. Adding `SECURITY` to this map does not introduce a cycle: it sits at the same
-   graph depth as `CONTROLS`/`COMPLIANCE`, one level upstream of `AUDIT`.
+   (added Session 7). **Updated (Session 15)**: `SECURITY` now declares
+   `dependencies: [INCIDENT]` (the new capa-request call) — its references toward `CONTROLS`
+   and `COMPLIANCE` remain opaque, no-FK links resolved via reference-resolution API, per Rule
+   6, not a hard dependency edge — and it remains, like them, a potential dependency of
+   `AUDIT`'s, never the reverse. **`SecurityFinding.linked_vendor_id` deliberately does not add
+   a `TPR` dependency**: `TPR` already declares a dependency on `SECURITY` (Rule 8 below), and
+   a reciprocal `SECURITY → TPR` edge would create the exact cycle Rule 6 forbids — the opaque
+   reference is recorded but resolved on demand by a third module (e.g. `REPORTING`) with no
+   conflicting edge in either direction, not by `SECURITY` itself. This is the one place in
+   this map where two contexts each have a genuine, independent need to cite the other, and the
+   resolution is to let the reference go unresolved by its *owning* module rather than accept a
+   cycle.
+8. **`THIRD-PARTY RISK` and `BUSINESS CONTINUITY` each declare the largest `dependencies:`
+   lists of any context except `REPORTING`, without introducing a cycle** — `TPR` declares
+   `dependencies: [CONTROLS, COMPLIANCE, POLICY, SECURITY, INCIDENT]`; `BUSINESS CONTINUITY`
+   declares `dependencies: [CONTROLS, COMPLIANCE, POLICY, SECURITY, INCIDENT, TPR]` — each the
+   ninth/tenth module authored, sitting atop nearly the entire existing integration surface at
+   its own authoring time, per Rule 6 (every edge backs a genuine synchronous call, never a
+   merely-conceptual relation). `INCIDENT` itself declares `dependencies: []`, unchanged — it
+   remains a pure provider toward every other context, `TPR`/`BUSINESS CONTINUITY` included.
+   **Two opaque references this session added deliberately do *not* become dependency edges,
+   specifically to avoid a cycle**: `SecurityFinding.linked_vendor_id` (`SECURITY` does not
+   gain `dependencies: [TPR]`, since `TPR` already depends on `SECURITY`) and
+   `Incident.vendor_ref_id` (`INCIDENT` does not gain `dependencies: [TPR]`, since `TPR` already
+   depends on `INCIDENT`) — both remain recorded, opaque, unresolved-by-their-owning-module
+   references, resolved on demand by a third module with no conflicting edge (`REPORTING`,
+   which already depends on both `SECURITY` and `TPR`, and on both `INCIDENT` and `TPR`,
+   respectively) — the concrete illustration of Rule 6's own point that a reference does not
+   require a dependency edge at all. None of `RISK`, `CONTROLS`, `COMPLIANCE`, `POLICY`,
+   `SECURITY`, or `TPR` ever declares a reciprocal dependency back on `TPR` or `BUSINESS
+   CONTINUITY` for any of their other edges — each remains the
+   pure-supply side of its own relationship (Rule 3's non-reciprocity requirement, extended
+   here beyond `RISK`/`CONTROLS` to every context this document now names).
 
 ## Non-Functional Requirements
 
@@ -691,8 +817,12 @@ the acyclic graph those two guards will enforce once more contexts exist as real
   context — `10-risk` (SEBI *Risk Management System* circular, MFD/CIR/15/19133/2002),
   `12-controls` (Annexures to Master Circular for Mutual Funds; Cyber Security and Cyber
   Resilience Framework for Mutual Funds AMCs), `11-compliance` (Annexures §2.6 Compliance
-  Risk), `13-audit` (Annexures §1.3.4.1, Annexure 8 clause 55), and `09-security` (Cyber
-  Security and Cyber Resilience Framework, scope-level) — by keeping their integration points
+  Risk), `13-audit` (Annexures §1.3.4.1, Annexure 8 clause 55), `09-security` (Cyber Security
+  and Cyber Resilience Framework, scope-level), `23-policy` (Annexures §2.6.2.1(i) a–q),
+  `24-incident-issue-capa` (System Audit Program Checklist §5), `25-third-party-risk`
+  (Annexures §2.9), `26-business-continuity` (SEBI Risk Mgmt circular Appendix A Part 1 item 1),
+  and `14-reporting` (operationalizing, not introducing, the recurring Board/Trustee/SEBI
+  reporting cadences the other nine already cite) — by keeping their integration points
   coherent as the platform grows.
 - **PRSMTD Capability**: Reused — module framework and ownership guards (`system.md §9,
   §5a–§5c`, OWN-03/04/07/08/09), governance ledger (`§3, §7`, GOV-07), RBAC (`§8`), audit
@@ -700,14 +830,18 @@ the acyclic graph those two guards will enforce once more contexts exist as real
   (`§18`) — not adopted, reconciliation still open (see Assumption 6). **New capability
   required**: none identified beyond the gaps each authored context already flags on its own
   terms (regulatory-profile-seeding, platform document/object storage, SIEM/security-event
-  correlation, ABAC) — no new gap introduced by this document itself.
+  correlation, ABAC, records retention, scheduled-job/batch-execution, generic export-rendering)
+  — no new gap introduced by this document itself.
 - **ERM Capability**: Enterprise Domain Model (cross-context bounded context map) — third
   entry in `22-traceability/`; supersedes the inline Domain Model sections of `10-risk` and
   `12-controls` as the authoritative source of cross-context vocabulary and integration rules
   (their own entity-level Domain Model content remains authoritative and unmodified). Amended
   additively in Session 7 to add `SECURITY` as a tenth bounded context and to correct stale
-  "(reserved)" status labels for `COMPLIANCE` and `AUDIT`, both authored in intervening
-  sessions — see Amendment Log below.
+  "(reserved)" status labels for `COMPLIANCE` and `AUDIT`; amended additively in Session 15 to
+  relabel the five remaining reserved contexts (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`,
+  `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`) as "(authored)" — every one of the
+  ten bounded contexts this document's own map names is now authored, and every dashed/reserved
+  edge in the Bounded Context Map is now solid/activated — see Amendment Log below.
 - **Dependencies**: See [Dependencies](#dependencies) above.
 - **Future Work**: See [Future Enhancements](#future-enhancements) below.
 
@@ -728,21 +862,26 @@ the acyclic graph those two guards will enforce once more contexts exist as real
 - **Resolved (Session 7)**: the `SECURITY` bounded-context gap `09-security` Assumption 1
   discovered — added as a tenth context in this document's Bounded Context Map, Strategic
   Classification, Ownership Responsibilities, and Canonical Business Glossary; no longer open.
-- **Name the Incident/Issue/CAPA context's module code** — this document uses the informal
-  triple name throughout; the actual `module.code` (`INCIDENT`? `ISSUE`? a combined code?)
-  is an open naming decision for whoever authors that context first.
-- **Decide whether `REPORTING`/`ANALYTICS` is a tenant module at all** versus a platform-level
-  read-surface — flagged in [Ownership Responsibilities](#ownership-responsibilities) as an
-  open question, not resolved here, since no existing PRSMTD mechanism was found (or looked
-  for, in this session) for a cross-module, cross-tenant-safe reporting substrate.
+- **Resolved (Session 11)**: the Incident/Issue/CAPA context's module code — `INCIDENT`, a
+  single combined module for Incident, Issue, and CAPA, per `24-incident-issue-capa/01-*`'s own
+  Assumption 1. No longer open.
+- **Resolved (Session 14)**: whether `REPORTING` is a tenant module or a platform-level
+  read-surface — `REPORTING` is tenant-plane, like every other context, per
+  `14-reporting/01-*`'s own Assumption 1. A genuinely platform-level, cross-tenant reporting
+  surface, if ever required, is a distinct future concern akin to `18-deployment`. No longer
+  open.
 - **Resolved (Sessions 4–7)**: `Evidence` remains a by-convention shape, not a promoted
   shared-kernel entity — see [Evidence as a Cross-Cutting Concept](#evidence-as-a-cross-cutting-concept)
   for how `11-compliance`, `13-audit`, and `09-security` each independently confirmed this
   resolution.
-- **Third-Party Risk's relationship to `RiskCategory`**: whether `VendorRiskCategory` is a
-  genuinely separate taxonomy or a seeded sub-tree of `RISK`'s existing `RiskCategory`
-  hierarchy is left open for that context's own spec — this document only commits to Third
-  Party Risk not duplicating the *register*, not to the exact taxonomy relationship.
+- **Resolved (Session 12)**: Third-Party Risk's relationship to `RiskCategory` — a
+  Vendor-sourced Risk uses `RISK`'s already-seeded "Other Business Risks → Third-Party Risks"
+  sub-category directly; `VendorCategory` classifies vendor *type*, not risk, and is not a
+  specialization of `RiskCategory` at all, per `25-third-party-risk/01-*`'s own Assumption 5.
+  No `VendorRiskCategory` entity was designed. No longer open.
+- **Resolved (Session 13)**: Business Continuity's anticipated-entities sketch and its own
+  plan-vs-test-boundary recommendation — see [BUSINESS CONTINUITY (authored)](#business-continuity-authored)
+  above. No longer open.
 
 ## Amendment Log
 
@@ -764,3 +903,33 @@ Additive only; no bounded context, aggregate ownership, or DDD relationship type
   of these corrections — only status labels, edge styles, and prose describing what had
   already happened in `11-compliance`'s, `13-audit`'s, `10-risk`'s, and `12-controls`'s own,
   separately-tracked Amendment logs.
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied all five outstanding
+  `04-domain-model` status-label amendments in one session, each originally proposed by its own
+  authoring session and left unapplied until now: `POLICY (reserved)` → `POLICY (authored)`
+  (Session 10); `INCIDENT`/`ISSUE`/`CAPA` `(reserved)` → `(authored)` (Session 11);
+  `THIRD-PARTY RISK (reserved)` → `THIRD-PARTY RISK (authored)` (Session 12);
+  `BUSINESS CONTINUITY (reserved)` → `BUSINESS CONTINUITY (authored)` (Session 13);
+  `REPORTING (reserved)` → `REPORTING (authored)` (Session 14). Updated: Strategic
+  Classification, both mermaid diagrams (PRSMTD Module Boundaries vs. DDD Bounded Contexts;
+  Bounded Context Map — every edge now solid, plus ~30 new edges for integrations activated
+  since each context's own authoring), all five contexts' own subsections (rewritten from
+  "(reserved)"/anticipated-entities framing to "(authored)"/full-definition framing, mirroring
+  `COMPLIANCE`/`AUDIT`/`SECURITY`'s own precedent), Canonical Business Glossary (removed
+  `*(reserved)*` markers; added `Issue`, `Critical Business Service`, `Report Definition`,
+  `Report Instance`, `Dashboard Definition` terms), Cross-Context APIs table (added rows for
+  every integration each context's own spec built or activated), Ownership Responsibilities
+  (removed `(reserved)`/`(anticipated)` tags; resolved `REPORTING`'s own tenant-vs-platform-
+  level question), Dependency Rules (updated Rules 1, 4, 5, 7 to reflect `CONTROLS`'/
+  `COMPLIANCE`'s/`POLICY`'s/`SECURITY`'s own newly-declared outward dependencies; added Rule 8
+  for `INCIDENT`/`TPR`/`BCP`'s own large dependency declarations), and Future Enhancements
+  (resolved the Incident/Issue/CAPA naming question, the `REPORTING` platform-level question,
+  and the Third-Party Risk/`RiskCategory` question, all per each context's own spec). This
+  session also corrected one genuine pre-existing staleness this review found: `POLICY`'s own
+  relationship to `SECURITY` (Conformist consumer of `SecurityPolicyDomain`, zero additive
+  change since Session 6) was drawn in the Bounded Context Map diagram from this document's
+  very first authoring of that edge but never once named in `POLICY`'s own prose describing
+  itself, until this session's rewrite of [POLICY (authored)](#policy-authored). No bounded
+  context, aggregate ownership, or DDD relationship type was redesigned by any of these
+  changes — every edge, entity, and ownership assignment already drawn by a prior session is
+  unchanged; this session only added new edges/entities for integrations built elsewhere and
+  corrected status labels and prose describing what had already happened.

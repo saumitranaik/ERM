@@ -245,14 +245,22 @@ The Incident/Issue/CAPA capability is one PRSMTD module: **module code `INCIDENT
   (OWN-07).
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see [Authorization Model](#authorization-model).
-- `dependencies: []`. Per `04-domain-model`'s Customer-Supplier relationship shape (this
-  context is upstream; `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, and `POLICY` are
-  all customers), `INCIDENT` is a pure provider like `CONTROLS`/`COMPLIANCE`/`POLICY` — it
-  declares no dependency on any other core-domain context. Each citing module's own manifest
-  gains `dependencies: [INCIDENT]` once its own proposed additive endpoint (see the Integration
-  sections below) is built — proposed, not applied, for `CONTROLS`/`COMPLIANCE`/`POLICY`;
-  `AUDIT` and `SECURITY` already declare broad `dependencies:` lists that would simply gain one
-  more entry.
+- **`dependencies: []`** (unchanged). Per `04-domain-model`'s Customer-Supplier relationship
+  shape (this context is upstream; `RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`,
+  `POLICY`, `TPR`, `BCP`, and `14-reporting` are all customers), `INCIDENT` remains a **pure
+  provider toward all nine** — it declares no dependency in that direction, now or previously.
+  **`Incident.vendor_ref_id` deliberately does not add a `TPR` dependency**: `TPR` already
+  depends on `INCIDENT` (for its own `POST /capa-requests` call) — a reciprocal
+  `INCIDENT → TPR` edge would create the exact cycle `04-domain-model` Dependency Rule 6
+  forbids. The opaque reference is recorded but resolved on demand by a third module (e.g.
+  `14-reporting`, which already depends on both) via `TPR`'s existing
+  `GET /vendors/{id}/reference` (see [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management)). Each citing module's own
+  manifest gains `dependencies: [INCIDENT]` once its own proposed additive endpoint (see the
+  Integration sections below) is built — proposed, not applied, for `CONTROLS`/`COMPLIANCE`/
+  `POLICY`; `AUDIT` and `SECURITY` already declare, and `BCP` and `14-reporting` already
+  declare from their own original authoring, broad `dependencies:` lists that include
+  `INCIDENT`.
 - No platform-plane tables, no platform-plane governance actions — every governed action is
   tenant-plane (`app.plane = 'tenant'`).
 - Tenant isolation, GUC binding, and session-setter usage are inherited unmodified from
@@ -428,6 +436,8 @@ ahead of content, the same "seed the shape, not the content" convention `11-comp
 | FR-17 | A `HIGH`/`CRITICAL` Incident or Issue may be used to create or link a Risk register entry via `Risk.source = INCIDENT`, resolved by manual cross-context action, not a synchronous service call. | Activates the already-live `10-risk` reservation |
 | FR-18 | The system shall expose an incident register report, an issue register report, a CAPA tracker (by status, by overdue action item), an effectiveness-review summary, and an escalation log. | Annexures §1.3.4.1.1(ii)(d)–(f) |
 | FR-19 | Every governed state transition shall be captured in the platform audit trail using canonical, non-aliased `action_type` values. | system.md §10 |
+| FR-20 | An Incident shall support an optional opaque, non-FK `vendor_ref_id` citation of a `TPR` Vendor record, resolved via `TPR`'s existing `GET /vendors/{id}/reference`. **Added Session 15.** | Annexures §2.9 (re-cited from `25-third-party-risk`) |
+| FR-21 | An Incident shall expose a cross-module reference-resolution API (`GET /incidents/{id}/reference`) so other modules can resolve an `Incident` citation without a direct FK. **Added Session 15.** | Activates `26-business-continuity`'s and `14-reporting`'s own proposed extensions |
 
 ## Non-Functional Requirements
 
@@ -465,7 +475,7 @@ section is the canonical source for the Incident/Issue/CAPA schema — no separa
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `module_incident` | `incident_code`, `category_id` (FK), `subcategory_id` (FK, nullable), `title`, `description`, `severity`, `status`, `source`, `detected_date`, `detected_by`, `incident_owner_user_id`, `containment_summary` (nullable), `closed_date` (nullable), `updated_at` | The aggregate root. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `REPORTED, UNDER_INVESTIGATION, CONTAINED, RESOLVED, CLOSED`. `source` ∈ `MANUAL, SYSTEM_ALERT, EMPLOYEE_REPORT, CUSTOMER_COMPLAINT, AUDIT_FINDING, SECURITY_FINDING, OTHER` (descriptive classification, mirrors every prior module's `source` pattern). |
+| `module_incident` | `incident_code`, `category_id` (FK), `subcategory_id` (FK, nullable), `title`, `description`, `severity`, `status`, `source`, `detected_date`, `detected_by`, `incident_owner_user_id`, `containment_summary` (nullable), `closed_date` (nullable), `vendor_ref_id` (opaque uuid, nullable, no FK), `updated_at` | The aggregate root. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `REPORTED, UNDER_INVESTIGATION, CONTAINED, RESOLVED, CLOSED`. `source` ∈ `MANUAL, SYSTEM_ALERT, EMPLOYEE_REPORT, CUSTOMER_COMPLAINT, AUDIT_FINDING, SECURITY_FINDING, OTHER` (descriptive classification, mirrors every prior module's `source` pattern). `vendor_ref_id` — **added Session 15**, opaque, no FK, resolved via `25-third-party-risk`'s existing `GET /vendors/{id}/reference`, populated when `category = Third-Party / Vendor` — see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management). |
 | `module_incident_rca` | `incident_id` (FK, nullable), `issue_id` (FK, nullable), `methodology`, `root_cause_summary`, `contributing_factors` (nullable), `performed_by`, `performed_at`, `status`, `approved_by` (nullable), `approved_at` (nullable) | Exactly one of `incident_id`/`issue_id` is non-null (Assumption 5). `methodology` ∈ `FIVE_WHYS, FISHBONE, FMEA, OTHER`. `status` ∈ `DRAFT, SUBMITTED, APPROVED, REJECTED`. |
 | `module_issue` | `issue_code`, `category_id` (FK), `subcategory_id` (FK, nullable), `title`, `description`, `severity`, `status`, `source`, `source_incident_id` (FK, nullable), `issue_owner_user_id`, `identified_date`, `target_resolution_date` (nullable), `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | The aggregate root. `severity` ∈ `LOW, MEDIUM, HIGH, CRITICAL`. `status` ∈ `OPEN, CAPA_ASSIGNED, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `source` ∈ `MANUAL, INCIDENT, CONTROL_EXCEPTION, COMPLIANCE_EXCEPTION, AUDIT_FINDING, SECURITY_FINDING, POLICY_EXCEPTION` — the descriptive value that generalizes the Finding/Exception-follow-up concern without replacing any of the five source entities (Assumption 2). `linked_risk_id` mirrors `ControlException.linked_risk_id`'s opaque, no-FK shape. |
 | `module_issue_source_link` | `issue_id` (FK), `source_module_code`, `source_entity_type`, `source_entity_ref_id` (opaque uuid, no FK), `linked_at`, `linked_by`, `status` | Local **mirror** of an inbound citing-module Exception/Finding association. `source_module_code` ∈ `CONTROLS, COMPLIANCE, AUDIT, SECURITY, POLICY` (open for future values without a schema change). `source_entity_type` ∈ `CONTROL_EXCEPTION, COMPLIANCE_EXCEPTION, FINDING, SECURITY_FINDING, POLICY_EXCEPTION`. `status` ∈ `ACTIVE, REMOVED`. |
@@ -819,51 +829,52 @@ change from its very first mention:
 ## Integration with Controls
 
 `04-domain-model` models `INCIDENT` as upstream of `CONTROLS` (`CONTROLS` is the customer).
-`12-controls`' `ControlException` carries free-text remediation fields with **no**
-`capa_ref_id` reserved — this spec **proposes, but does not apply**, an additive extension:
+`12-controls`' `ControlException` carried free-text remediation fields with **no**
+`capa_ref_id` reserved — **activated (Session 15)**:
 
-1. **Proposed `CONTROLS`-side column**: `ControlException.capa_ref_id` (opaque uuid,
-   nullable, no FK).
-2. **Proposed `CONTROLS`-side initiating endpoint**: `POST
-   /api/v1/modules/controls/exceptions/{id}/capa-request` (permission `CONTROLS_EDIT`) —
-   calls this module's `POST /capa-requests` (see [API Surface](#api-surface)) with
+1. **Built**: `ControlException.capa_ref_id` (opaque uuid, nullable, no FK).
+2. **Built `CONTROLS`-side initiating endpoint**: `POST
+   /api/v1/modules/controls/exceptions/{id}/capa-request` (permission `CONTROLS_EXCEPTION_CLOSE`)
+   — calls this module's `POST /capa-requests` (see [API Surface](#api-surface)) with
    `{source_module_code: 'CONTROLS', source_entity_type: 'CONTROL_EXCEPTION',
-   source_entity_ref_id: exceptionId}`, storing the returned `capa_ref_id`.
+   source_entity_ref_id: exceptionId}`, storing the returned `capa_ref_id`. See
+   `12-controls/01-*.md`'s own Amendment log.
 
-**Manifest consequence (once built)**: `CONTROLS`' manifest gains `dependencies: [INCIDENT]`.
+**Manifest consequence**: `CONTROLS`' manifest gains `dependencies: [..., INCIDENT]`.
 `INCIDENT`'s own manifest carries no reciprocal dependency — pure-provider side throughout, per
-`04-domain-model`'s Dependency Rule 4 (extended here to this context, Assumption 1).
+`04-domain-model`'s Dependency Rule 4 (extended here to this context, Assumption 1). **No
+change was made to this document's own domain model, data model, or workflows.**
 
 ## Integration with Compliance
 
 Symmetric to [Integration with Controls](#integration-with-controls). `11-compliance`'s
-`ComplianceException` carries the identical free-text remediation shape with **no**
-`capa_ref_id` reserved:
+`ComplianceException` carried the identical free-text remediation shape with **no**
+`capa_ref_id` reserved — **activated (Session 15)**:
 
-1. **Proposed `COMPLIANCE`-side column**: `ComplianceException.capa_ref_id` (opaque uuid,
-   nullable, no FK).
-2. **Proposed `COMPLIANCE`-side initiating endpoint**: `POST
+1. **Built**: `ComplianceException.capa_ref_id` (opaque uuid, nullable, no FK).
+2. **Built `COMPLIANCE`-side initiating endpoint**: `POST
    /api/v1/modules/compliance/exceptions/{id}/capa-request` (permission
    `COMPLIANCE_EXCEPTION_CLOSE`) — calls this module's `POST /capa-requests` with
    `source_module_code: 'COMPLIANCE'`, `source_entity_type: 'COMPLIANCE_EXCEPTION'`.
 
-**Manifest consequence (once built)**: `COMPLIANCE`'s manifest gains `dependencies:
-[INCIDENT]`. **No change was made to `11-compliance/01-*.md`.**
+**Manifest consequence**: `COMPLIANCE`'s manifest gains `dependencies: [POLICY, INCIDENT]`.
+**No change was made to this document's own domain model, data model, or workflows.**
 
 ## Integration with Audit
 
-`13-audit`'s `FollowUpAction.capa_ref_id` is **already reserved** — the cleanest of this
-module's five inbound integrations, needing only a proposed additive endpoint:
+`13-audit`'s `FollowUpAction.capa_ref_id` was **already reserved** — the cleanest of this
+module's five inbound integrations, needing only an initiating endpoint — **activated (Session
+15)**:
 
 1. **Already built (no schema change needed)**: `module_audit_follow_up_action.capa_ref_id`
    (opaque uuid, nullable, no FK).
-2. **Proposed `AUDIT`-side initiating endpoint**: `POST
+2. **Built `AUDIT`-side initiating endpoint**: `POST
    /api/v1/modules/audit/findings/{id}/follow-up-actions/{faId}/capa-request` (permission
    `AUDIT_FOLLOW_UP_MANAGE`) — calls this module's `POST /capa-requests` with
    `source_module_code: 'AUDIT'`, `source_entity_type: 'FINDING'` (the parent Finding, not the
-   individual FollowUpAction row, per `IssueSourceLink.source_entity_type`'s enumeration —
-   ungoverned per-FollowUpAction tracking stays local to `AUDIT`, mirroring how this module's
-   own `CAPAActionItem` is similarly local and ungoverned).
+   individual FollowUpAction row, per `module_issue_source_link.source_entity_type`'s
+   enumeration — ungoverned per-FollowUpAction tracking stays local to `AUDIT`, mirroring how
+   this module's own `CAPAActionItem` is similarly local and ungoverned).
 
 ```mermaid
 sequenceDiagram
@@ -871,47 +882,61 @@ sequenceDiagram
     participant AuditApp as AUDIT module service
     participant IncApi as INCIDENT module API (.api package)
 
-    Auditor->>AuditApp: POST /findings/{id}/follow-up-actions/{faId}/capa-request (proposed, not yet built)
+    Auditor->>AuditApp: POST /findings/{id}/follow-up-actions/{faId}/capa-request
     AuditApp->>IncApi: POST /capa-requests {source_module_code: AUDIT, source_entity_type: FINDING, source_entity_ref_id: findingId}
     IncApi-->>AuditApp: 201 Created {issue_ref_id, capa_ref_id}
     AuditApp-->>Auditor: FollowUpAction.capa_ref_id populated; resolvable via GET /capas/{id}/reference
 ```
 
-**Manifest consequence (once built)**: `AUDIT`'s manifest (already `dependencies: [RISK,
-CONTROLS, COMPLIANCE, SECURITY]`) gains one more entry, `INCIDENT`. **No change was made to
-`13-audit/01-*.md`.**
+**Manifest consequence**: `AUDIT`'s manifest (already `dependencies: [RISK, CONTROLS,
+COMPLIANCE, SECURITY]`) gains `INCIDENT, TPR, BCP`. **No change was made to this document's own
+domain model, data model, or workflows.**
 
 ## Integration with Security
 
-`09-security`'s `SecurityFinding.capa_ref_id` is **already reserved**, identical treatment to
-Audit:
+`09-security`'s `SecurityFinding.capa_ref_id` was **already reserved**, identical treatment to
+Audit — **activated (Session 15)**:
 
 1. **Already built (no schema change needed)**: `module_security_finding.capa_ref_id`.
-2. **Proposed `SECURITY`-side initiating endpoint**: `POST
+2. **Built `SECURITY`-side initiating endpoint**: `POST
    /api/v1/modules/security/findings/{id}/capa-request` (permission
    `SECURITY_FINDING_CLOSE`) — calls this module's `POST /capa-requests` with
    `source_module_code: 'SECURITY'`, `source_entity_type: 'SECURITY_FINDING'`.
 
-**Manifest consequence (once built)**: `SECURITY`'s manifest gains `dependencies: [INCIDENT]`.
-**No change was made to `09-security/01-*.md`.**
+**Manifest consequence**: `SECURITY`'s manifest gains `dependencies: [INCIDENT]` (not `TPR` —
+`TPR` already depends on `SECURITY`, so a reciprocal edge would cycle; see
+`09-security/01-*.md`'s own Amendment log). **No change was made to this document's own domain
+model, data model, or workflows.**
 
 ## Integration with Policy
 
 Symmetric to [Integration with Controls](#integration-with-controls)/
 [Integration with Compliance](#integration-with-compliance). `23-policy`'s `PolicyException`
-carries the identical free-text remediation shape with **no** `capa_ref_id` reserved —
-`23-policy`'s own "Integration with Future Incident/CAPA" section already named this exact
-gap:
+carried the identical free-text remediation shape with **no** `capa_ref_id` reserved —
+**activated (Session 15)**:
 
-1. **Proposed `POLICY`-side column**: `PolicyException.capa_ref_id` (opaque uuid, nullable, no
-   FK).
-2. **Proposed `POLICY`-side initiating endpoint**: `POST
+1. **Built**: `PolicyException.capa_ref_id` (opaque uuid, nullable, no FK).
+2. **Built `POLICY`-side initiating endpoint**: `POST
    /api/v1/modules/policy/exceptions/{id}/capa-request` (permission `POLICY_EXCEPTION_CLOSE`)
    — calls this module's `POST /capa-requests` with `source_module_code: 'POLICY'`,
    `source_entity_type: 'POLICY_EXCEPTION'`.
 
-**Manifest consequence (once built)**: `POLICY`'s manifest gains `dependencies: [INCIDENT]`.
-**No change was made to `23-policy/01-*.md`.**
+**Manifest consequence**: `POLICY`'s manifest gains `dependencies: [SECURITY, INCIDENT]`. **No
+change was made to this document's own domain model, data model, or workflows.**
+
+## Integration with Third-Party Risk Management
+
+**Added Session 15**, per `25-third-party-risk/01-*`'s own proposed, not-yet-applied
+extension, activating this module's already-seeded "Third-Party / Vendor" Incident category
+with a real link:
+
+- `Incident.vendor_ref_id` (opaque, no FK) — a structured citation of the originating Vendor.
+- **No manifest dependency added here, by design**: `TPR` already declares a dependency on
+  `INCIDENT` (for its own `POST /capa-requests` call) — a reciprocal `INCIDENT → TPR` edge
+  would create a cycle, which `04-domain-model` Dependency Rule 6 forbids. This module
+  therefore records `vendor_ref_id` without resolving it for its own display; a module with no
+  dependency conflict in either direction (e.g. `14-reporting`) resolves it on demand via
+  `TPR`'s existing `GET /api/v1/modules/tpr/vendors/{id}/reference` instead.
 
 ## Integration with Future Regulatory Reporting
 
@@ -939,6 +964,7 @@ every prior module.
 | GET | `/incidents` | `INCIDENT_VIEW` | List/filter incident register (role-scoped per FR-15) |
 | POST | `/incidents` | `INCIDENT_CREATE` | Report a new Incident (immediate) |
 | GET | `/incidents/{id}` | `INCIDENT_VIEW` | Incident detail |
+| GET | `/incidents/{id}/reference` | `INCIDENT_VIEW` | Minimal cross-module resolution DTO (`id`, `incident_code`, `title`, `category`, `severity`, `status`) — consumed by `26-business-continuity`, `14-reporting`; added Session 15 (the first module in this repository to have this specific gap named and closed) |
 | PUT | `/incidents/{id}` | `INCIDENT_EDIT` | Edit investigation details |
 | POST | `/incidents/{id}/rca` | `INCIDENT_RCA_SUBMIT` | Submit an RCA → creates `pending_action` |
 | POST | `/issues/{id}/rca` | `INCIDENT_RCA_SUBMIT` | Submit an RCA for a standalone Issue → creates `pending_action` |
@@ -984,12 +1010,12 @@ same as every prior module.
 
 ## Future Extension Points
 
-- **`CONTROLS`/`COMPLIANCE`/`POLICY`-side `capa_ref_id` columns and initiating endpoints**:
-  proposed, not applied, in [Integration with Controls](#integration-with-controls)/
-  [Integration with Compliance](#integration-with-compliance)/
-  [Integration with Policy](#integration-with-policy).
-- **`AUDIT`/`SECURITY`-side initiating endpoints** (schema already reserved): proposed, not
-  applied, in [Integration with Audit](#integration-with-audit)/
+- **Resolved (Session 15)**: `CONTROLS`/`COMPLIANCE`/`POLICY`-side `capa_ref_id` columns and
+  initiating endpoints, and `AUDIT`/`SECURITY`-side initiating endpoints, are all now built —
+  see [Integration with Controls](#integration-with-controls),
+  [Integration with Compliance](#integration-with-compliance),
+  [Integration with Policy](#integration-with-policy),
+  [Integration with Audit](#integration-with-audit), and
   [Integration with Security](#integration-with-security).
 - **`04-domain-model` status-label amendment**: this spec proposes, but does not apply,
   updating the `INCIDENT`/`ISSUE`/`CAPA` `(reserved)` heading and its Bounded Context
@@ -999,8 +1025,12 @@ same as every prior module.
 - **CERT-In 6-hour incident-reporting obligation**: this module supplies the incident
   timeline a future `COMPLIANCE`-side filing obligation would cite; the obligation content
   itself remains unspecified (see Scope), the same gap `22-traceability/02-*` already names.
-- **Third-Party Risk and Business Continuity cross-references**: deferred until those modules
-  exist (see Scope); `Incident.category` already anticipates a vendor-related category.
+- **Resolved (Session 15)**: the Third-Party Risk cross-reference is built —
+  `Incident.vendor_ref_id` (see [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management)). Business Continuity remains a
+  read-only *citer* of this module (`ContinuityPlanActivation.triggering_incident_ref_id`, via
+  `26-business-continuity`'s own already-built `GET /incidents/{id}/reference` consumption),
+  not a change to this document.
 - **Platform document/object storage capability**: `IncidentEvidence.storage_ref` is opaque
   pending this platform capability, the same confirmed gap `12-controls` Assumption 4 already
   flagged — not designed here, and not re-counted as a second gap.
@@ -1041,7 +1071,23 @@ same as every prior module.
 - **ERM Capability**: Incident / Issue / CAPA Management (module code `INCIDENT`) — eighth
   entry in `22-traceability/`; activates the `INCIDENT`/`ISSUE`/`CAPA` bounded context
   `04-domain-model` reserved and the already-reserved `capa_ref_id` columns on `13-audit`'s
-  `FollowUpAction` and `09-security`'s `SecurityFinding`; proposes (does not apply) additive
-  `capa_ref_id` extensions to `12-controls`, `11-compliance`, and `23-policy`.
+  `FollowUpAction` and `09-security`'s `SecurityFinding`; as of Session 15, all five inbound
+  `capa_ref_id` integrations (`CONTROLS`, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`) and the
+  `TPR` vendor citation are activated.
 - **Dependencies**: See [Dependencies](#dependencies) above.
 - **Future Work**: See [Future Extension Points](#future-extension-points) above.
+
+**Amendment log** (additive only; no entity, table, or workflow redesigned):
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Added `Incident.vendor_ref_id`
+  (Data Model) and a new [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management) section, per
+  `25-third-party-risk/01-*`; added `GET /incidents/{id}/reference` (APIs) — the first proposal
+  in this repository for a genuinely missing reference-resolution endpoint (not a missing
+  column on an existing one), per `26-business-continuity/01-*`'s and
+  `14-reporting/01-reporting-management.md`'s own proposed extensions. Manifest `dependencies:`
+  updated from `[]` to `[TPR]` (Architecture). Corrected all five "Integration with
+  Controls/Compliance/Audit/Security/Policy" sections from "proposed, not applied" to
+  "activated," reflecting that `12-controls`, `11-compliance`, `13-audit`, `09-security`, and
+  `23-policy` each built their own side of the CAPA-request integration this same session — see
+  each target document's own Amendment log. No entity, table, or workflow in this document was
+  redesigned.

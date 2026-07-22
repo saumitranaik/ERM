@@ -21,18 +21,22 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — **eleventh authoritative spec complete as of Session 14**
-(`14-reporting/01-reporting-management.md`, module code `REPORTING`; see the Session 14 entry
-under Completed Work and Master Execution Plan Phase 11) — the tenth and final bounded context
-`04-domain-model`'s map reserves. Every business-domain bounded context that document's own
-Bounded Context Map enumerates is now authored as an ERM specification; only that document's
-own five status-label amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS
-CONTINUITY`, `REPORTING`) remain proposed, not applied, and `15-analytics` (the KPI/metric
-catalog and dashboard visualization layer `14-reporting/01-*` explicitly defers) remains
-unauthored. Session 14 proceeded directly to Phase 11 per explicit instruction, superseding
-this file's own Session 13 "Order of next work" recommendation to run the seventeen-
-additive-change consolidation first (see the Session 14 entry and Assumption 43 below). The
-remainder of this
+**Phase**: Early specification phase — **eleven authoritative specs complete, and, as of
+Session 15, fully internally consistent with zero outstanding additive-change or status-label
+backlog.** `14-reporting/01-reporting-management.md` (module code `REPORTING`, Session 14) was
+the eleventh spec authored and the tenth and final bounded context `04-domain-model`'s map
+reserves. **Session 15 (Additive Change Consolidation)** then applied all nineteen additive
+changes and all five `04-domain-model` status-label amendments this repository had carried as
+proposed-not-applied since Sessions 10–14 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY
+RISK`, `BUSINESS CONTINUITY`, `REPORTING` — see the Session 15 entry under Completed Work) — no
+reserved context, no dashed Bounded Context Map edge, and no open additive-change proposal
+remains anywhere in this repository. `15-analytics` (the KPI/metric catalog and dashboard
+visualization layer `14-reporting/01-*` explicitly defers) remains the one unauthored piece of
+`CLAUDE.md`'s original "REPORTING & ANALYTICS" vision. Session 14 proceeded directly to Phase
+11 per explicit instruction, superseding this file's own Session 13 "Order of next work"
+recommendation to run the additive-change consolidation first — Session 15 then executed
+exactly that consolidation, per its own explicit instruction (see the Session 14/15 entries and
+Assumption 43 below). The remainder of this
 paragraph and the next two are preserved as the Session 6–7 historical record of how the first
 six specs reached their current state. Session 6 closed the two remaining additive-change gaps
 from `11-compliance` (`10-risk`'s `Risk.source` enum gained `COMPLIANCE_OBLIGATION`;
@@ -58,14 +62,12 @@ redesigned by any of these corrections.
 already initialized and validated internally consistent against `CLAUDE.md` prior to Session
 1. **Eleven authoritative specs now exist as of Session 14**: `RISK`, `CONTROLS`, the
 Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`,
-and `REPORTING`. The Enterprise Domain Model's own Bounded Context Map, however, still names
-only five authored business-domain modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`,
-`SECURITY`) plus five reserved contexts as of Session 7 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`,
-`THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`) — `POLICY`'s, `INCIDENT`'s, `TPR`'s,
-`BCP`'s, and now `REPORTING`'s own status-label amendments are all proposed, not yet applied
-(Assumptions 33, 35, 37, 40, and the new Session 14 assumption below) — eleven total (all ten
-bounded contexts plus the Domain Model itself), all cross-references internally consistent. One
-traceability/assessment artifact
+and `REPORTING`. **The Enterprise Domain Model's own Bounded Context Map now names all ten as
+authored** — `POLICY`'s, `INCIDENT`'s, `TPR`'s, `BCP`'s, and `REPORTING`'s own status-label
+amendments, each proposed at its own authoring session (Sessions 10–14) and left unapplied
+until now, were all applied together in Session 15 (see Assumptions 33, 35, 37, 40, 47, and the
+new Session 15 assumption below) — eleven total (all ten bounded contexts plus the Domain Model
+itself), all cross-references internally consistent. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
 
@@ -1153,6 +1155,160 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   Session 5's 19-row count.
 - Updated this file (this entry; Phase Summary table and Phase 11's own detail entry marked
   complete below; Assumptions, Risks, and Open Decisions refreshed; Next Milestone updated).
+
+### Session 15 — 2026-07-22
+
+- Reviewed `CLAUDE.md`, this file in full (all fourteen prior session entries, the complete
+  Master Execution Plan, Assumptions 1–47, Risks, Open Decisions), the Enterprise Domain Model,
+  every one of the ten authored business-domain specs, and both traceability artifacts, per
+  explicit instruction to begin the Additive Change Consolidation phase directly — the phase
+  this file's own Session 13 "Order of next work" recommendation had named first, before
+  Session 14's explicit instruction deferred it in favor of authoring `REPORTING` immediately.
+  Treated all eleven frozen specs and `04-domain-model` as authoritative inputs, to be extended
+  only additively, per this session's own explicit brief.
+- **Enumerated the full backlog before touching anything**: nineteen additive changes across
+  seven frozen specs (`10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`,
+  `23-policy`, `24-incident-issue-capa`) and five `04-domain-model` status-label amendments
+  (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, `REPORTING`),
+  drawn from Assumptions 33, 35, 37, 40, and 46 and each proposing spec's own Integration
+  sections and Future Extension Points. For each: **validated it was still required** (none had
+  been superseded by a later spec), **confirmed it did not conflict with a later specification**
+  (none did), and **applied it only where it remained architecturally correct** — one item
+  (`SecurityFinding.linked_vendor_id`'s and `Incident.vendor_ref_id`'s originally-implied
+  resolution direction) was found *not* to remain architecturally correct as first drafted and
+  was corrected before being applied, not applied as originally proposed (see below).
+- **Applied all nineteen additive changes**, additively only, no entity/aggregate/workflow
+  redesigned in any target document:
+  - `10-risk`: `Risk.source` gained `THIRD_PARTY`, `BUSINESS_CONTINUITY`; added
+    `GET /risks/{id}/reference` (the first point-citation endpoint this module ever exposed —
+    every prior integration with `RISK` had only ever written a `Risk.source` value, never read
+    one back for display); corrected a stale Integration Points row that still described
+    `Risk.source = INCIDENT` as "no such module exists yet" despite `INCIDENT` having been
+    authored since Session 11.
+  - `12-controls`: `Control.source` gained `THIRD_PARTY_RISK`, `BUSINESS_CONTINUITY`; added
+    three new cross-module link tables (`module_controls_control_policy_link`,
+    `_vendor_link`, `_continuity_link`) and their initiating endpoints
+    (`POST /controls/{id}/policy-links`/`vendor-links`/`continuity-links`); added
+    `ControlException.capa_ref_id` plus `POST /exceptions/{id}/capa-request`; added four new
+    "Integration with X" sections (Policy, Incident/Issue/CAPA, Third-Party Risk, Business
+    Continuity); manifest `dependencies:` grew from `[]` to `[COMPLIANCE, POLICY, INCIDENT,
+    TPR, BCP]` — the largest shift in dependency posture of any module this repository has
+    amended after its own original authoring. Corrected a stale note on
+    `module_controls_control_obligation_link` and FR-13 that still read "inert"/"future"
+    despite that link having been activated since Session 6.
+  - `11-compliance`: `ComplianceException.capa_ref_id` plus its initiating endpoint added; a
+    new "Technology & Operational Resilience" `ObligationCategory` seeded; the `TPR` obligation
+    mirror-registration gap closed **by generalizing, not duplicating** —
+    `module_compliance_obligation_control_link`'s `source_control_id` column renamed
+    `source_entity_ref_id` and its `source_module_code`/`source_entity_type` domains widened
+    from fixed values to a closed, extensible set, mirroring `POLICY`'s already-proven
+    `PolicyReferenceLink` design, so `TPR` reuses the same endpoint/table `CONTROLS` already
+    calls rather than needing a second one; manifest `dependencies:` grew from `[]` to
+    `[POLICY, INCIDENT]`. Corrected two stale "inert"/"reserved" notes
+    (`module_compliance_obligation_policy_link`, FR-13) that had never been updated since
+    `23-policy` activated that link with zero additive change at its own Session 10 authoring.
+  - `13-audit`: added `AuditUniverseEntry.related_vendor_ref_id`,
+    `related_critical_service_ref_id`; added `GET /findings/{id}/reference` and
+    `GET /engagements/{id}/reference` (this module had never exposed a point-citation endpoint
+    of its own, having been designed from its own authoring as a pure Conformist consumer);
+    added `POST /findings/{id}/follow-up-actions/{faId}/capa-request`, keyed to the parent
+    Finding per `INCIDENT`'s own `source_entity_type` enumeration (not the individual
+    FollowUpAction row — corrected from an inconsistent first draft, see below); manifest
+    `dependencies:` grew from `[RISK, CONTROLS, COMPLIANCE, SECURITY]` to add `INCIDENT, TPR,
+    BCP`.
+  - `09-security`: added `SecurityFinding.linked_vendor_id`; added
+    `POST /findings/{id}/capa-request`; manifest `dependencies:` grew from `[]` to
+    `[INCIDENT]` only — **deliberately not `[..., TPR]`**, see the cycle-avoidance finding
+    below. Corrected a stale "Integration with Future Policy Management" section that still
+    described `GET /policy-domains` as inert despite it having been live since Session 6;
+    renamed that section and "Integration with Future Incident/CAPA" to drop "Future."
+  - `23-policy`: `PolicyException.capa_ref_id` plus its initiating endpoint added; a matching
+    "Technology & Operational Resilience" `PolicyCategory` seeded; corrected
+    `module_policy_reference_link`'s `source_module_code`/`source_entity_type` enum
+    documentation, which still listed only `CONTROLS, COMPLIANCE` despite `TPR` and `BCP`
+    having already activated the same table with zero additive change at their own Session
+    12/13 authoring; manifest `dependencies:` grew from `[SECURITY]` to `[SECURITY, INCIDENT]`.
+    This module had no prior Amendment Log section — one was added.
+  - `24-incident-issue-capa`: added `Incident.vendor_ref_id`; added
+    `GET /incidents/{id}/reference` — the first reference-resolution endpoint proposed in this
+    repository for a *genuinely missing* endpoint rather than a missing column on an existing
+    one (first surfaced by `26-business-continuity` at Session 13); corrected all five
+    "Integration with Controls/Compliance/Audit/Security/Policy" sections from "proposed, not
+    applied" to "activated." Manifest `dependencies:` confirmed unchanged at `[]` — this module
+    remains a pure provider toward every one of its nine customers, `TPR` included (see below).
+- **Applied all five `04-domain-model` status-label amendments together**, the same
+  consolidated-application discipline Session 7 used for `09-security`'s three proposals:
+  `POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`, and
+  `REPORTING` all relabeled "(reserved)" → "(authored)" across Strategic Classification, both
+  mermaid diagrams (adding roughly thirty new edges for integrations activated since each
+  context's own authoring, converting every remaining dashed edge to solid), all five
+  contexts' own subsections (rewritten to the full-definition "(authored)" framing
+  `COMPLIANCE`/`AUDIT`/`SECURITY` already established), the Canonical Business Glossary
+  (removed every `*(reserved)*` marker; added `Issue`, `Critical Business Service`, `Report
+  Definition`, `Report Instance`, `Dashboard Definition`), the Cross-Context APIs table,
+  Ownership Responsibilities (resolving `REPORTING`'s own tenant-vs-platform-level question),
+  Dependency Rules (Rules 1, 4, 5, 7 updated for newly-declared outward dependencies; a new
+  Rule 8 added), and Future Enhancements (resolving the Incident/Issue/CAPA naming question,
+  the `REPORTING` platform-level question, and the Third-Party Risk/`RiskCategory` question, per
+  each context's own already-authored spec). Every one of the ten bounded contexts
+  `04-domain-model`'s own map names is now labeled "(authored)," and every edge in its Bounded
+  Context Map is solid.
+- **Discovered and corrected a genuine cycle risk before it was ever recorded as fact
+  anywhere** — the one place this session's own validation step ("confirm it does not conflict
+  with a later specification... apply it only if it remains architecturally correct") changed
+  what got applied, not merely whether: `SecurityFinding.linked_vendor_id` and
+  `Incident.vendor_ref_id` were each first drafted with a reciprocal manifest dependency
+  (`SECURITY → TPR`, `INCIDENT → TPR`) that would have violated OWN-08's acyclic requirement,
+  since `TPR` already declares a dependency on both `SECURITY` (for `GET /policy-domains` tag
+  resolution) and `INCIDENT` (for `POST /capa-requests`) from its own Session 12 authoring.
+  Resolved by leaving both references opaque and unresolved by their owning module — consistent
+  with the Common Domain Patterns' own "a reference does not require a dependency edge"
+  principle — with resolution instead available on demand to a third module with no
+  conflicting edge (`14-reporting`, which already depends on both `SECURITY`/`TPR` and
+  `INCIDENT`/`TPR`). Recorded as `04-domain-model`'s own new Dependency Rule 8, and reflected
+  in `09-security/01-*`'s and `24-incident-issue-capa/01-*`'s own Amendment logs.
+- **Updated the four proposing specs and `14-reporting`** to reflect their own now-activated
+  integrations: `25-third-party-risk/01-*` and `26-business-continuity/01-*` each gained an
+  Amendment log entry (neither had one before) updating every "proposed, not applied" mention
+  across their own Assumptions, Integration sections, Future Extension Points, and Traceability
+  blocks to "activated," including the corrected (not merely relabeled) `linked_vendor_id`/
+  `vendor_ref_id` resolution reasoning; `23-policy` and `24-incident-issue-capa` similarly
+  updated (Amendment log entries appended in this same session's own work above);
+  `14-reporting/01-reporting-management.md` updated its own Assumptions 11–13, both affected
+  Integration sections, and Future Extension Points from "proposed, not applied" to "activated,"
+  and gained its own first Amendment Log entry.
+- Performed a repository-wide consistency review covering cross-module integrations (every
+  capa-request/reference-resolution pair re-checked against both sides' own text), entity
+  ownership (unchanged everywhere — confirmed, not merely assumed), REST endpoint conventions
+  (plural kebab-case nouns, `MODULECODE_ACTION` permission naming — found and corrected one
+  mismatch, `12-controls`' `capa-request` endpoint documented under two different permission
+  names in two places), workflow consistency (governed vs. ungoverned classification unchanged
+  everywhere), naming conventions, reference integrity (every new internal anchor link in
+  `04-domain-model` verified against GitHub's own heading-to-anchor algorithm), traceability
+  completeness (every one of the nineteen changes and five amendments now has a corresponding
+  Amendment Log entry in its target document), and regulatory mappings (unchanged — no new
+  regulatory citation was introduced or altered by any additive change this session).
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  — closed all nineteen additive-change gap rows and all five status-label-amendment gap rows
+  in the Requirement↔Spec Matrix; updated the Capability↔PRSMTD Matrix rows for `POLICY`,
+  `INCIDENT`, `TPR`, `BCP`, and `REPORTING` from "proposed, not applied" framing to "activated";
+  added a Session 15 Status paragraph recording the cycle-avoidance finding. Only the sections
+  this session's changes affect were updated; all prior sessions' own analysis is preserved
+  unchanged.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary (Implementation readiness, Architecture maturity, Recommended next module
+  rows), Gap Assessment (closed every gap row tied to the nineteen changes/five amendments; the
+  two genuine PRSMTD capability gaps `14-reporting` named — scheduled-job/batch-execution,
+  generic export-rendering — correctly remain open, being platform capabilities, not additive
+  spec changes), Roadmap Validation (flipped every corresponding row from "No" to "Yes"),
+  Repository Maturity, and Percentage Completion. **Specification Completion reaches its
+  ceiling: 10/10 = 100%.** **Platform Capability Completion is unchanged** (7/12/8 out of 27) —
+  this session applied cross-references within already-"Specified but Pending" modules; it
+  specified no new capability, so this distinct, implementation-facing metric does not move.
+- Updated this file (this entry; Assumptions 43–47 marked resolved and new Assumptions 48–49
+  added below; Risks rows for the nineteen-changes/five-amendments backlog marked resolved;
+  Open Decisions updated; Next Milestone refreshed).
 
 ## Next Milestone
 
@@ -2909,6 +3065,30 @@ Carried forward from both authored specs — re-verify if stale:
     surface, if ever required, is named as a distinct future concern akin to `18-deployment`,
     not this module. Proposed, not applied, as a `04-domain-model` closing note alongside that
     document's own status-label amendment (Assumption 46).
+48. **Resolved (Session 15)**: Assumptions 33, 35, 37, 40, and 46's combined backlog — nineteen
+    additive changes across `10-risk`, `12-controls`, `11-compliance`, `13-audit`,
+    `09-security`, `23-policy`, `24-incident-issue-capa`, plus five `04-domain-model`
+    status-label amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`, `BUSINESS CONTINUITY`,
+    `REPORTING`) — are all applied. See the Session 15 entry under Completed Work for the full
+    per-document breakdown and each target document's own Amendment log. No longer open items;
+    this repository carries no proposed-not-applied additive change or reserved status label as
+    of this session.
+49. **New (Session 15)**: two of the nineteen additive changes — `SecurityFinding.
+    linked_vendor_id` and `Incident.vendor_ref_id` — were found, during this session's own
+    "confirm it does not conflict with a later specification" validation step, to require a
+    correction before being applied, not a straight application as originally drafted: each had
+    been proposed with an implied resolution direction (`SECURITY`/`INCIDENT` calling `TPR`'s
+    own reference endpoint) that would have paired with an already-existing reciprocal manifest
+    dependency (`TPR → SECURITY`, `TPR → INCIDENT`, both live since `TPR`'s own Session 12
+    authoring), violating OWN-08's acyclic dependency requirement. Resolved by applying the
+    column addition but declining the dependency edge, leaving both references opaque and
+    resolved on demand by a third module instead (`14-reporting`) — recorded as
+    `04-domain-model`'s own new Dependency Rule 8. This is the first time in this repository's
+    history that validating a proposed additive change against the current state of the
+    repository (rather than against the state at the time it was proposed) changed *how* a
+    change was applied, not merely *whether* — worth naming as a standing precedent: a future
+    session applying a backlog of proposed changes must re-derive each one's dependency
+    consequences against the *current* dependency graph, not merely replay what was proposed.
 
 ## Risks
 
@@ -2927,12 +3107,13 @@ Carried forward from both authored specs — re-verify if stale:
 | A domain-model-level document (`04-domain-model`) can silently drift out of sync with later-authored module specs it names, if nothing prompts a revisit — this is what actually happened to `COMPLIANCE`/`AUDIT`'s status labels between Sessions 4–5 and Session 7 | A future module's own authoring could cite a stale cross-reference (a "(reserved)" label, a dashed edge, a broken anchor) from `04-domain-model` as if it were still accurate, compounding the drift | Assumption 25 (Session 7) names this explicitly as a precedent: treat "does this session's new module require `04-domain-model` to be revisited?" as a standing checklist item for every future module-authoring session, not just when a gap is separately reported |
 | **New (Session 8)**: the Master Execution Plan is a 29-phase plan authored in one session without executing any phase — every "recommended resolution," complexity estimate, and dependency claim in it is a planning judgment, not a verified fact the way a frozen spec's own content is | A future session could treat the plan's estimates or recommended resolutions as settled decisions rather than proposals awaiting the same explicit confirmation this repository requires for every other proposed-not-applied change | Treat every "recommended" / "proposed" phrasing in the Master Execution Plan as exactly that — get explicit user confirmation before executing Phase 1's structure decision or any phase whose scope depends on it, the same discipline already applied to every additive-change proposal in Sessions 2–7 |
 | **New (Session 8)**: this file has grown to carry both the session-by-session progress log (Sessions 1–7 and onward) and the full Master Execution Plan in one document, now over 2,000 lines | A single very large file is harder to navigate and more prone to merge friction than smaller, focused documents | Not addressed this session (out of scope — the session's instruction was explicitly to consolidate into this one file); revisit if the file's size becomes an actual editing obstacle in a future session, at which point splitting the Master Execution Plan into its own file under `19-roadmap/` (with this file linking to it) is the natural mitigation |
-| **New (Session 10)**: two additive changes `23-policy/01-*` proposed (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) remain unapplied | Until applied, `12-controls` cannot actually resolve a Control's citation of a governing Policy, and `04-domain-model`'s own map understates the repository's true authored-context count (5/10 vs. the true 6/10 once `POLICY` is folded in) | Apply both in a future explicitly-approved session, the same low-effort, precisely-scoped treatment the `11-compliance`→`12-controls` obligation-link proposal and `09-security`'s three proposals already received; see Assumption 33 |
-| **New (Session 11)**: five additive changes `24-incident-issue-capa/01-*` proposed (`capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model`'s `INCIDENT` status-label amendment) remain unapplied | Until applied, none of the five citing modules can actually populate a `capa_ref_id` end-to-end, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 7/10 once both `POLICY` and `INCIDENT` are folded in) | Apply alongside `23-policy/01-*`'s own two still-unapplied proposals in one future explicitly-approved consolidation session, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 35 |
-| **New (Session 12)**: six additive changes `25-third-party-risk/01-*` proposed (`Risk.source = THIRD_PARTY` on `10-risk`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint on `12-controls`; an obligation mirror-registration extension on `11-compliance`; `SecurityFinding.linked_vendor_id` on `09-security`; `AuditUniverseEntry.related_vendor_ref_id` on `13-audit`; `Incident.vendor_ref_id` on `24-incident-issue-capa`) remain unapplied, plus a third open `04-domain-model` status-label amendment (`THIRD-PARTY RISK`) | Until applied, `TPR` cannot seed a Risk register entry, a Control, or a Security Finding end-to-end via a structured reference, `AUDIT`'s `VENDOR`-type universe entries and `INCIDENT`'s "Third-Party / Vendor" category cannot resolve to a real Vendor record, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 8/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK` are all folded in) | Apply alongside `23-policy/01-*`'s and `24-incident-issue-capa/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all eleven additive changes and three status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 37 |
-| **New (Session 13)**: six additive changes `26-business-continuity/01-*` proposed (`Risk.source = BUSINESS_CONTINUITY` on `10-risk`; `Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint on `12-controls`; a new "Technology & Operational Resilience" `ObligationCategory` on `11-compliance` and matching `PolicyCategory` on `23-policy`; `AuditUniverseEntry.related_critical_service_ref_id` on `13-audit`; a `GET /incidents/{id}/reference` endpoint on `24-incident-issue-capa`) remain unapplied, plus a fourth open `04-domain-model` status-label amendment (`BUSINESS CONTINUITY`) | Until applied, `BCP` cannot seed a Risk register entry or a Control end-to-end via a structured reference, its Continuity Plan cannot cite a Compliance obligation or Policy category built specifically for the DR/BCP mandate, `AUDIT`'s `PROCESS`-type universe entries cannot resolve to a real Critical Business Service, `INCIDENT`'s own records remain unresolvable through a dedicated reference endpoint, and `04-domain-model`'s own map understates the repository's true authored-context count further (5/10 vs. the true 9/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK`/`BUSINESS CONTINUITY` are all folded in) | Apply alongside `23-policy/01-*`'s, `24-incident-issue-capa/01-*`'s, and `25-third-party-risk/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all seventeen additive changes and four status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 40 |
-| **New (Session 14)**: three additive changes `14-reporting/01-*` proposed (`GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`) remain unapplied, plus a fifth and final open `04-domain-model` status-label amendment (`REPORTING`) | Until applied, `REPORTING` cannot resolve a point citation into `RISK` or `AUDIT` through a dedicated reference endpoint (an interim full-detail-GET resolution path remains available), and `04-domain-model`'s own map understates the repository's true authored-context count at its ceiling (5/10 vs. the true 10/10 once `POLICY`/`INCIDENT`/`THIRD-PARTY RISK`/`BUSINESS CONTINUITY`/`REPORTING` are all folded in — every business-domain context this document's map names) | Apply alongside `23-policy/01-*`'s, `24-incident-issue-capa/01-*`'s, `25-third-party-risk/01-*`'s, and `26-business-continuity/01-*`'s own still-unapplied proposals in one future explicitly-approved consolidation session covering all nineteen additive changes and five status-label amendments at once, mirroring how Session 7 applied all three of `09-security`'s proposals together; see Assumption 46 |
+| **Resolved (Session 15)**: two additive changes `23-policy/01-*` proposed (`12-controls`' policy-link endpoint; `04-domain-model`'s `POLICY` status-label amendment) | N/A — applied this session | Closed; see Assumption 48 and each target document's own Amendment log. |
+| **Resolved (Session 15)**: five additive changes `24-incident-issue-capa/01-*` proposed (`capa_ref_id` on `12-controls`/`11-compliance`/`23-policy`; initiating endpoints on `13-audit`/`09-security`; `04-domain-model`'s `INCIDENT` status-label amendment) | N/A — applied this session | Closed; see Assumption 48 and each target document's own Amendment log. |
+| **Resolved (Session 15)**: six additive changes `25-third-party-risk/01-*` proposed (`Risk.source = THIRD_PARTY` on `10-risk`; `Control.source = THIRD_PARTY_RISK` plus a vendor-link endpoint on `12-controls`; an obligation mirror-registration generalization on `11-compliance`; `SecurityFinding.linked_vendor_id` on `09-security`; `AuditUniverseEntry.related_vendor_ref_id` on `13-audit`; `Incident.vendor_ref_id` on `24-incident-issue-capa`), plus the `04-domain-model` `THIRD-PARTY RISK` status-label amendment | N/A — applied this session; the two vendor-reference columns were applied without the reciprocal manifest dependency their proposals had implied (see Assumption 49) | Closed; see Assumption 48 and each target document's own Amendment log. |
+| **Resolved (Session 15)**: six additive changes `26-business-continuity/01-*` proposed (`Risk.source = BUSINESS_CONTINUITY` on `10-risk`; `Control.source = BUSINESS_CONTINUITY` plus a continuity-link endpoint on `12-controls`; a new "Technology & Operational Resilience" `ObligationCategory` on `11-compliance` and matching `PolicyCategory` on `23-policy`; `AuditUniverseEntry.related_critical_service_ref_id` on `13-audit`; a `GET /incidents/{id}/reference` endpoint on `24-incident-issue-capa`), plus the `04-domain-model` `BUSINESS CONTINUITY` status-label amendment | N/A — applied this session | Closed; see Assumption 48 and each target document's own Amendment log. |
+| **Resolved (Session 15)**: three additive changes `14-reporting/01-*` proposed (`GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`), plus the fifth and final `04-domain-model` status-label amendment (`REPORTING`) | N/A — applied this session; `04-domain-model`'s map now labels all ten bounded contexts "(authored)," reaching Specification Completion's ceiling (10/10 = 100%, see `22-traceability/02-*`) | Closed; see Assumption 48 and each target document's own Amendment log. |
 | **New (Session 14)**: two genuinely new PRSMTD capability gaps named by `14-reporting/01-*` (scheduled-job/batch-execution mechanism; generic PDF/CSV export-rendering pipeline) | Neither blocks `REPORTING`'s own MVP scope, but a genuinely scheduled (not merely due-date-tracked) report generation capability, and an actual rendered export artifact, both remain unbuilt platform capabilities | Track explicitly (Assumption 45); revisit if a concrete tenant requirement or regulatory deadline makes either concrete, the same treatment SIEM/ABAC already received |
+| **New (Session 15)**: applying a backlog of proposed additive changes by replaying each proposal's own originally-drafted shape, without re-deriving its consequences against the *current* dependency graph, can silently introduce a cycle a single-proposal-at-a-time review would never have caught — two of nineteen changes this session applied (`SecurityFinding.linked_vendor_id`, `Incident.vendor_ref_id`) would have done exactly this had they been applied as first drafted | A future consolidation session applying several proposals together could introduce an undetected OWN-08 violation, especially where two proposals from different sessions each add a dependency edge between the same pair of contexts in opposite directions | Established as a standing precedent (Assumption 49): validate each proposed change against the dependency graph as it exists *at application time*, not merely against what was true when the change was proposed; prefer leaving a reference opaque and unresolved by its owning module over accepting a cycle, resolving it instead via a third module with no conflicting edge |
 
 ## Open Decisions
 
@@ -3060,37 +3241,39 @@ Carried forward from both authored specs — re-verify if stale:
   instruction this session. No longer open as a "which module next" question for the
   business-domain module set; `15-analytics` (KPI/metric catalog, dashboard visualization
   composition) remains open below.
-- **New (Session 14), open**: **applying the now nineteen proposed additive changes across
+- **Resolved (Session 15)**: **applying the nineteen proposed additive changes across
   `23-policy/01-*`, `24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`,
-  `26-business-continuity/01-*`, and `14-reporting/01-*`** (the seventeen already carried from
-  Sessions 10–13, plus `GET /risks/{id}/reference` on `10-risk` and
-  `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`) and **five**
-  `04-domain-model` status-label amendments (`POLICY`, `INCIDENT`, `THIRD-PARTY RISK`,
-  `BUSINESS CONTINUITY`, `REPORTING`) — tracked as Assumption 46 and a Risks row above; not yet
-  scheduled as its own Master Execution Plan phase. This is now the full, final backlog of this
-  kind, since `REPORTING` is the last bounded context the plan names — recommend one future
-  consolidation session applying all of them together, the same low-effort pattern Session 7
-  already used for `09-security`'s three proposals at once.
-- **New (Session 14), open**: **when to author `15-analytics`** (KPI/metric catalog, dashboard
-  visualization composition) — explicitly deferred by `14-reporting/01-*` Assumption 16, not
-  yet its own scheduled Master Execution Plan phase distinct from Phase 11's original
+  `26-business-continuity/01-*`, and `14-reporting/01-*`, plus all five `04-domain-model`
+  status-label amendments** — all applied in the Additive Change Consolidation phase, per
+  explicit instruction. See Assumptions 48–49, the Risks rows above, the Session 15 entry under
+  Completed Work, and each target document's own Amendment log. No longer open — this was the
+  full, final backlog of this kind; no proposed-not-applied additive change remains anywhere in
+  this repository.
+- **New (Session 14), still open**: **when to author `15-analytics`** (KPI/metric catalog,
+  dashboard visualization composition) — explicitly deferred by `14-reporting/01-*` Assumption
+  16, not yet its own scheduled Master Execution Plan phase distinct from Phase 11's original
   two-document framing. `14-reporting/01-*`'s own `ReportDefinition`/`DashboardDefinition` shape
   and the reserved, inert `DashboardWidget.widget_type = METRIC_REFERENCE` slot are ready to
   build on whenever this is scheduled.
-- **Order of next work** — with Phases 6 (`POLICY`), 7 (`INCIDENT`/`ISSUE`/`CAPA`), 8
-  (`THIRD-PARTY RISK`), 9 (`BUSINESS CONTINUITY`), and 11 (`REPORTING`) now complete, every
-  reserved business-domain bounded context in `04-domain-model`'s map is authored. The choice is
-  between applying the now nineteen proposed additive changes plus five status-label amendments
-  above in one consolidation session, the still-open persona-to-module-role/`system.md §18` ADR
-  consolidation (Phase 5), a future `15-analytics` phase, or Phase 12 (`16-ai` AI Governance,
-  which per its own entry builds on Phase 11's metric catalog — though `15-analytics`, not
-  `14-reporting`, is the actual metric-catalog document `16-ai` anticipated, so Phase 12 may
-  itself now depend on `15-analytics` rather than `14-reporting` alone; flagged for the session
-  that picks up Phase 12 to confirm, not resolved here).
-  **Current recommendation**: the additive-change consolidation first (lowest effort, no new
-  bounded context required, closes nineteen open gap rows plus five status-label amendments
-  across two traceability documents at once — the full, final such backlog), then either Phase 5
-  or a future `15-analytics` phase, open for reconsideration.
+- **Order of next work** — with the additive-change consolidation now complete (Session 15),
+  every reserved business-domain bounded context in `04-domain-model`'s map is both authored
+  and labeled "(authored)," and no proposed-not-applied change remains anywhere in this
+  repository. The choice is between the still-open persona-to-module-role/`system.md §18` ADR
+  consolidation (Phase 5), a future `15-analytics` phase (KPI/metric catalog, dashboard
+  visualization — the natural next step for the "REPORTING & ANALYTICS" vision `14-reporting`
+  only half-completed), Phase 12 (`16-ai` AI Governance, which per its own entry builds on a
+  metric catalog — likely `15-analytics` rather than `14-reporting` alone, so probably sequenced
+  after it), Phase 13 (`17-integrations`) or Phase 14 (`18-deployment`), the Tier 0 foundational
+  backlog (Phases 2–4: Vision, Business Architecture, Enterprise Architecture specifications,
+  never yet started), or beginning the Tier 4 cross-module consolidation (Phases 19–21: Data
+  Model, Workflow & Event Catalog, and REST API Catalog indexes, all of which now have every
+  business-domain module they depend on fully authored and internally consistent).
+  **Current recommendation**: `15-analytics` next (lowest effort relative to value — it
+  completes the "REPORTING & ANALYTICS" reserved node this document's own map has carried since
+  Session 3, and gives `16-ai` a real metric catalog to build on), then either Phase 5 (ADR
+  backfill, low effort, no new content) or the Tier 4 cross-module consolidation (Phases 19–21,
+  now unblocked since every phase they depend on — 6 through 11 — is complete), open for
+  reconsideration.
 
 ## Traceability
 

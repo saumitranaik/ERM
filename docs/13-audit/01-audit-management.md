@@ -258,8 +258,14 @@ for consistency with the established repository pattern:
   (OWN-07).
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see [Authorization Model](#authorization-model).
-- `dependencies: [RISK, CONTROLS, COMPLIANCE, SECURITY]` (`SECURITY` added Session 7, per
-  [Integration with Security](#integration-with-security)). Unlike every prior module — each of
+- **`dependencies: [RISK, CONTROLS, COMPLIANCE, SECURITY, INCIDENT, TPR, BCP]`** (`SECURITY`
+  added Session 7, per [Integration with Security](#integration-with-security); `INCIDENT`,
+  `TPR`, `BCP` added Session 15 — Additive Change Consolidation, for `FollowUpAction`'s new
+  CAPA-initiating call and the two new `AuditUniverseEntry` reference-resolution reads, see
+  [Integration with Future CAPA](#integration-with-future-capa), [Integration with Third-Party
+  Risk Management](#integration-with-third-party-risk-management), and [Integration with
+  Business Continuity Management](#integration-with-business-continuity-management)). Unlike
+  every prior module — each of
   which shipped with `dependencies: []` and had a *downstream* module's manifest gain the edge
   later — `AUDIT` is `04-domain-model`'s designated Conformist sink: it is the first module in
   this repository whose own manifest declares dependencies on other ERM contexts at
@@ -468,7 +474,7 @@ written against it.
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `module_audit_universe_entry` | `entry_code`, `entry_type`, `name`, `description`, `owner_user_id`, `risk_rating`, `related_risk_ref_id` (opaque uuid, nullable, no FK), `audit_cycle_months`, `last_audit_date`, `next_due_date`, `status`, `updated_at` | `entry_type ∈ PROCESS, SCHEME, IT_SYSTEM, VENDOR, DEPARTMENT_FUNCTION`. `risk_rating ∈ LOW, MEDIUM, HIGH, CRITICAL`, set by the Chief Internal Auditor (Assumption 11). `status ∈ ACTIVE, RETIRED`. Not `pending_action`-governed (see [Audit Universe](#audit-universe)). |
+| `module_audit_universe_entry` | `entry_code`, `entry_type`, `name`, `description`, `owner_user_id`, `risk_rating`, `related_risk_ref_id` (opaque uuid, nullable, no FK), `related_vendor_ref_id` (opaque uuid, nullable, no FK), `related_critical_service_ref_id` (opaque uuid, nullable, no FK), `audit_cycle_months`, `last_audit_date`, `next_due_date`, `status`, `updated_at` | `entry_type ∈ PROCESS, SCHEME, IT_SYSTEM, VENDOR, DEPARTMENT_FUNCTION`. `risk_rating ∈ LOW, MEDIUM, HIGH, CRITICAL`, set by the Chief Internal Auditor (Assumption 11). `status ∈ ACTIVE, RETIRED`. Not `pending_action`-governed (see [Audit Universe](#audit-universe)). `related_vendor_ref_id` — **added Session 15**, opaque, no FK, resolved via `25-third-party-risk`'s existing `GET /vendors/{id}/reference`, populated when `entry_type = VENDOR` — see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management). `related_critical_service_ref_id` — **added Session 15**, opaque, no FK, resolved via `26-business-continuity`'s existing `GET /critical-services/{id}/reference`, populated when `entry_type = PROCESS` and the process is BCM-tracked — see [Integration with Business Continuity Management](#integration-with-business-continuity-management). |
 | `module_audit_plan` | `plan_code`, `plan_year`, `period_start`, `period_end`, `basis`, `status`, `approved_by`, `approved_at`, `updated_at` | The aggregate root. `basis` is a narrative field describing the risk-based methodology used to prioritize universe entries. `status ∈ DRAFT, SUBMITTED, APPROVED, REJECTED, ACTIVE, CLOSED`. |
 | `module_audit_plan_entry` | `plan_id` (FK), `universe_entry_id` (FK), `engagement_type`, `scheduled_period`, `rationale` | `engagement_type ∈ INTERNAL_AUDIT, SYSTEM_AUDIT, CONCURRENT_AUDIT, THEMATIC_REVIEW, SPECIAL_INVESTIGATION` (same enum `AuditEngagement.engagement_type` uses). |
 | `module_audit_engagement` | `engagement_code`, `engagement_type`, `universe_entry_id` (FK, nullable), `plan_entry_id` (FK, nullable), `title`, `scope_description`, `lead_auditor_user_id`, `auditor_type`, `auditor_qualification` (nullable), `period_start`, `period_end`, `status`, `overall_conclusion` (nullable), `non_compliance_rate` (numeric, nullable), `rectification_index` (numeric, nullable), `report_submitted_to_board_date` (nullable), `report_submitted_to_sebi_date` (nullable), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | The aggregate root. `auditor_type ∈ INTERNAL, EXTERNAL_INDEPENDENT`. `status ∈ DRAFT, PLANNING, FIELDWORK, REPORTING, UNDER_REVIEW, FINALIZED, FOLLOW_UP, CLOSED`. `universe_entry_id`/`plan_entry_id` both nullable (Assumption 10 — ad-hoc engagements permitted). |
@@ -903,17 +909,51 @@ cross-module activation in this repository uses. **No change was made to
 
 ## Integration with Future CAPA
 
-Per `04-domain-model`, the future `INCIDENT`/`ISSUE`/`CAPA` context is Customer-Supplier with
-`RISK` and `CONTROLS` as customers; this module adds `AUDIT` as a third eventual customer of
-structured CAPA, mirroring exactly how `10-risk`'s treatment-plan remediation and
-`12-controls`'/`11-compliance`'s exception remediation free-text fields are each expected to
-migrate toward referencing a real CAPA record:
+Per `04-domain-model`, the `INCIDENT`/`ISSUE`/`CAPA` context is Customer-Supplier with `RISK`
+and `CONTROLS` as customers; `AUDIT` is a third customer of structured CAPA, mirroring exactly
+how `12-controls`'/`11-compliance`'s exception remediation now reference a real CAPA record:
 
-- `FollowUpAction.capa_ref_id` (opaque, no FK) is reserved now, inert until a CAPA module
-  ships — identical shape to every prior module's own reserved forward-reference.
-- When CAPA ships, this module's own manifest gains `dependencies: [CAPA-module-code]` — a
-  future, additive change to *this* spec's own architecture declaration, not a retroactive
-  edit to a frozen document, since this spec is being authored now.
+- `FollowUpAction.capa_ref_id` (opaque, no FK) was reserved from this module's own original
+  authoring.
+- **Activated (Session 15)**: `POST /findings/{id}/follow-up-actions/{faId}/capa-request`
+  (guarded by `AUDIT_FOLLOW_UP_MANAGE`) calls `INCIDENT`'s existing `POST /capa-requests
+  {source_module_code: 'AUDIT', source_entity_type: 'FINDING', source_entity_ref_id:
+  findingId}` (server-to-server, OWN-09) — keyed to the parent Finding, not the individual
+  FollowUpAction row, per `module_issue_source_link.source_entity_type`'s own enumeration
+  (`CONTROL_EXCEPTION, COMPLIANCE_EXCEPTION, FINDING, SECURITY_FINDING, POLICY_EXCEPTION` —
+  it has no `FOLLOW_UP_ACTION` value) — storing the returned `capa_ref_id` on the specific
+  `module_audit_follow_up_action` row that requested it (ungoverned per-FollowUpAction
+  tracking stays local to `AUDIT`, mirroring how `INCIDENT`'s own `CAPAActionItem` is similarly
+  local and ungoverned). No change required on `INCIDENT`'s side — `POST /capa-requests` was
+  built generically from its own original authoring, exactly as `24-incident-issue-capa/01-*`'s
+  own "Integration with Audit" section proposed this shape.
+- **Manifest consequence**: this module's manifest gains `dependencies: [INCIDENT]` (see
+  [Architecture](#architecture)). `INCIDENT`'s own manifest carries no reciprocal dependency —
+  pure-provider side, consistent with every other module's activation of this same endpoint.
+
+## Integration with Third-Party Risk Management
+
+**Added Session 15**, per `25-third-party-risk/01-*`'s own proposed, not-yet-applied
+extension, activating this module's already-live `entry_type = VENDOR` value with a real link:
+
+- `AuditUniverseEntry.related_vendor_ref_id` (opaque, no FK) resolves via `TPR`'s existing
+  `GET /api/v1/modules/tpr/vendors/{id}/reference`, guarded by `TPR_VIEW`, confirmed
+  caller-agnostic by that spec's own design.
+- **Manifest consequence**: this module's manifest gains `dependencies: [TPR]` (see
+  [Architecture](#architecture)). `TPR`'s own manifest carries no reciprocal dependency —
+  pure-provider side.
+
+## Integration with Business Continuity Management
+
+**Added Session 15**, per `26-business-continuity/01-*`'s own proposed, not-yet-applied
+extension, activating this module's already-live `entry_type = PROCESS` value (that document's
+own worked example cites "NAV Computation" as a `PROCESS`-type entry) with a real link:
+
+- `AuditUniverseEntry.related_critical_service_ref_id` (opaque, no FK) resolves via `BCP`'s
+  existing `GET /api/v1/modules/bcp/critical-services/{id}/reference`, guarded by `BCP_VIEW`.
+- **Manifest consequence**: this module's manifest gains `dependencies: [BCP]` (see
+  [Architecture](#architecture)). `BCP`'s own manifest carries no reciprocal dependency —
+  pure-provider side.
 
 ## Integration with Future Regulatory Reporting
 
@@ -943,6 +983,7 @@ module.
 | GET | `/engagements` | `AUDIT_VIEW` | List/filter engagements (role-scoped per FR-14) |
 | POST | `/engagements` | `AUDIT_ENGAGEMENT_MANAGE` | Create an engagement (from a plan entry or ad hoc) |
 | GET | `/engagements/{id}` | `AUDIT_VIEW` | Engagement detail |
+| GET | `/engagements/{id}/reference` | `AUDIT_VIEW` | Minimal cross-module resolution DTO (`id`, `engagement_code`, `title`, `engagement_type`, `status`, `overall_conclusion`) — consumed by `14-reporting`; added Session 15 |
 | PUT | `/engagements/{id}` | `AUDIT_ENGAGEMENT_MANAGE` | Edit engagement / advance stage (`PLANNING`→`FIELDWORK`→`REPORTING`) |
 | POST | `/engagements/{id}/working-papers` | `AUDIT_WORKING_PAPER_MANAGE` | Add a Working Paper |
 | PUT | `/working-papers/{id}` | `AUDIT_WORKING_PAPER_MANAGE` | Edit a `DRAFT` Working Paper, record review, finalize |
@@ -950,8 +991,10 @@ module.
 | POST | `/engagements/{id}/findings` | `AUDIT_FINDING_RAISE` | Raise a Finding (immediate) |
 | POST | `/findings/{id}/closure` | `AUDIT_FINDING_CLOSE` | Propose closure/risk-acceptance → creates `pending_action` |
 | GET | `/findings` | `AUDIT_VIEW` | List findings |
+| GET | `/findings/{id}/reference` | `AUDIT_VIEW` | Minimal cross-module resolution DTO (`id`, `finding_code`, `title`, `finding_type`, `severity`, `status`) — consumed by `14-reporting`; added Session 15 |
 | POST | `/findings/{id}/follow-up-actions` | `AUDIT_FOLLOW_UP_MANAGE` | Create a Follow-Up Action |
 | PUT | `/follow-up-actions/{id}` | `AUDIT_FOLLOW_UP_MANAGE` | Update status / record verification |
+| POST | `/findings/{id}/follow-up-actions/{faId}/capa-request` | `AUDIT_FOLLOW_UP_MANAGE` | Request a CAPA via `INCIDENT`'s `POST /capa-requests`, keyed to the parent Finding (see [Integration with Future CAPA](#integration-with-future-capa)); added Session 15 |
 | POST | `/working-papers/{id}/evidence` | `AUDIT_WORKING_PAPER_MANAGE` | Attach evidence to a Working Paper (any `evidence_source`) |
 | POST | `/findings/{id}/evidence` | `AUDIT_FINDING_RAISE` | Attach evidence to a Finding |
 | GET | `/engagements/{id}/evidence` | `AUDIT_VIEW` | Evidence list for an engagement (aggregated across working papers/findings) |
@@ -986,8 +1029,17 @@ prior module.
 - **Governed working-paper review**: not routed through `pending_action` at MVP (Assumption
   8) — candidate for the same repository-wide "governed configuration change" ADR already
   logged as an open decision in `docs/roadmap.md`.
-- **CAPA-structured remediation**: `FollowUpAction.capa_ref_id` reserved, inert until a CAPA
-  module ships (see [Integration with Future CAPA](#integration-with-future-capa)).
+- **Resolved (Session 15)**: `FollowUpAction.capa_ref_id`'s initiating endpoint is built (see
+  [Integration with Future CAPA](#integration-with-future-capa)) — no longer inert.
+- **Resolved (Session 15)**: `AuditUniverseEntry.related_vendor_ref_id` and
+  `related_critical_service_ref_id` are built, activating the already-live `entry_type =
+  VENDOR`/`PROCESS` values with real links (see [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management), [Integration with Business
+  Continuity Management](#integration-with-business-continuity-management)).
+- **Resolved (Session 15)**: `GET /findings/{id}/reference` and `GET /engagements/{id}/reference`
+  are built, per `14-reporting/01-reporting-management.md`'s own proposed, not-yet-applied
+  extension — this module was previously the only authored context exposing no point-citation
+  endpoint of its own.
 - **Finer-grained finding/evidence access permission**: if blanket `AUDIT_VIEW` access to raw
   findings and evidence proves too broad in practice, a dedicated `AUDIT_FINDING_VIEW`/
   `AUDIT_EVIDENCE_VIEW` permission is a natural, additive follow-on — mirrors the identical
@@ -1050,3 +1102,22 @@ prior module.
   `09-security/01-security-management.md` proposed in its own Integration with Audit section
   and `docs/roadmap.md`'s Next Milestone tracked as open. No entity, table, or workflow
   redesigned; no other change made to this document.
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Applied four additive changes
+  across three later specs, none of which required any redesign of this module's own domain or
+  data model: (1) added `AuditUniverseEntry.related_vendor_ref_id` (Data Model) and activated
+  it via `TPR`'s existing `GET /vendors/{id}/reference` (new [Integration with Third-Party Risk
+  Management](#integration-with-third-party-risk-management) section), per
+  `25-third-party-risk/01-*`; (2) added `AuditUniverseEntry.related_critical_service_ref_id`
+  (Data Model) and activated it via `BCP`'s existing `GET /critical-services/{id}/reference`
+  (new [Integration with Business Continuity Management](#integration-with-business-continuity-management)
+  section), per `26-business-continuity/01-*`; (3) added
+  `POST /findings/{id}/follow-up-actions/{faId}/capa-request` (APIs, [Integration with Future
+  CAPA](#integration-with-future-capa)), activating the already-reserved
+  `FollowUpAction.capa_ref_id` column via `INCIDENT`'s existing `POST /capa-requests`, per
+  `24-incident-issue-capa/01-*`; (4) added `GET /findings/{id}/reference` and
+  `GET /engagements/{id}/reference` (APIs), per `14-reporting/01-reporting-management.md`'s own
+  proposed extension — this module was the only authored context exposing no point-citation
+  endpoint of its own. Manifest `dependencies:` updated from `[RISK, CONTROLS, COMPLIANCE,
+  SECURITY]` to `[RISK, CONTROLS, COMPLIANCE, SECURITY, INCIDENT, TPR, BCP]` (Architecture) to
+  reflect these four genuine synchronous cross-module calls. No entity, table, or workflow
+  redesigned.

@@ -303,13 +303,22 @@ generic module framework exactly as every prior module does (system.md §9/§5a�
 - Module role types: `MAKER`, `CHECKER`, `VIEWER` only — the closed set (system.md §8).
   Domain personas map onto these three; see
   [Authorization Model (Security Module)](#authorization-model-security-module).
-- `dependencies: []` at MVP. Like `RISK`/`CONTROLS`/`COMPLIANCE` before their first
-  cross-module API calls were wired, `SECURITY` declares no hard dependency for its core
-  finding/asset/access-grant register; every reference toward `CONTROLS`/`COMPLIANCE`/`AUDIT`
-  is an opaque, non-FK link at MVP (per `04-domain-model`'s Dependency Rule 6 — a hard edge is
-  declared only when a synchronous API call is genuinely required). A `dependencies:
-  [CONTROLS, COMPLIANCE, AUDIT]` declaration becomes appropriate once this module's
-  reference-resolution reads against those three are wired at implementation time.
+- **`dependencies: [INCIDENT]`** (updated Session 15 — Additive Change Consolidation; was
+  `dependencies: []` at MVP). `SECURITY` declares no hard dependency for its core
+  finding/asset/access-grant register toward `CONTROLS`/`COMPLIANCE`/`AUDIT` — every reference
+  in that direction is an opaque, non-FK link resolved lazily, no dependency edge required at
+  MVP (per `04-domain-model`'s Dependency Rule 6 — a hard edge is declared only when a
+  synchronous API call is genuinely required). `INCIDENT` is the one genuinely new synchronous
+  call this module itself makes outward, for the new `POST /findings/{id}/capa-request` call
+  (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)) — `INCIDENT`
+  declares no reciprocal dependency back. **`SecurityFinding.linked_vendor_id` deliberately does
+  not add a `TPR` dependency here**: `TPR` already declares `dependencies: [..., SECURITY, ...]`
+  for its own `GET /policy-domains` tag resolution (Assumption/Architecture of
+  `25-third-party-risk/01-*`) — a reciprocal `SECURITY → TPR` edge would create the exact cycle
+  `04-domain-model` Dependency Rule 6 forbids. `linked_vendor_id` is therefore left as a plain
+  opaque reference this module records but does not itself resolve for display; a module with
+  no dependency conflict in either direction (e.g. `14-reporting`, which already depends on both)
+  resolves it on demand via `TPR`'s existing `GET /vendors/{id}/reference` instead.
 - No platform-plane tables, no platform-plane governance actions — every governed action is
   tenant-plane (`app.plane = 'tenant'`). This module's own tables are entirely distinct from,
   and do not duplicate, PRSMTD's platform-plane `encryption_keys`/`encryption_key_versions`
@@ -738,7 +747,7 @@ document duplicates it.
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `module_security_finding` | `finding_code`, `title`, `description`, `finding_type`, `source`, `severity`, `cvss_score` (nullable numeric), `related_control_id` (opaque uuid, nullable, no FK), `related_universe_entry_id` (opaque uuid, nullable, no FK), `related_baseline_id` (FK, nullable), `identified_date`, `identified_by`, `status`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `linked_control_exception_id` (opaque uuid, nullable, no FK), `linked_compliance_exception_id` (opaque uuid, nullable, no FK), `linked_audit_finding_id` (opaque uuid, nullable, no FK), `capa_ref_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | The primary aggregate root. `finding_type ∈ VULNERABILITY, MISCONFIGURATION, POLICY_VIOLATION, ACCESS_ANOMALY, THIRD_PARTY_RISK, OTHER`. `source ∈ SAST, DAST, DEPENDENCY_SCAN, CONTAINER_SCAN, PENETRATION_TEST, MANUAL, SIEM_ALERT, CERT_EXPIRY, OTHER`. `severity ∈ LOW, MEDIUM, HIGH, CRITICAL`. `status ∈ OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. |
+| `module_security_finding` | `finding_code`, `title`, `description`, `finding_type`, `source`, `severity`, `cvss_score` (nullable numeric), `related_control_id` (opaque uuid, nullable, no FK), `related_universe_entry_id` (opaque uuid, nullable, no FK), `related_baseline_id` (FK, nullable), `identified_date`, `identified_by`, `status`, `remediation_plan`, `remediation_owner_user_id`, `target_closure_date`, `closure_justification` (nullable), `linked_risk_id` (opaque uuid, nullable, no FK), `linked_control_exception_id` (opaque uuid, nullable, no FK), `linked_compliance_exception_id` (opaque uuid, nullable, no FK), `linked_audit_finding_id` (opaque uuid, nullable, no FK), `linked_vendor_id` (opaque uuid, nullable, no FK), `capa_ref_id` (opaque uuid, nullable, no FK), `approved_by` (nullable), `approved_at` (nullable), `updated_at` | The primary aggregate root. `finding_type ∈ VULNERABILITY, MISCONFIGURATION, POLICY_VIOLATION, ACCESS_ANOMALY, THIRD_PARTY_RISK, OTHER`. `source ∈ SAST, DAST, DEPENDENCY_SCAN, CONTAINER_SCAN, PENETRATION_TEST, MANUAL, SIEM_ALERT, CERT_EXPIRY, OTHER`. `severity ∈ LOW, MEDIUM, HIGH, CRITICAL`. `status ∈ OPEN, REMEDIATION_IN_PROGRESS, PENDING_VERIFICATION, CLOSED, RISK_ACCEPTED`. `linked_vendor_id` — **added Session 15**, opaque, no FK, mirrors this table's existing `linked_control_exception_id`/`linked_compliance_exception_id`/`linked_audit_finding_id` columns; resolved via `25-third-party-risk`'s existing `GET /vendors/{id}/reference` when `finding_type = THIRD_PARTY_RISK` — see [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management). |
 | `module_security_asset` | `asset_code`, `asset_type`, `name`, `description`, `owner_user_id`, `environment`, `platform_key_ref_id` (opaque uuid, nullable, no FK), `external_store_ref` (nullable text), `issued_at`, `expires_at` (nullable), `rotation_frequency_days` (nullable), `last_rotated_date` (nullable), `next_rotation_due_date` (nullable), `status`, `updated_at` | `asset_type ∈ SECRET, API_KEY, ENCRYPTION_KEY, TLS_CERTIFICATE, SIGNING_CERTIFICATE, SSH_KEY`. `environment ∈ DEV, UAT, STAGING, PROD`. `status ∈ ACTIVE, ROTATION_DUE, EXPIRED, REVOKED, SUPERSEDED` — `REVOKED` is always an immediate, manual transition (Assumption 12); the rest are system-computed from dates except manual creation/edit. |
 | `module_security_access_grant` | `grant_code`, `requestor_user_id`, `justification`, `scope_description`, `target_system_ref` (nullable text), `requested_at`, `approved_by` (nullable), `approved_at` (nullable), `granted_at` (nullable), `expires_at`, `revoked_at` (nullable), `revoked_by` (nullable), `status`, `updated_at` | `status ∈ REQUESTED, APPROVED, ACTIVE, EXPIRED, REVOKED, REJECTED`. Cannot reach `ACTIVE` without `pending_action` approval (`SECURITY_ACCESS_GRANT_APPROVAL`); `EXPIRED` is system-computed at `expires_at`; `REVOKED` is an immediate, manual, ungoverned transition available from `APPROVED` or `ACTIVE` (Assumption 12). |
 | `module_security_evidence` | `finding_id` (FK, nullable), `asset_id` (FK, nullable), `evidence_type`, `title`, `description`, `storage_ref` (nullable), `file_name` (nullable), `mime_type` (nullable), `file_size_bytes` (nullable), `content_hash` (nullable), `collected_at`, `collected_by`, `uploaded_at`, `uploaded_by`, `status` | Exactly one of `finding_id`/`asset_id` is non-null (application-layer invariant, same two/three/four-way rule every prior module's evidence table enforces). `evidence_type ∈ SCAN_REPORT, SCREENSHOT, SYSTEM_EXTRACT, ATTESTATION, PENETRATION_TEST_REPORT, OTHER`. `status ∈ ACTIVE, SUPERSEDED, ARCHIVED`. `storage_ref` opaque per Assumption 6 (this table only, not asset credential material). |
@@ -1008,24 +1017,50 @@ module's own domain model, data model, or workflows** beyond the additive
 Amendment Log below — the same non-invasive activation pattern every prior cross-context
 activation in this repository uses.
 
-## Integration with Future Policy Management
+## Integration with Policy Management
 
-Per the proposed domain-model amendment, a future `POLICY` module would be an Open Host
-Service to `SECURITY`, mirroring exactly its already-reserved relationship to `CONTROLS`/
-`COMPLIANCE`: `SecurityPolicyDomain` is the taxonomy a future Policy entity would tag against
-(opaque, no FK), inert until that module ships.
+**Activated (Session 6/10, corrected from a stale "inert" description this session's
+consistency review found)**: `POLICY` is an Open Host Service to `SECURITY`:
+`SecurityPolicyDomain` is the taxonomy a Policy entity tags against, resolved via this
+module's own `GET /policy-domains` (API Surface) — `23-policy/01-*` was authored directly
+against this exact endpoint with **zero** additive change on either side. No schema change,
+no new endpoint; this section previously described the relationship as still inert despite
+having been live since `23-policy`'s own Session 10 authoring.
 
-## Integration with Future Incident/CAPA
+## Integration with Third-Party Risk Management
 
-Per `04-domain-model`, the future `INCIDENT`/`ISSUE`/`CAPA` context is Customer-Supplier with
-`RISK` and `CONTROLS` as customers; this document's proposed amendment would add `SECURITY` as
-a third eventual customer:
+**Added Session 15**, per `25-third-party-risk/01-*`'s own proposed, not-yet-applied
+extension, activating this table's already-reserved `finding_type = THIRD_PARTY_RISK` value
+with a real link:
 
-- `SecurityFinding.capa_ref_id` (opaque, no FK) is reserved now, inert until a CAPA module
-  ships — identical shape to every prior module's own reserved forward-reference.
+- `SecurityFinding.linked_vendor_id` (opaque, no FK) — a structured citation of the originating
+  Vendor, mirroring this table's existing `linked_control_exception_id`/
+  `linked_compliance_exception_id`/`linked_audit_finding_id` columns.
+- **No manifest dependency added here, by design**: `TPR` already declares a dependency on
+  `SECURITY` (for its own `GET /policy-domains` tag resolution) — a reciprocal
+  `SECURITY → TPR` edge for this column would create a cycle, which `04-domain-model`
+  Dependency Rule 6 forbids. `SECURITY` therefore records `linked_vendor_id` without resolving
+  it for its own display; any module with no dependency conflict in either direction (e.g.
+  `14-reporting`) resolves it on demand via `TPR`'s existing
+  `GET /api/v1/modules/tpr/vendors/{id}/reference`.
+
+## Integration with Incident/Issue/CAPA
+
+Per `04-domain-model`, `INCIDENT`/`ISSUE`/`CAPA` is Customer-Supplier with `RISK` and
+`CONTROLS` as customers; `SECURITY` is a third customer of structured CAPA:
+
+- `SecurityFinding.capa_ref_id` (opaque, no FK) was reserved from this module's own original
+  authoring.
+- **Activated (Session 15)**: `POST /findings/{id}/capa-request` (guarded by
+  `SECURITY_FINDING_CLOSE`) calls `INCIDENT`'s existing `POST /capa-requests
+  {source_module_code: 'SECURITY', source_entity_type: 'SECURITY_FINDING',
+  source_entity_ref_id: findingId}` (server-to-server, OWN-09), storing the returned
+  `capa_ref_id` on `module_security_finding`. No change required on `INCIDENT`'s side.
+- **Manifest consequence**: this module's manifest gains `dependencies: [INCIDENT]` (see
+  [Architecture](#architecture)). `INCIDENT`'s own manifest carries no reciprocal dependency.
 - A `CRITICAL` `SecurityFinding` is also the natural feeder for a future CERT-In 6-hour
-  incident-reporting obligation once the `INCIDENT` context and its `COMPLIANCE`-side filing
-  obligation both exist (see [Scope](#scope)) — reserved, not designed.
+  incident-reporting obligation once the `COMPLIANCE`-side filing obligation exists (see
+  [Scope](#scope)) — reserved, not designed.
 
 ## Integration with Future Regulatory Reporting
 
@@ -1052,6 +1087,7 @@ every prior module.
 | POST | `/findings` | `SECURITY_FINDING_RAISE` | Raise a finding (immediate) |
 | GET | `/findings/{id}` | `SECURITY_VIEW` | Finding detail |
 | POST | `/findings/{id}/closure` | `SECURITY_FINDING_CLOSE` | Propose closure/risk-acceptance → creates `pending_action` |
+| POST | `/findings/{id}/capa-request` | `SECURITY_FINDING_CLOSE` | Request a CAPA via `INCIDENT`'s `POST /capa-requests` (see [Integration with Incident/Issue/CAPA](#integration-with-incidentissuecapa)); added Session 15 |
 | POST | `/findings/{id}/evidence` | `SECURITY_FINDING_RAISE` | Attach evidence to a finding |
 | GET | `/assets` | `SECURITY_VIEW` | List/filter security assets |
 | POST | `/assets` | `SECURITY_ASSET_MANAGE` | Register a security asset |
@@ -1084,6 +1120,10 @@ as every prior module.
   a `Finding.linked_security_finding_id` column, proposed in
   [Integration with Audit](#integration-with-audit) — applied to `13-audit/01-*.md`, alongside
   this module's own additive `GET /findings/{id}/reference` endpoint.
+- **Resolved (Session 15)**: `SecurityFinding.capa_ref_id`'s initiating endpoint and
+  `SecurityFinding.linked_vendor_id` are both built — see [Integration with
+  Incident/Issue/CAPA](#integration-with-incidentissuecapa) and [Integration with Third-Party
+  Risk Management](#integration-with-third-party-risk-management).
 - **ABAC**: named as a future extensibility point on top of RBAC — see
   [Authorization Model — RBAC (Built) and ABAC (Reserved)](#authorization-model--rbac-built-and-abac-reserved);
   not designed as a schema or enforcement mechanism.
@@ -1169,3 +1209,19 @@ as every prior module.
   additive (a new read-only endpoint over the existing `SecurityFinding` aggregate, no new
   table, no new permission beyond the existing `SECURITY_VIEW`). No other entity, table, or
   workflow in this document was redesigned.
+- 2026-07-22 (Session 15 — Additive Change Consolidation) — Added `SecurityFinding.linked_vendor_id`
+  (Data Model) and a new [Integration with Third-Party Risk Management](#integration-with-third-party-risk-management)
+  section, per `25-third-party-risk/01-*`; added `POST /findings/{id}/capa-request` (APIs), per
+  `24-incident-issue-capa/01-*`, activating the already-reserved `SecurityFinding.capa_ref_id`
+  column and renaming "Integration with Future Incident/CAPA" to [Integration with
+  Incident/Issue/CAPA](#integration-with-incidentissuecapa). Corrected a stale description in
+  "Integration with Future Policy Management" (renamed [Integration with Policy
+  Management](#integration-with-policy-management)) that still described `GET /policy-domains`
+  as "inert until that module ships" despite it having been live, with zero additive change,
+  since `23-policy`'s own Session 10 authoring — a staleness this session's consistency review
+  caught, not a new change. Manifest `dependencies:` updated from `[]` to `[INCIDENT]`
+  (Architecture) to reflect this genuine synchronous cross-module call — deliberately **not**
+  `[..., TPR]`, since `TPR` already depends on `SECURITY` and a reciprocal edge would create a
+  cycle (Dependency Rule 6); `linked_vendor_id` is recorded but resolved on demand by other
+  modules instead. No entity, table,
+  or workflow redesigned.
