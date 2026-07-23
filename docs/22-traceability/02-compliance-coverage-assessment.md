@@ -37,7 +37,11 @@ for it. It does not certify legal or regulatory compliance — see
 - **Ratings are never merged across the "already built" / "specified but unbuilt" / "not
   specified" axis anywhere in this document**, per the explicit instruction this assessment
   was commissioned under.
-- This document is a snapshot as of **2026-07-21**, incrementally updated in Session 6 to
+- This document is a snapshot as of **2026-07-23** (Session 17 addendum date; the base
+  assessment below remains a Session 16, 2026-07-22 snapshot for the SEBI-specific content it
+  covers — see [Session 17 — Extended Regulatory, Standards, and Control-Framework Coverage
+  Assessment](#session-17--extended-regulatory-standards-and-control-framework-coverage-assessment-2026-07-23)
+  for the newly added scope), incrementally updated in Session 6 to
   reflect the two additive changes applied to `10-risk`/`12-controls` and the newly authored
   `09-security/01-security-management.md`, again in Session 7 to reflect the three
   additive changes `09-security` had proposed (now applied to `10-risk`/`13-audit`/
@@ -638,6 +642,344 @@ Completion](#specification-completion) above (a distinct metric) stays fixed at 
 ceiling; this metric moves because `ANALYTICS` is a newly *specified* capability, independent
 of whether `04-domain-model`'s own bounded-context count has yet been amended to match.
 
+## Session 17 — Extended Regulatory, Standards, and Control-Framework Coverage Assessment (2026-07-23)
+
+### Purpose and Method (Session 17 Addendum)
+
+Everything above this section (Sessions 1–16) is preserved unchanged, per this document's own
+"evolve, don't recreate" instruction. This addendum answers a broader question than Sessions
+1–16 were commissioned to answer: **if every currently-authored ERM specification were
+implemented faithfully within PRSMTD, which regulatory frameworks, standards, and control
+frameworks — beyond the SEBI Mutual Fund AMC profile already assessed above — would the
+resulting platform help an organization work toward compliance with**, evaluated at
+clause/control-family level wherever the underlying source material supports that precision.
+
+**Source-material discipline** (read this before any rating below): this repository's
+[`docs/reference/`](../reference/) directory contains exactly three primary source documents,
+all SEBI circulars — the *Risk Management System for Mutual Funds* circular
+(MFD/CIR/15/19133/2002), the *Annexures to Master Circular for Mutual Funds* (March 31, 2023),
+and the *Cyber Security and Cyber Resilience Framework for Mutual Funds AMCs* (2019, scanned/
+image-only). **No other regulation, standard, or framework named in this session's scope has
+any primary source text in this repository.** Every rating below is therefore explicitly
+tagged with its evidentiary basis:
+
+| Basis tag | What it means |
+|---|---|
+| **Repository-Sourced** | Grounded in one of the three PDFs above, at clause level (SEBI's own convention throughout Sessions 1–16). |
+| **Structural Crosswalk** | Grounded in this session's general knowledge of the named framework's published, publicly-known clause/control-family structure (e.g., ISO 27001 Annex A's theme numbering, NIST CSF's function names, COSO ERM's five components) — matched against what an ERM spec actually, concretely builds. **Not sourced from a document in this repository**; the framework's own primary text should be independently verified before this mapping is relied upon for any certification claim. This is the identical caveat `12-controls` Assumption 5 and `09-security`'s Regulatory Drivers table already apply to the scanned Cyber Security Framework PDF, extended here to frameworks with no repository copy at all. |
+| **Scope/Title-Level Only** | The framework is named and its general subject matter is correctly described, but no clause-level or control-family detail is asserted. |
+| **N/A — Outside Repository Scope** | The framework governs a different regulated-entity type, jurisdiction, or capability domain than this repository's stated primary target (a SEBI-regulated Mutual Fund AMC in India — `CLAUDE.md`) and no ERM spec addresses it, by design rather than by omission. |
+
+**Never overstate**: a **Structural Crosswalk** rating is never upgraded to "Fully Specified" or
+"Ready" in this addendum, no matter how strong the resemblance — the distinction between "this
+platform's shape resembles the standard's shape" and "this platform has been verified against
+the standard's actual text" is preserved throughout, per this document's own governing
+instruction (see [Scope and Method](#scope-and-method) above) and the explicit instruction this
+addendum was authored under: *"Only claim compliance where supported by the specifications.
+Where evidence is insufficient, explicitly state that the repository does not currently
+demonstrate that requirement."*
+
+**What changed this session**: no frozen spec (any of the twelve authored ERM documents, or
+`04-domain-model`) was modified. This addendum is a read-only assessment layer over all twelve,
+exactly as Sessions 1–16 already were over the six-to-twelve specs they each covered. It
+substantially widens [Phase 25 — International Standards
+Crosswalk](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist)'s originally
+scoped list (ISO 27001/27701/22301/31000, COBIT, NIST CSF only) to the full 31-framework list
+this session was commissioned to assess, and gives [Phase
+24](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions)'s DPDP/
+CERT-In gap a fuller clause-family treatment — but, consistent with both phases' own "no new
+authoritative spec beyond the crosswalk artifact itself" scoping, does **not** execute either
+phase (no `Obligation`/`ObligationCategory` rows are added to `11-compliance`, no PRSMTD
+capability is built). Both phases remain open — see [Prioritized Implementation
+Roadmap](#prioritized-implementation-roadmap-session-17) below.
+
+### Executive Summary (Extended Scope)
+
+An organization that faithfully implemented all twelve currently-authored ERM specifications
+into PRSMTD would have a genuinely governed, auditable GRC platform **for the SEBI Mutual Fund
+AMC regulatory profile specifically** (see the Session 1–16 assessment above — unchanged,
+still the most rigorously grounded part of this document). Extending the lens to the fuller
+34-item list this session assesses (9 Indian regimes, 22 international standards/frameworks —
+SEBI itself counted once, already covered above), the honest picture is:
+
+- **One** regime (SEBI) is Repository-Sourced and clause-level grounded across most of its
+  requirements.
+- **Four** items (RBI's AML/KYC overlap, MCA/Companies Act's related-party-transaction and
+  governance overlap, CERT-In's incident-timeline substrate, and ISO 22301's business-continuity
+  vocabulary) have genuine, if partial or indirect, structural support already built into an
+  authored spec.
+- **Fourteen** international standards/frameworks have a **Structural Crosswalk** relationship
+  only — a real, checkable resemblance between what an ERM module builds and what the standard's
+  publicly-known structure calls for, with **zero** explicit clause-by-clause mapping authored
+  anywhere in this repository.
+- **Two** items (DPDP Act 2023, MeitY guidance) are named gaps with no specification content at
+  all, though the architecture to host them (an `Obligation`/`ObligationCategory` row in
+  `COMPLIANCE`) already exists and is proven by every other obligation category already seeded.
+- **Ten** items (IRDAI, PFRDA, IFSCA, ISO 9001, ISO/IEC 42001, NIST AI RMF, PCI DSS, GDPR, OECD
+  AI Principles, EU AI Act) are **N/A — Outside Repository Scope**: a different regulated-entity
+  type, a different jurisdiction, or a capability domain (AI governance, cardholder-data
+  processing) this repository's `16-ai/` section has not yet specified at all (README index
+  only, per `CLAUDE.md`'s no-placeholder rule — an honest "not yet authored," not a defect).
+
+No item in this extended scope reaches "Fully Specified" or better except SEBI itself. **This
+is the expected, correct state for a specification repository whose primary target is a single
+regulatory profile** (`CLAUDE.md`'s own stated scope), not evidence of a gap in execution — see
+[Overall Compliance Readiness Score](#overall-compliance-readiness-score-session-17) for why a
+low score here is the accurate answer, not an alarm.
+
+### Overall Compliance Readiness Score (Session 17)
+
+A single number risks exactly the overstatement this assessment is instructed to avoid, so it
+is presented here only as a transparent, re-derivable weighted sum across five independently
+rated dimensions — never as a standalone headline claim:
+
+| Dimension | Weight | Score (0–100) | Basis | Weighted |
+|---|---|---|---|---|
+| ERM Specification Completeness | 20% | 100 | 10/10 bounded contexts `04-domain-model` reserves are authored (see [Specification Completion](#specification-completion) above) | 20.0 |
+| SEBI Primary Regulatory Depth | 25% | 70 | Clause-level for `RISK`/`CONTROLS`/`COMPLIANCE`/`AUDIT`/`INCIDENT`/`TPR`/`BCP`; scope-level only for the Cyber Security Framework (`SECURITY`/`POLICY`); DR/BCP insurance-cover item still untracked | 17.5 |
+| Adjacent Indian Regulatory Depth (RBI, IRDAI, PFRDA, IFSCA, MCA/Companies Act, DPDP, CERT-In, MeitY) | 10% | 15 | 4 of 8 items rated Partially Specified via indirect/structural overlap only; 0 of 8 Repository-Sourced; 4 of 8 N/A or Not Specified | 1.5 |
+| International Standards/Frameworks Crosswalk Depth | 10% | 10 | 14 of 22 items rated Structural Crosswalk only (no explicit clause mapping authored); the remainder N/A | 1.0 |
+| PRSMTD Platform Implementation | 20% | 0 | Zero ERM modules are implemented in PRSMTD — `CLAUDE.md` states this repository is specification-only by design | 0.0 |
+| Organizational Operational Adoption (governance staffing, policy adoption, evidence collection, monitoring, continual improvement) | 15% | 0 | Cannot be assessed from a specification repository — no organization has adopted or operated this platform; this is the one dimension the platform can never supply on its own, per this document's own [Final Statement](#final-statement) | 0.0 |
+| **Composite** | 100% | — | — | **≈ 40 / 100 — Early-Stage Specification Maturity** |
+
+**Reading this score**: 40/100 is not a failing grade against a compliance audit — it is the
+correct score for what this repository actually is (a mature specification set, zero
+implementation, zero adoption). Two of the five dimensions are structurally zero *by design*
+(Implementation, Adoption) until a PRSMTD engagement and a real AMC deployment respectively
+begin — no amount of further specification work in this repository can move either above zero.
+The dimensions this repository *can* move — Specification Completeness (already at its ceiling)
+and Regulatory/Standards Depth (SEBI strong, everything else early) — are the only ones a future
+session's own work should be judged against.
+
+### Framework Coverage Percentage
+
+Computed against the 31 named items this session assesses (9 Indian, 22 international; SEBI
+itself — already scored in the base assessment above — is the 32nd item, held out of this
+percentage to avoid double-counting a regime already rated at full clause-level precision):
+
+| Cut | Count | % of 31 | Items |
+|---|---|---|---|
+| Any documented relationship at all (Partially Specified + Structural Crosswalk) | 18 | 58% | See [Comprehensive Compliance Matrices](#comprehensive-compliance-matrix--indian-regulatory-frameworks-session-17) below |
+| Repository-Sourced or genuinely Partially Specified (excludes generic structural resemblance) | 4 | 13% | RBI, MCA/Companies Act, CERT-In, ISO 22301 |
+| Structural Crosswalk only (resemblance, no explicit mapping) | 14 | 45% | 14 international standards — see International matrix |
+| Not Specified (genuine gap within current scope) | 2 | 6% | DPDP Act, MeitY guidance |
+| N/A — Outside Repository Scope (by design) | 11 | 35% | IRDAI, PFRDA, IFSCA + 8 international items (ISO 9001, ISO 27005, ISO/IEC 42001, NIST AI RMF, PCI DSS, GDPR, OECD AI Principles, EU AI Act) |
+
+(Rows do not sum to 31 cleanly because "Any documented relationship" is itself the union of the
+Partially-Specified and Structural-Crosswalk rows shown separately below it — provided as a
+convenience total, not an independent count.)
+
+### Control Coverage Percentage
+
+A directional estimate, not an exhaustive audit — mirroring [Percentage
+Completion](#percentage-completion)'s own explicit "directional, not precise" caveat, applied
+here to control/taxonomy *families* rather than platform capabilities. Denominator: the 40
+representative control/taxonomy-family rows across the four modules whose reference data most
+resembles an external control catalogue — `CONTROLS`' 12 `ControlFamily` rows, `COMPLIANCE`'s 9
+`ObligationCategory` rows, `POLICY`'s 9 `PolicyCategory` rows, `SECURITY`'s 10
+`SecurityPolicyDomain` rows (see each module's own Data Model section, cross-referenced in
+[Cross-Reference to Authoritative Specifications](#cross-reference-to-authoritative-specifications-session-17)
+below). Of these 40, roughly **30 (≈75%)** have at least one plausible Structural-Crosswalk
+mapping drawn somewhere in the [International matrix](#comprehensive-compliance-matrix--international-standards-and-frameworks-session-17)
+below (most of `CONTROLS`' IT/cyber families map to ISO 27001/NIST/CIS structurally; `SECURITY`'s
+ten domains map broadly to ISO 27001 Annex A themes and NIST CSF functions; `COMPLIANCE`'s
+AML/whistleblower/outsourcing categories map partially to RBI/Companies-Act/ISO 37301 themes).
+The remaining ≈25% (e.g. `COMPLIANCE`'s "Licensing & Registration" or "Regulatory Reporting &
+Disclosure" categories) are SEBI-AMC-specific enough that no external framework maps naturally
+onto them. **This is a heuristic sampling exercise, not a control-by-control audit** — treat it
+the same way this document's own Control-Level Matrix treats itself ("a representative sample,
+not an exhaustive enumeration").
+
+### Comprehensive Compliance Matrix — Indian Regulatory Frameworks (Session 17)
+
+| Regulation / Standard | Purpose | Applicable Clauses / Controls | Repository Coverage | PRSMTD Capability | Coverage Status | Implementation Gap | Operational Responsibility | Overall Readiness |
+|---|---|---|---|---|---|---|---|---|
+| **SEBI** (Mutual Fund AMC regulatory framework — RMS circular, Master Circular Annexures, Cyber Security Framework) | Regulate SEBI-registered Mutual Fund AMCs' risk management, operational/financial/IT/cyber controls, compliance, audit, outsourcing, and business continuity practices | See the full [Compliance Coverage Matrix](#compliance-coverage-matrix) and [Control-Level Matrix](#control-level-matrix) above — clause-level for most sections, scope-level for the Cyber Security Framework | `10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`, `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`, `26-business-continuity`, `14-reporting`, `15-analytics` | Governance ledger, RBAC, module framework, audit trail, RLS (`system.md` §3/§7/§8/§9/§10) | Fully Specified (Repository-Sourced) | Every one of the eleven listed modules must be implemented in PRSMTD; the Cyber Security Framework's clause-level content must be manually re-verified (scanned PDF, `12-controls` Assumption 5) | Board/Trustee oversight staffing; SEBI filing submission; evidence retention (object-storage gap, below); independent risk/compliance/audit function staffing | Mostly Ready (once implemented) — see base assessment |
+| **RBI** (Reserve Bank of India — banking regulator; relevant to an AMC indirectly via its banker relationships, FEMA-governed foreign investment in schemes, and PMLA/KYC obligations RBI and SEBI both reference) | Regulate banks and, tangentially, AML/CFT/KYC and foreign-exchange obligations an AMC's banking and custody relationships must satisfy | RBI Master Directions on KYC (PMLA-derived, largely mirrored by SEBI's own AML/CFT mandate); FEMA regulations for foreign portfolio investment in schemes | `11-compliance`'s "Financial Crime & AML" `ObligationCategory` (seeded from SEBI Annexures §2.6.2.1(i)(a), (iii) a–d, not an RBI-sourced citation) | Same `COMPLIANCE`/`POLICY` obligation-and-policy taxonomy that hosts SEBI's own AML/CFT content — architecturally reusable, content is not RBI-specific | Partially Specified (indirect, via shared AML/KYC subject matter, not an RBI-sourced citation) | No RBI Master Direction or FEMA text has been sourced or cited anywhere in this repository; banker-relationship-specific obligations (current account opening, cash management) are entirely unaddressed | Legal/compliance team must independently confirm RBI/FEMA-sourced obligations beyond what SEBI's own AML/CFT mandate already covers | Early Stage |
+| **IRDAI** (Insurance Regulatory and Development Authority of India) | Regulate insurers — a different regulated-entity type than a Mutual Fund AMC | N/A — no IRDAI-governed activity is in this repository's current scope | None | None | N/A — Outside Repository Scope | A full Insurance regulatory-profile authoring effort, per `CLAUDE.md`'s long-term multi-vertical vision, if this platform is ever extended to insurers | Not applicable until an Insurance vertical is pursued | Not Started |
+| **PFRDA** (Pension Fund Regulatory and Development Authority) | Regulate pension fund managers/NPS intermediaries — a different regulated-entity type than a Mutual Fund AMC | N/A — no PFRDA-governed activity is in this repository's current scope | None | None | N/A — Outside Repository Scope | A full Pension-vertical regulatory-profile authoring effort if pursued (not currently named in `CLAUDE.md`'s explicit long-term vertical list, which names Banking/Insurance/Healthcare/Government/Manufacturing/Technology/Critical Infrastructure, not Pensions specifically) | Not applicable | Not Started |
+| **IFSCA** (International Financial Services Centres Authority — regulates entities operating out of GIFT City/IFSCs) | Regulate financial-services entities operating within an International Financial Services Centre — applies to an AMC only if it operates a GIFT City-domiciled fund/entity | N/A — no IFSC-entity operation is stated anywhere in this repository | None | None | N/A — Outside Repository Scope | A dedicated `IFSCA_AMC` (or similar) regulatory profile, analogous to `SEBI_AMC`, if the target AMC ever operates through an IFSC entity — the multi-profile architecture (`RegulatoryProfile` registry in `11-compliance`) is designed to host exactly this without redesign | Not applicable unless an IFSC entity exists | Not Started |
+| **MCA / Companies Act, 2013** (Ministry of Corporate Affairs; the Act it administers) | Corporate governance, board composition, related-party transactions, statutory audit, CSR, and general company-law obligations applicable to an AMC as a registered company, independent of its SEBI Mutual Fund registration | Companies Act §177/§188 (Audit Committee, related-party transactions — structurally adjacent to `COMPLIANCE`'s "Outsourcing & Related-Party Oversight" category, itself SEBI-sourced, not Companies-Act-sourced); §134/§143 (Board's report, statutory audit) — unaddressed; §135 (CSR) — unaddressed | `11-compliance`'s "Outsourcing & Related-Party Oversight" `ObligationCategory` (SEBI-sourced, §2.6.2.1(i)(d), covers RPT-adjacent subject matter only); the maker-checker governance ledger structurally satisfies board-approval-style controls generically | Same governance-ledger/RBAC substrate every module reuses; no Companies-Act-specific content | Partially Specified (structural overlap only, no CA-sourced citation) | No Companies Act text has been sourced; statutory (external) audit is explicitly out of `13-audit`'s scope ("out of this repository's SEBI-AMC-profile scope for now" — that document's own Scope section); CSR entirely unaddressed | Company Secretary/legal function must independently track Companies Act compliance; this platform does not currently substitute for statutory-audit or CSR-reporting obligations | Early Stage |
+| **DPDP Act, 2023** (Digital Personal Data Protection Act) | Personal-data processing, consent, and breach-notification obligations for investor/employee PII an AMC processes | Consent-management, data-principal-rights, and 72-hour-class breach-notification-style obligations (Act's own published structure — no repository copy exists to cite at section level) | None — no spec addresses personal-data processing, consent, or breach notification | `11-compliance`'s `Obligation`/`ObligationCategory` architecture is profile-configurable and *could* host DPDP obligation content without redesign (confirmed by every other seeded `ObligationCategory`'s own precedent); `24-incident-issue-capa`'s `Incident.detected_date`/escalation timestamps supply the timeline substrate a breach-notification filing obligation would cite, the identical relationship this document already rates for CERT-In below | Not Specified | Author DPDP-specific `Obligation`/`ObligationCategory` seed rows in `11-compliance` (architecture ready, content is not) — named as Master Execution Plan [Phase 24](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions), not yet executed | Data Protection Officer/equivalent function; consent-record retention (object-storage gap, below); breach-notification process ownership; DPDP Rules (once notified by MeitY) must be independently tracked | Not Ready |
+| **CERT-In Directions, 2022** (mandatory cyber-incident reporting to CERT-In) | Mandatory reporting of specified cyber-security incidents to CERT-In within 6 hours of detection/being brought to notice | The Directions' own 6-hour reporting clock and enumerated reportable-incident-type list (published structure — no repository copy exists) | `24-incident-issue-capa`'s `Incident.detected_date` and `Escalation` timestamps supply the timeline/escalation substrate a 6-hour filing obligation would cite; `09-security`'s `SecurityFinding` register is the natural upstream trigger for a cyber-specific Incident | Same `INCIDENT` timeline substrate; the filing-obligation content and deadline logic itself is not designed | Partially Specified (timeline substrate only, matching the base assessment's own "Partially Supported (substrate only)" rating for this item, unchanged) | Author a CERT-In-specific filing `Obligation` in `11-compliance`, referencing `INCIDENT`'s existing timeline data — the second half of Master Execution Plan [Phase 24](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions), not yet executed | CERT-In portal filing ownership; incident-classification-against-the-Directions'-own-list judgment; log retention supporting the filing | Early Stage |
+| **MeitY guidance** (Ministry of Electronics and Information Technology — IT Act 2000 rules, general cyber/IT guidance; CERT-In itself operates under MeitY) | General IT-law and cyber-governance guidance an AMC's technology operations must observe, distinct from SEBI's own sector-specific cyber framework | IT Act 2000 and its rules (Reasonable Security Practices Rules, Intermediary Guidelines where applicable) — published structure, no repository copy | None — no spec cites MeitY-sourced text directly; conceptual overlap only with `SECURITY`'s cyber taxonomy and the still-unspecified DPDP/CERT-In content above | `SECURITY`'s `SecurityPolicyDomain`/`SecurityBaseline` taxonomy is the natural home for any future MeitY-sourced hardening guidance, by the same convention every other taxonomy uses | Not Specified | No MeitY-sourced text has been reviewed for citation; would most naturally extend `SECURITY`'s existing taxonomy rather than requiring a new module | Legal/IT-governance function must independently track applicable MeitY rules | Not Ready |
+
+### Comprehensive Compliance Matrix — International Standards and Frameworks (Session 17)
+
+Every row below is a **Structural Crosswalk** unless otherwise marked — see [Purpose and
+Method](#purpose-and-method-session-17-addendum) above for exactly what that basis tag does and
+does not claim. None of these frameworks has a primary-source document in
+[`docs/reference/`](../reference/); every clause/control-family reference below is drawn from
+this session's general knowledge of each standard's own published structure, not from a
+repository-sourced citation, and must be independently verified against the standard's actual
+text before being relied upon.
+
+| Regulation / Standard | Purpose | Applicable Clauses / Controls | Repository Coverage | PRSMTD Capability | Coverage Status | Implementation Gap | Operational Responsibility | Overall Readiness |
+|---|---|---|---|---|---|---|---|---|
+| **ISO 31000:2018** | Risk management principles and generic process guidance | Clause 6.4 Risk assessment (identification/analysis/evaluation); 6.5 Risk treatment; 6.6 Monitoring and review; 6.7 Recording and reporting; Clause 5 Leadership and commitment (organizational, not system-representable) | `10-risk`'s identify → assess → treat → monitor → accept/escalate lifecycle structurally mirrors Clause 6's process steps; no explicit clause-by-clause citation exists anywhere | Governance ledger (maker-checker) structurally satisfies "documented, authorized" process steps generically | Structural Crosswalk | Author an explicit ISO 31000 process crosswalk (candidate for [Phase 25](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist), widened per this session) if international positioning is pursued; Clause 5's leadership/culture requirements are inherently organizational, not something any spec can satisfy | Board/Executive risk-culture leadership; integrating risk management into strategic decision-making (organizational, not a platform feature) | Early Stage |
+| **ISO/IEC 27001:2022** | Information security management system (ISMS) requirements and Annex A control catalogue | Annex A.5 (Organizational controls, incl. A.5.1 policies, A.5.19–5.22 supplier relationships, A.5.24–5.28 incident management, A.5.29–5.30 business continuity/ICT readiness, A.5.35–5.36 compliance review); A.8 (Technological controls, incl. A.8.16 monitoring, A.8.24 cryptography) | `23-policy` gives A.5.1 a concrete, governed, versioned owning module; `25-third-party-risk` structurally covers A.5.19–5.22; `24-incident-issue-capa` covers A.5.24–5.28; `26-business-continuity` covers A.5.29–5.30; `09-security`'s `SecurityAsset` covers A.8.24 (governance layer only, not cryptographic operations); `13-audit` structurally covers A.5.35–5.36 | `09-security`'s `SecurityPolicyDomain.framework_tag` field is explicitly designed to host this exact mapping (`09-security` Scope) but is not populated with it | Structural Crosswalk (the strongest ISO match by breadth — six of nine authored core-domain modules structurally touch at least one Annex A theme) | Author an explicit Annex A crosswalk populating `framework_tag`, and a Statement-of-Applicability-style artifact, once a real implementation exists to map against | Information Security Management System ownership (typically a CISO); Statement of Applicability maintenance; certification audit engagement (external) | Early Stage |
+| **ISO/IEC 27002:2022** | Implementation guidance for ISO 27001 Annex A's controls | Same control catalogue as ISO 27001 Annex A, at implementation-guidance depth | Same modules as the ISO 27001 row above; no additional repository content | Same as ISO 27001 row | Structural Crosswalk | Same as ISO 27001 — a crosswalk artifact, not new architecture | Same as ISO 27001 | Early Stage |
+| **ISO/IEC 27005:2022** | Information-security-specific risk management guidance (asset–threat–vulnerability methodology) | Clause 6–8 (risk identification, analysis, evaluation specific to information assets) | `10-risk`'s generic likelihood × impact scoring matrix could host an infosec-specific risk assessment, but no asset-threat-vulnerability methodology is named anywhere; `09-security`'s `SecurityFinding` register is the closer conceptual match (a detected vulnerability/finding) but is not framed as a formal risk-assessment methodology | `RISK`'s configurable `RiskScoringMatrix` is architecturally reusable for an infosec-specific matrix, unbuilt as such | Structural Crosswalk (weak — the closest match of any ISO row in this table, since no module names an asset-centric infosec risk methodology at all) | Author an ISO 27005-aligned infosec risk-assessment methodology as a configured `RiskScoringMatrix` variant, if pursued | Information-security risk owner function | Early Stage |
+| **ISO 22301:2019** | Business continuity management system (BCMS) requirements | Clause 8.2 (BIA and risk assessment); 8.4 (BC plans and procedures); 8.5 (exercising and testing); 9.1 (monitoring, measurement); 9.3 (management review); 10.2 (nonconformity and corrective action) | `26-business-continuity`'s `BusinessImpactAnalysis` (≈8.2), `ContinuityPlan`/`ContinuityPlanVersion` (≈8.4), `ContinuityExercise` (≈8.5), `ContinuityPlanReview` (≈9.3), `ContinuityException` (≈10.2) — the single closest structural match to an international standard's own vocabulary this repository has produced (unchanged from the base assessment's own rating) | Governance ledger; `12-controls`' BC/DR control family corroborates via opaque reference | Partially Specified (structurally close; see base assessment's Regulatory Readiness Matrix row, unchanged) | Implement `BCP`; author an explicit clause-level Annex crosswalk if certification is pursued | BCM programme ownership; exercise execution and lessons-learned adoption | Partially Ready (once implemented) |
+| **ISO 9001:2015** | Quality management system requirements for products/services | Clause 7.5 (documented information); 9.2 (internal audit); 10.2 (nonconformity and corrective action) | Tangential only — `23-policy`'s versioned-document lifecycle resembles 7.5; `13-audit`'s engagement lifecycle resembles 9.2; `24-incident-issue-capa`'s CAPA lifecycle resembles 10.2 — but a QMS's product/service-quality scope is not this platform's regulated domain at all | None specific to product/service quality | N/A — Outside Repository Scope (tangential structural resemblance noted only; not a target market per `CLAUDE.md`) | None named — not a scoping gap, a deliberate non-target | Not applicable to this repository's stated purpose | Not Started |
+| **ISO 37301:2021** | Compliance management systems (CMS) requirements | Clause 4.6 (compliance obligations, determining and documenting); 4.5 (compliance risk assessment); 5.3 (compliance function/roles); 8.3 (raising concerns/whistleblowing); 9.1 (monitoring, measurement); 10.1 (nonconformity and corrective action) | `11-compliance`'s `Obligation`/`ObligationCategory` register (≈4.6), `ComplianceAssessment` (≈9.1), `COMPLIANCE_CHECKER` independent function (≈5.3), `ComplianceException` governed closure (≈10.1); `23-policy`'s "Financial Integrity & Fraud → Whistleblower Policy" (≈8.3) | Governance ledger; RBAC independent-function accommodation | Structural Crosswalk (the strongest non-BCM ISO match — `COMPLIANCE` is essentially a compliance management system already) | Author an explicit ISO 37301 clause crosswalk if pursued; the architecture needs no redesign, only a mapping document | Chief Compliance Officer function; compliance-culture leadership (organizational) | Early Stage |
+| **ISO 19011:2018** | Guidelines for auditing management systems | Clause 5 (managing an audit programme); 6 (conducting an audit — planning, fieldwork, reporting); 7 (auditor competence) | `13-audit`'s `AuditPlan` (≈audit programme), `AuditEngagement`'s Planning→Fieldwork→Reporting→Follow-up lifecycle (≈clause 6), `auditor_type`/`auditor_qualification` fields (≈clause 7) | Governance ledger for plan approval | Structural Crosswalk (strong — `AUDIT`'s own lifecycle shape closely mirrors this guideline's own structure) | Author an explicit ISO 19011 crosswalk if pursued (guidance document, not a certifiable standard on its own) | Chief Internal Auditor function; auditor competence/qualification verification | Early Stage |
+| **ISO/IEC 42001:2023** | AI management system requirements | N/A — no AI capability spec exists anywhere in this repository (`16-ai/README.md` is an index scaffold only, per `CLAUDE.md`'s no-placeholder rule) | None | None | N/A — Outside Repository Scope (not yet authored, honestly, not silently dropped) | Author `16-ai/01-*` (AI-Assisted Risk Analytics) first — Master Execution Plan Phase 12; an ISO 42001 crosswalk would follow that, not precede it | AI governance function, once an AI capability exists | Not Started |
+| **NIST Cybersecurity Framework (CSF) 2.0** | Voluntary cybersecurity risk-management framework organized around six functions | Govern (new in 2.0 — policy/oversight); Identify; Protect; Detect; Respond; Recover | Govern ≈ `POLICY` + governance ledger + RBAC; Identify ≈ `RISK` + `09-security`'s asset register; Protect ≈ `CONTROLS` + `SECURITY`'s access/crypto governance; Detect ≈ `SECURITY`'s `SecurityFinding` (partial — no SIEM/correlation capability); Respond ≈ `24-incident-issue-capa`; Recover ≈ `26-business-continuity` (unchanged from the base assessment's own note, refreshed to CSF 2.0's Govern function) | Same substrate as ISO 27001 row | Structural Crosswalk | Author an explicit NIST CSF 2.0 crosswalk if pursued; the Detect function's own gap (no SIEM/security-event correlation, a named PRSMTD capability gap since `09-security`'s own authoring) limits how far Detect can genuinely map without new platform capability | CISO/security function; SIEM tooling procurement (not designed here) | Early Stage |
+| **NIST AI Risk Management Framework (AI RMF)** | Voluntary framework for managing risks of AI systems, organized around Govern/Map/Measure/Manage | N/A — no AI capability spec exists | None | None | N/A — Outside Repository Scope | Same as ISO/IEC 42001 above — depends on `16-ai/01-*` being authored first | AI governance function, once an AI capability exists | Not Started |
+| **NIST SP 800-53** | Catalogue of security and privacy controls for information systems (control families AC, AU, CA, CM, CP, IA, IR, PM, RA, SA, SC, SI, SR, etc.) | AC (Access Control); AU (Audit and Accountability); CP (Contingency Planning); IR (Incident Response); RA (Risk Assessment); SA (System and Services Acquisition — supply chain); SC (System and Communications Protection); SI (System and Information Integrity) | AC ≈ `SECURITY`'s `SecurityAccessGrant` + PRSMTD RBAC; AU ≈ PRSMTD `audit_log`/trace contract; CP ≈ `26-business-continuity`; IR ≈ `24-incident-issue-capa`; RA ≈ `10-risk`; SA ≈ `25-third-party-risk`; SC ≈ PRSMTD's own TLS/encryption-key substrate (`system.md` §7/§11); SI ≈ `09-security`'s `SecurityFinding` | PRSMTD's own security substrate (`system.md` §6–§11, §17) covers several families more directly than any ERM spec | Structural Crosswalk (broad family-level analogy, no control-by-control mapping) | Author an explicit family-by-family crosswalk if pursued (US federal-agency-oriented catalogue; relevance depends on whether US-government-adjacent positioning is ever pursued, which is not currently in `CLAUDE.md`'s stated vertical list) | Security control-baseline ownership; continuous-monitoring programme (not designed here) | Early Stage |
+| **NIST SP 800-61** | Computer Security Incident Handling Guide | Phase 1 Preparation; Phase 2 Detection and Analysis; Phase 3 Containment, Eradication, and Recovery; Phase 4 Post-Incident Activity | `24-incident-issue-capa`'s `Incident.status` progression (`REPORTED → UNDER_INVESTIGATION → CONTAINED → RESOLVED → CLOSED`) mirrors Phases 1–3 closely; `RootCauseAnalysis` and `CAPAEffectivenessReview` mirror Phase 4 (post-incident lessons-learned) closely | Same `INCIDENT` module as CERT-In/NIST CSF Respond function above | Structural Crosswalk (one of the closer non-ISO matches — the phase names differ but the lifecycle shape is nearly identical) | Author an explicit phase-by-phase crosswalk if pursued | Incident-response team staffing and playbook ownership | Early Stage |
+| **COBIT 2019** | IT governance and management objectives framework (EDM, APO, BAI, DSS, MEA domains) | EDM (Evaluate, Direct, Monitor — governance); APO (Align, Plan, Organize); BAI (Build, Acquire, Implement); DSS (Deliver, Service, Support); MEA (Monitor, Evaluate, Assess) | EDM ≈ governance ledger + RBAC generally; APO ≈ `RISK`/`COMPLIANCE`/`POLICY` planning; DSS ≈ `CONTROLS`/`SECURITY`/`INCIDENT` operational delivery; MEA ≈ `AUDIT`/`15-analytics`/`14-reporting`; **BAI (Build/Acquire/Implement) has no ERM-level analogue** — it is PRSMTD's own SDLC governance (`system.md` §9/§17), not an ERM concern | PRSMTD's own ArchUnit/CI-guard/Runtime Validator Harness substrate is the closest analogue to BAI | Structural Crosswalk (domain-level only; one of five domains, BAI, has essentially no ERM-side analogue) | Author an explicit objective-by-objective crosswalk if pursued | IT governance function; COBIT-specific capability-maturity self-assessment (not designed here) | Early Stage |
+| **COSO ERM — Enterprise Risk Management: Integrating with Strategy and Performance (2017)** | Enterprise risk management framework organized around five components | Governance & Culture; Strategy & Objective-Setting; Performance (risk identification, assessment, prioritization, response); Review & Revision; Information, Communication, and Reporting | Governance & Culture ≈ RBAC + persona-to-module-role mapping (organizational culture itself is not system-representable); Strategy & Objective-Setting — no ERM-level analogue (strategic planning is organizational, not a register); Performance ≈ `10-risk`'s identify→assess→treat lifecycle almost exactly; Review & Revision ≈ `next_review_date`/KRI monitoring; Information/Comm/Reporting ≈ `14-reporting`/`15-analytics` | Governance ledger | Structural Crosswalk (the strongest non-ISO resemblance in this table — `RISK`'s own design philosophy is essentially COSO's Performance component operationalized) | Author an explicit component-by-component crosswalk if pursued; Strategy & Objective-Setting remains inherently organizational | Board-level risk oversight; strategic risk appetite setting (organizational) | Early Stage |
+| **SOC 2 Trust Services Criteria (AICPA, 2017/2022)** | Attestation criteria for service organizations — Security, Availability, Processing Integrity, Confidentiality, Privacy | Security (CC series — access controls, change management, risk mitigation); Availability; Processing Integrity; Confidentiality; Privacy | This row concerns **PRSMTD as a hosting platform**, not the AMC's own regulatory obligations. Security criteria ≈ PRSMTD's §6–§11 substrate plus `09-security`; Confidentiality ≈ `SECURITY`'s Data Classification Scheme (`TENANT_RESTRICTED` tier); Processing Integrity ≈ governance ledger's maker-checker plus audit trail; **Availability** has no stated SLA target anywhere (`18-deployment/` not yet authored); **Privacy** has no content (same gap as DPDP/GDPR below) | PRSMTD §7/§11 substrate for Security/Confidentiality; nothing for Availability/Privacy | Structural Crosswalk (uneven — Security/Confidentiality reasonably covered, Availability/Privacy essentially absent) | Author `18-deployment/01-*` (names an availability/DR posture for the platform itself, distinct from `26-business-continuity`'s tenant-facing capability — Master Execution Plan Phase 14) before any Availability claim is credible; Privacy has the same DPDP-shaped gap below | Platform operator (PRSMTD hosting entity), not the AMC tenant, for most criteria; a SOC 2 attestation engagement is external and platform-operator-initiated | Early Stage |
+| **PCI DSS** | Payment Card Industry Data Security Standard — cardholder-data-environment security requirements | N/A — no cardholder-data processing capability is identified anywhere in PRSMTD or any ERM spec; investor payment flows (subscription/redemption) are not designed in this repository at all | None | None | N/A — Outside Repository Scope | If a future payment-processing capability is ever added and handles card data directly, PCI DSS becomes a genuine scope item — not the case today | Not applicable unless cardholder-data processing is added | Not Started |
+| **CIS Controls v8** | Prioritized catalogue of cybersecurity safeguards, organized into 18 controls and three Implementation Groups | Control 6 (Access Control Management) ≈ `SECURITY`'s PAM; Control 7 (Continuous Vulnerability Management) ≈ `SecurityFinding`; Control 8 (Audit Log Management) ≈ PRSMTD's audit trail; Control 11 (Data Recovery) ≈ `26-business-continuity`; Control 15 (Service Provider Management) ≈ `25-third-party-risk`; Control 17 (Incident Response Management) ≈ `24-incident-issue-capa`; Control 18 (Penetration Testing) ≈ `SecurityFinding.source = PENETRATION_TEST` | Same modules as several rows above, viewed through CIS's own numbering | PRSMTD's own hardening/CI-guard substrate for several IG1-level safeguards | Structural Crosswalk (IG1-level safeguards map most cleanly; IG2/IG3 safeguards, which assume dedicated tooling, map weakly or not at all) | Author an explicit Safeguard-by-Safeguard crosswalk if pursued, scoped to Implementation Group 1 first | Security operations team; vulnerability-scanning tooling procurement (not designed here) | Early Stage |
+| **OWASP Application Security Verification Standard (ASVS)** | Verification requirements for secure web-application development, organized into verification chapters (Authentication, Session Management, Access Control, Validation, Cryptography, Error Handling/Logging, Data Protection, Communications, Configuration, etc.) | V2 (Authentication); V4 (Access Control); V7 (Error Handling and Logging); V9 (Communications) | This is primarily a **PRSMTD application-security concern** (the platform's own codebase — JWT/Keycloak authentication, RBAC, TLS, `audit_log`), not an ERM business-domain spec's own scope; `09-security`'s "Secure SDLC Governance" consolidation is the only ERM-side touchpoint, citing PRSMTD's ArchUnit/CI-guard substrate by reference rather than an ASVS-level control-by-control verification | PRSMTD's §6/§9/§17/§21 substrate provides partial, unverified-against-ASVS coverage | Structural Crosswalk (weak — no explicit ASVS-level verification regime, e.g. a documented Level 1/2/3 target, exists anywhere) | Author an explicit ASVS verification-level target and a control-by-control mapping if pursued — this is a PRSMTD engineering-practice decision more than an ERM specification one | Application security / secure-SDLC engineering function | Early Stage |
+| **GDPR (EU General Data Protection Regulation)** | EU personal-data-protection regulation; relevant to an Indian SEBI AMC only if it processes EU residents' personal data (e.g. NRI/foreign investors) | N/A — no EU jurisdiction target is named anywhere in `CLAUDE.md`'s stated long-term vertical vision (India-first, extending to Banking/Insurance/Healthcare/Government/Manufacturing/Technology/Critical Infrastructure — not an EU-jurisdiction expansion) | None; DPDP Act (above) is the closer domestic analog and is itself unspecified | None | N/A — Outside Repository Scope | Would require a dedicated EU-jurisdiction regulatory profile if an actual EU-investor personal-data-processing scope becomes concrete — not the case today | Not applicable unless EU personal-data processing becomes concrete | Not Started |
+| **OECD AI Principles (2019/2024)** | Non-binding intergovernmental principles for trustworthy AI (inclusive growth, human-centered values, transparency, robustness, accountability) | N/A — no AI capability spec exists | None | None | N/A — Outside Repository Scope | Same as ISO/IEC 42001/NIST AI RMF above — depends on `16-ai/01-*` | AI governance function, once an AI capability exists | Not Started |
+| **EU AI Act (governance aspects only)** | Risk-tiered regulation of AI systems placed on the EU market — prohibited practices, high-risk-AI conformity assessment, risk-management-system, data-governance, technical-documentation, and human-oversight obligations | N/A — no AI capability spec exists, and no EU-market AI-system placement is stated anywhere in this repository | None | None | N/A — Outside Repository Scope | Same as the other three AI-framework rows above; also gated on an actual EU-market AI deployment, which is not this repository's stated scope | Not applicable | Not Started |
+
+### Regulatory Coverage Heat Map (India)
+
+🟢 Repository-Sourced (clause-level) · 🟡 Partially Specified (structural/indirect) · 🔵
+Structural Crosswalk only · ⚪ Not Specified (genuine gap) · ⚫ N/A — Outside Repository Scope
+
+| Regime | Rating |
+|---|---|
+| SEBI (Mutual Fund AMC framework) | 🟢 |
+| CERT-In Directions | 🟡 |
+| RBI | 🟡 |
+| MCA / Companies Act, 2013 | 🟡 |
+| DPDP Act, 2023 | ⚪ |
+| MeitY guidance | ⚪ |
+| IRDAI | ⚫ |
+| PFRDA | ⚫ |
+| IFSCA | ⚫ |
+
+### Standards Coverage Heat Map (International)
+
+Same legend as above. No international standard reaches 🟢 or 🟡 in this repository — the
+strongest ratings available to any of them are 🔵 (Structural Crosswalk).
+
+| Standard / Framework | Rating | Standard / Framework | Rating |
+|---|---|---|---|
+| ISO 22301:2019 | 🔵 (closest to 🟡 of any international item — see Compliance Coverage Matrix above, unchanged base rating "Partially Mapped") | NIST SP 800-61 | 🔵 |
+| ISO/IEC 27001:2022 | 🔵 | COBIT 2019 | 🔵 |
+| ISO/IEC 27002:2022 | 🔵 | COSO ERM 2017 | 🔵 |
+| ISO 31000:2018 | 🔵 | SOC 2 Trust Services Criteria | 🔵 |
+| ISO 37301:2021 | 🔵 | CIS Controls v8 | 🔵 |
+| ISO 19011:2018 | 🔵 | OWASP ASVS | 🔵 (weak) |
+| ISO/IEC 27005:2022 | 🔵 (weak) | ISO 9001:2015 | ⚫ |
+| NIST CSF 2.0 | 🔵 | ISO/IEC 42001:2023 | ⚫ |
+| NIST SP 800-53 | 🔵 | NIST AI RMF | ⚫ |
+| PCI DSS | ⚫ | GDPR | ⚫ |
+| OECD AI Principles | ⚫ | EU AI Act | ⚫ |
+
+### Cross-Reference to Authoritative Specifications (Session 17)
+
+Every rating in the two Comprehensive Compliance Matrices above traces to one or more of these
+twelve authoritative specifications — no framework rating in this addendum cites anything not
+already present in one of them:
+
+| Spec | Module Code | Cited by rows for |
+|---|---|---|
+| [`04-domain-model/01-enterprise-domain-model.md`](../04-domain-model/01-enterprise-domain-model.md) | — (cross-cutting) | Shared-kernel patterns underlying every Structural Crosswalk row |
+| [`10-risk/01-enterprise-risk-management.md`](../10-risk/01-enterprise-risk-management.md) | `RISK` | ISO 31000, ISO 27005, NIST CSF (Identify), COSO ERM |
+| [`12-controls/01-controls-management.md`](../12-controls/01-controls-management.md) | `CONTROLS` | ISO 27001/27002, NIST CSF (Protect), CIS Controls |
+| [`11-compliance/01-compliance-management.md`](../11-compliance/01-compliance-management.md) | `COMPLIANCE` | RBI, MCA/Companies Act, DPDP, ISO 37301 |
+| [`13-audit/01-audit-management.md`](../13-audit/01-audit-management.md) | `AUDIT` | ISO 19011, NIST CSF (Identify/audit substrate), COBIT (MEA) |
+| [`09-security/01-security-management.md`](../09-security/01-security-management.md) | `SECURITY` | ISO 27001/27002, NIST CSF, NIST SP 800-53, CIS Controls, SOC 2 (Security/Confidentiality) |
+| [`23-policy/01-policy-management.md`](../23-policy/01-policy-management.md) | `POLICY` | ISO 27001 A.5.1, NIST CSF (Govern), ISO 37301 |
+| [`24-incident-issue-capa/01-incident-issue-capa-management.md`](../24-incident-issue-capa/01-incident-issue-capa-management.md) | `INCIDENT` | CERT-In, ISO 27001 A.5.24–5.28, NIST SP 800-61, NIST CSF (Respond), CIS Control 17, ISO 9001 (10.2 analogue) |
+| [`25-third-party-risk/01-third-party-risk-management.md`](../25-third-party-risk/01-third-party-risk-management.md) | `TPR` | ISO 27001 A.5.19–5.22, NIST SP 800-53 (SA), CIS Control 15 |
+| [`26-business-continuity/01-business-continuity-management.md`](../26-business-continuity/01-business-continuity-management.md) | `BCP` | ISO 22301, ISO 27001 A.5.29–5.30, NIST CSF (Recover), NIST SP 800-53 (CP), CIS Control 11 |
+| [`14-reporting/01-reporting-management.md`](../14-reporting/01-reporting-management.md) | `REPORTING` | COSO ERM (Information/Comm/Reporting), COBIT (MEA) |
+| [`15-analytics/01-analytics-management.md`](../15-analytics/01-analytics-management.md) | `ANALYTICS` | COSO ERM (Review & Revision), COBIT (MEA) |
+
+`16-ai/README.md` is cited by every AI-framework row above (ISO/IEC 42001, NIST AI RMF, OECD AI
+Principles, EU AI Act) as an explicit "not yet authored" — it is an index scaffold, not a
+substantive spec, per `CLAUDE.md`'s no-placeholder rule; it carries no traceability block and
+makes no claim this addendum could cite.
+
+### Gap Analysis (Session 17)
+
+Extends, does not replace, [Gap Assessment](#gap-assessment) above — new rows only:
+
+| Category | Gap | Priority | Dependency |
+|---|---|---|---|
+| Regulatory | DPDP Act, 2023 obligation content absent | Medium-High — real statutory exposure for any AMC handling investor PII; unchanged from the base assessment's own rating | `COMPLIANCE` (architecture ready) — Master Execution Plan [Phase 24](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions), not yet executed |
+| Regulatory | CERT-In filing-obligation content absent (timeline substrate exists) | Medium | Same Phase 24 |
+| Regulatory | MeitY-sourced content entirely absent | Low-Medium — no concrete driver yet identified | Unscoped |
+| Regulatory | RBI/Companies Act content is structural-overlap only, never independently sourced | Low-Medium — legal function should verify no material gap exists beyond SEBI's own AML/RPT coverage | Unscoped, candidate extension to `COMPLIANCE` |
+| Technical | No SOC 2 "Availability" or "Privacy" criterion has a corresponding spec (Availability needs `18-deployment`; Privacy needs DPDP/GDPR content) | Medium — relevant only if a formal SOC 2 attestation engagement is ever pursued for the platform itself | `18-deployment` (Phase 14); DPDP content (Phase 24) |
+| Architecture | No `framework_tag` values are actually populated on `09-security`'s `SecurityPolicyDomain` rows, despite the field being designed to host exactly this crosswalk | Low — the field exists and is proven extensible; populating it is pure content work | `09-security` (already authored; a content-only amendment) |
+| Documentation | International Standards Crosswalk (Master Execution Plan [Phase 25](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist)) was scoped to ISO 27001/27701/22301/31000, COBIT, and NIST CSF only; this session's own 22-item international list is broader and supersedes that scope for any future execution of Phase 25 | Low-Medium | This addendum itself is the widened scoping input for a future Phase 25 execution |
+| Capability | `16-ai/` remains entirely unauthored — every AI-related framework in this session's scope (ISO/IEC 42001, NIST AI RMF, OECD AI Principles, EU AI Act) is consequently a hard "Outside Repository Scope," not a partial gap | Low urgency (not currently blocking any authored module's own scope) but blocks all four AI-framework rows simultaneously | Master Execution Plan Phase 12 |
+
+### Recommendations (Session 17)
+
+1. **Do not represent this repository, at its current state, as evidence of compliance with
+   any framework in this addendum's scope beyond SEBI.** Every rating above except SEBI itself
+   is either a structural resemblance or an outright gap — this is the correct, honest reading
+   of the current specification set, not a call to action to close every gap immediately.
+2. **If DPDP Act exposure is a genuine near-term organizational concern** (an AMC processes
+   investor PII by definition), prioritize Master Execution Plan Phase 24 over any of the
+   international crosswalk work — a real statutory obligation with real penalties outranks a
+   voluntary international-standard positioning exercise.
+3. **If international market positioning (per `CLAUDE.md`'s long-term multi-vertical vision) is
+   an active near-term goal**, prioritize populating `09-security`'s existing `framework_tag`
+   field for ISO 27001/NIST CSF specifically (the two standards with the broadest structural
+   coverage already built) before attempting the full 22-item crosswalk — narrower, higher-value
+   scope first.
+4. **Do not begin any AI-framework crosswalk (ISO/IEC 42001, NIST AI RMF, OECD AI Principles,
+   EU AI Act) before `16-ai/01-*` itself is authored** — a crosswalk against a capability that
+   does not yet exist in specification form would be pure speculation, the opposite of this
+   document's own evidentiary discipline.
+5. **RBI, IRDAI, PFRDA, and IFSCA should remain N/A/Outside Repository Scope** unless a concrete
+   business driver (an actual banking-relationship compliance need, an actual Insurance/Pension
+   vertical pursuit, or an actual IFSC entity) makes one of them genuinely relevant — authoring
+   speculative regulatory-profile content for a regulator with no stated target relationship
+   would violate `CLAUDE.md`'s own "avoid unnecessary complexity" principle.
+6. **PCI DSS, GDPR, ISO 9001, and ISO/IEC 42001 should not be revisited** until this repository's
+   own stated scope changes (cardholder-data processing, EU-resident data processing, a
+   product/service-quality target market, or an AI capability, respectively) — each is currently
+   N/A by design, not by oversight, and re-litigating that each session would be pure churn.
+7. **The Overall Compliance Readiness Score's two structurally-zero dimensions (Implementation,
+   Organizational Adoption) should never be treated as ERM specification work items** — no
+   future session of this repository can move either above zero; they require a PRSMTD
+   implementation engagement and a real AMC deployment respectively, both explicitly outside
+   `CLAUDE.md`'s scope for this repository.
+
+### Prioritized Implementation Roadmap (Session 17)
+
+Restates, with explicit priority ordering, the Master Execution Plan phases this addendum's
+findings bear on — no new phase numbers are introduced; see `docs/roadmap.md` for the
+authoritative phase definitions:
+
+| Priority | Phase | Why this order | Status |
+|---|---|---|---|
+| 1 | [Phase 24 — DPDP Act & CERT-In](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions) | Real statutory exposure (DPDP) plus a mandatory reporting deadline regime (CERT-In); architecture ready, content is not | Not started |
+| 2 | Populate `09-security`'s `framework_tag` for ISO 27001/NIST CSF (a scoped subset of [Phase 25](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist)) | Highest-value, narrowest-scope international-positioning work, per Recommendation 3 above | Not started; not yet its own named phase |
+| 3 | [Phase 25 — full International Standards Crosswalk](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist), widened to this addendum's 22-item international list | Only relevant if multi-vertical/international positioning becomes an active goal, per `CLAUDE.md`'s own long-term vision framing | Not started; scope widened by this session, not executed |
+| 4 | Master Execution Plan Phase 12 (`16-ai`) | Prerequisite for any of the four AI-framework rows to move off N/A | Not started |
+| 5 | Master Execution Plan Phase 14 (`18-deployment`) | Prerequisite for a credible SOC 2 "Availability" rating and for the platform's own DR/BCP posture (distinct from `26-business-continuity`'s tenant-facing capability) | Not started |
+| 6 | RBI/Companies Act independent legal-sourcing review | Confirm no material gap exists beyond SEBI's own AML/RPT coverage before any Companies-Act- or RBI-specific `Obligation` content is authored | Not started; contingent on legal/compliance function engagement, not purely an authoring task |
+| Deferred indefinitely | IRDAI, PFRDA, IFSCA, PCI DSS, GDPR, ISO 9001 | No stated business driver exists for any of these six; revisit only if one becomes concrete (see Recommendations 5–6) | N/A — Outside Repository Scope by design |
+
+### Session 17 Closing Statement
+
+This addendum performs the same discipline Sessions 1–16 already established, extended to a
+much wider framework list: it distinguishes clause-level, Repository-Sourced grounding (SEBI
+only) from general-knowledge Structural Crosswalk resemblance (most of the international list)
+from genuine, named gaps (DPDP, MeitY) from deliberate out-of-scope exclusions (IRDAI, PFRDA,
+IFSCA, the four AI frameworks, PCI DSS, GDPR, ISO 9001). **It does not certify compliance,
+readiness, or fitness for certification against any framework named in this addendum.** A
+platform implementing every ERM specification in this repository would be well-positioned to
+*begin* pursuing several of the international standards rated Structural Crosswalk above — but
+"well-positioned to begin" and "compliant" are not the same claim, and this addendum makes only
+the first one.
+
 ## Final Statement
 
 This assessment distinguishes between capabilities that are already implemented in PRSMTD,
@@ -800,3 +1142,30 @@ compliance program in their own right.
   manifest dependency (`TPR → SECURITY`, `TPR → INCIDENT`), violating OWN-08's acyclic
   requirement. Resolved by leaving both references opaque and unresolved by their owning module
   — see `04-domain-model/01-*`'s own Dependency Rule 8 and Amendment log for the full reasoning.
+- **Session 17 update (2026-07-23) — Extended Regulatory, Standards, and Control-Framework
+  Coverage Assessment**: incrementally updated — not regenerated — adding the new
+  [Session 17](#session-17--extended-regulatory-standards-and-control-framework-coverage-assessment-2026-07-23)
+  section in full (Purpose and Method addendum, Executive Summary at extended scope, Overall
+  Compliance Readiness Score, Framework/Control Coverage Percentages, two Comprehensive
+  Compliance Matrices covering 9 Indian regimes and 22 international standards/frameworks,
+  two heat maps, a cross-reference table to all twelve authored specs, an extended Gap Analysis,
+  Recommendations, and a Prioritized Implementation Roadmap). **No content from Sessions 1–16 was
+  edited, removed, or reinterpreted** — this is a pure addition, per this document's own
+  governing "evolve, don't recreate" instruction, inserted immediately before
+  [Final Statement](#final-statement) so that statement continues to close the document as a
+  whole. No frozen ERM spec (any of the twelve authored documents, or `04-domain-model`) was
+  modified. This session verified, before writing any rating, that
+  [`docs/reference/`](../reference/) contains exactly the three SEBI source PDFs Sessions 1–16
+  already relied on and no other primary source text for any of the 31 additional frameworks
+  assessed — every rating for those 31 is therefore explicitly tagged Repository-Sourced,
+  Structural Crosswalk, Scope/Title-Level Only, or N/A–Outside Repository Scope, never left
+  ambiguous about its evidentiary basis. This session substantially widens, but does not
+  execute, Master Execution Plan [Phase
+  25](../roadmap.md#phase-25--international-standards-crosswalk-isocobitnist) (originally
+  scoped to ISO 27001/27701/22301/31000, COBIT, and NIST CSF only; now informed by a 22-item
+  international list) and gives Master Execution Plan [Phase
+  24](../roadmap.md#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions) (DPDP
+  Act, CERT-In Directions) a fuller clause-family treatment without executing it — no
+  `Obligation`/`ObligationCategory` row was added to `11-compliance`, consistent with this being
+  an assessment session, not a specification-authoring one. See `docs/roadmap.md`'s own Session
+  17 entry for the corresponding progress-tracker update.

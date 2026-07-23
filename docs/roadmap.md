@@ -21,6 +21,17 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 17 (2026-07-23)** performed a comprehensive compliance coverage assessment across a
+much wider regulatory/standards scope than Sessions 1–16 ever assessed (9 Indian regulatory
+regimes, 22 international standards/frameworks, beyond the SEBI Mutual Fund AMC profile already
+covered) — see the [Session 17](#session-17--2026-07-23) log entry below and
+[`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)'s
+own new Session 17 section for the full matrices, heat maps, readiness score, and prioritized
+roadmap. **No spec was authored or modified this session** — it is a read-only assessment layer,
+the same kind of session Sessions 1 (via the base compliance assessment), 6, 7, 10–16 each
+already performed incrementally over this document. Twelve authoritative specs remain complete,
+unchanged from Session 16 (see below).
+
 **Phase**: Early specification phase — **twelve authoritative specs complete.** `14-reporting/
 01-reporting-management.md` (module code `REPORTING`, Session 14) was the eleventh spec
 authored and the tenth and final bounded context `04-domain-model`'s map reserves.
@@ -1412,6 +1423,78 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   application status), and the closing Traceability block (twelve authored specs).
 - Updated this file (this entry; Phase 11 marked fully complete below; a new Assumption and Risk
   entry added; Next Milestone refreshed).
+
+### Session 17 — 2026-07-23
+
+- **Performed a comprehensive compliance coverage assessment** of the repository at its current
+  state (twelve authored specs, `04-domain-model` unchanged), per explicit instruction to
+  determine — assuming faithful implementation of every specified ERM module within PRSMTD —
+  which regulatory frameworks, standards, and control frameworks the resulting platform would
+  help an organization work toward compliance with, evaluated at clause/control level wherever
+  the underlying source material supports it. This is an **assessment session**: no frozen ERM
+  spec (any of the twelve authored documents, or `04-domain-model`) was modified, and no new
+  `Obligation`/`ObligationCategory` content was added to `11-compliance`.
+- Reviewed, in full or in targeted depth, `CLAUDE.md`, `README.md`, this file's Current Status/
+  Next Milestone/Master Execution Plan Phase Summary/Tier 6 (Regulatory Extensions)/Risks/Open
+  Decisions sections, both `22-traceability/` artifacts in full, and all twelve authored specs
+  (`04-domain-model`, `10-risk`, `12-controls`, `11-compliance`, `13-audit`, `09-security`,
+  `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`, `26-business-continuity`,
+  `14-reporting`, `15-analytics`) — the same "read before writing" discipline every prior
+  session in this log follows, applied here to a read-only assessment output rather than a new
+  spec.
+- Confirmed, by directory listing, that [`docs/reference/`](reference/) contains exactly three
+  primary source documents — all SEBI circulars already relied on by Sessions 1–16 — and no
+  primary source text for any regulation, standard, or framework outside the SEBI Mutual Fund
+  AMC profile. Every new rating this session produced is explicitly tagged with its evidentiary
+  basis (Repository-Sourced / Structural Crosswalk / Scope-Level Only / N/A–Outside Repository
+  Scope) rather than left ambiguous, per this repository's own "do not overstate compliance"
+  instruction for this session.
+- **Extended
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)**
+  incrementally — not regenerated — with a new "Session 17" section covering 9 Indian regulatory
+  regimes (SEBI, re-cross-referenced; RBI; IRDAI; PFRDA; IFSCA; MCA/Companies Act, 2013; DPDP
+  Act, 2023; CERT-In Directions, 2022; MeitY guidance) and 22 international standards/frameworks
+  (ISO 31000/27001/27002/27005/22301/9001/37301/19011/42001; NIST CSF 2.0/AI RMF/SP 800-53/SP
+  800-61; COBIT 2019; COSO ERM 2017; SOC 2 Trust Services Criteria; PCI DSS; CIS Controls v8;
+  OWASP ASVS; GDPR; OECD AI Principles; EU AI Act) — an Overall Compliance Readiness Score
+  (≈40/100, transparently weighted, explicitly not a certification claim), Framework/Control
+  Coverage Percentages, two Comprehensive Compliance Matrices, two heat maps, a cross-reference
+  table to all twelve authored specs, an extended Gap Analysis, Recommendations, and a
+  Prioritized Implementation Roadmap. All content from Sessions 1–16 in that document is
+  preserved unchanged.
+- **Headline finding**: of the 31 additional frameworks assessed (beyond SEBI, already rated),
+  exactly **one** item (SEBI's own broader adjacent regimes — none, in fact; see below) reaches
+  Repository-Sourced grounding; **four** (RBI, MCA/Companies Act, CERT-In, ISO 22301) reach
+  genuine Partially-Specified structural coverage; **fourteen** international standards reach
+  Structural-Crosswalk-only (a real but unverified resemblance, no explicit clause mapping
+  authored); **two** (DPDP Act, MeitY guidance) are named gaps with zero content though the
+  hosting architecture already exists; **ten** (IRDAI, PFRDA, IFSCA, ISO 9001, ISO/IEC 42001,
+  NIST AI RMF, PCI DSS, GDPR, OECD AI Principles, EU AI Act) are N/A–Outside Repository Scope by
+  design, not by oversight — a different regulated-entity type, jurisdiction, or an AI capability
+  (`16-ai/`) this repository has never authored.
+- **Did not execute** Master Execution Plan [Phase 24](#phase-24--regulatory-content-extension-dpdp-act--cert-in-directions)
+  (DPDP/CERT-In obligation content) or [Phase 25](#phase-25--international-standards-crosswalk-isocobitnist)
+  (International Standards Crosswalk) — this session produced the assessment that scopes and
+  prioritizes both, per its own instruction to assess rather than author new obligation content,
+  but **substantially widens Phase 25's originally-scoped 6-item list (ISO 27001/27701/22301/
+  31000, COBIT, NIST CSF) to the 22-item international list above** for whichever future session
+  executes it. Both phases remain open — see the Prioritized Implementation Roadmap in
+  `22-traceability/02-*`'s own Session 17 section for the recommended ordering.
+- **Repository maturity, restated for this session's own audience** (enterprise architects,
+  compliance officers, internal/external auditors, regulators): ERM specification maturity is
+  **high and at its ceiling** for the ten bounded contexts `04-domain-model` currently
+  enumerates (unchanged from Session 16 — see [Repository
+  Maturity](22-traceability/02-compliance-coverage-assessment.md#repository-maturity) above).
+  **Compliance maturity is bifurcated by design**: high (clause-level, Repository-Sourced) for
+  the single SEBI Mutual Fund AMC regulatory profile this repository targets; early-stage
+  (Structural Crosswalk, general-knowledge-grounded, not repository-sourced) for every
+  international standard assessed; and correctly zero/N/A for regimes and frameworks outside
+  this repository's stated scope. **Implementation and organizational-adoption maturity remain
+  at zero**, as they must for a specification-only repository (`CLAUDE.md`) that no organization
+  has yet deployed or operated — not a defect this or any future session can close through
+  further specification work alone.
+- Updated this file (this entry; Risks and Open Decisions entries added below; recommended next
+  milestone restated).
 
 ## Next Milestone
 
@@ -3247,6 +3330,8 @@ Carried forward from both authored specs — re-verify if stale:
 | **New (Session 15)**: applying a backlog of proposed additive changes by replaying each proposal's own originally-drafted shape, without re-deriving its consequences against the *current* dependency graph, can silently introduce a cycle a single-proposal-at-a-time review would never have caught — two of nineteen changes this session applied (`SecurityFinding.linked_vendor_id`, `Incident.vendor_ref_id`) would have done exactly this had they been applied as first drafted | A future consolidation session applying several proposals together could introduce an undetected OWN-08 violation, especially where two proposals from different sessions each add a dependency edge between the same pair of contexts in opposite directions | Established as a standing precedent (Assumption 49): validate each proposed change against the dependency graph as it exists *at application time*, not merely against what was true when the change was proposed; prefer leaving a reference opaque and unresolved by its owning module over accepting a cycle, resolving it instead via a third module with no conflicting edge |
 | **New (Session 16)**: `15-analytics/01-*` proposes, but does not apply, its own eleventh-bounded-context amendment to `04-domain-model` and two small additive changes to `14-reporting` (Assumption 50) | A future session could forget this small backlog exists, since it is easy to assume Session 15's consolidation closed every open proposal permanently rather than as of the specs authored by that point | Track explicitly here and in `22-traceability/01-*`'s gap register; apply in a future session per the established propose-then-apply-later pattern — small enough (three items) to fold into that session's own primary work rather than requiring a dedicated consolidation session |
 | **New (Session 16)**: two genuinely new gaps named by `15-analytics/01-*` (a generic formula-execution/BI-computation engine; a roster-of-required-acknowledgers capability) | Neither blocks `ANALYTICS`'s own MVP scope, but a real formula engine and a real acknowledgement-roster capability both remain unbuilt/undesigned, and `MTR-POL-001`'s own completion-rate metric cannot compute a true rate until the latter exists | Track explicitly (Assumption 50); revisit if a concrete tenant requirement makes either concrete, the same treatment SIEM/ABAC/scheduled-job/export-rendering already received |
+| **New (Session 17)**: the extended compliance assessment's ≈40/100 Overall Compliance Readiness Score, and its Structural-Crosswalk ratings for 14 international standards, could be misread out of context as either an alarm ("only 40%!") or an overstatement ("crosswalked to ISO 27001!") if the score's own weighting methodology or the Structural-Crosswalk basis tag is stripped away when cited elsewhere | A stakeholder deck, sales conversation, or regulator submission that cites this session's numbers without their stated methodology/caveats would misrepresent both this repository's actual maturity and its actual gaps | Always cite the full basis tag (Repository-Sourced / Structural Crosswalk / Scope-Level Only / N/A) alongside any rating from `22-traceability/02-*`'s Session 17 section, never the rating alone; the score's own five-dimension breakdown must travel with the composite number, per that section's own "never a standalone headline claim" instruction |
+| **New (Session 17)**: Master Execution Plan Phase 25's originally-scoped 6-item international list (ISO 27001/27701/22301/31000, COBIT, NIST CSF) is now superseded in practice by this session's 22-item list, but Phase 25's own written entry (Tier 6) has not been edited to reflect the wider scope | A future session executing "Phase 25" from its own written text alone could under-scope the crosswalk relative to what this session's assessment actually found relevant | Treat `22-traceability/02-*`'s Session 17 section, not Phase 25's original Tier 6 entry, as the authoritative scope statement for any future Phase 25 execution; reconcile Phase 25's own text the next time this file's Master Execution Plan section is revisited |
 
 ## Open Decisions
 
@@ -3413,6 +3498,20 @@ Carried forward from both authored specs — re-verify if stale:
   (`16-ai` AI Governance, now genuinely unblocked with a real metric catalog to build on) next,
   then the Tier 4 cross-module consolidation (Phases 19–21, unblocked since every phase they
   depend on — 6 through 11 — is complete), open for reconsideration.
+- **New (Session 17), open**: **which of Phase 24 (DPDP/CERT-In content), Phase 25 (widened
+  International Standards Crosswalk), or the still-open items above should run next?** This
+  session's own assessment (see
+  [`22-traceability/02-*`'s Prioritized Implementation Roadmap](22-traceability/02-compliance-coverage-assessment.md#prioritized-implementation-roadmap-session-17))
+  recommends Phase 24 first (real statutory DPDP/CERT-In exposure outranks a voluntary
+  international-standard positioning exercise), then a scoped `09-security`
+  `framework_tag`-population exercise for ISO 27001/NIST CSF specifically (narrower and
+  higher-value than the full Phase 25), then Phase 25's own full widened scope only if
+  international/multi-vertical positioning becomes an active goal. This does not override the
+  still-open Phase 5 / Phase 12 / Tier 4 recommendation immediately above — it is a parallel,
+  independent recommendation for the regulatory-extension track specifically (Tier 6), which can
+  proceed on its own timeline without blocking or being blocked by Tier 0/2/4 work. Not resolved
+  this session; a future session should pick one explicitly rather than treating both
+  recommendations as automatically sequential.
 
 ## Traceability
 
