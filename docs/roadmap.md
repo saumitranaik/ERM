@@ -21,19 +21,26 @@ this file, before doing new work.
 
 ## Current Status
 
-**Phase**: Early specification phase — **eleven authoritative specs complete, and, as of
-Session 15, fully internally consistent with zero outstanding additive-change or status-label
-backlog.** `14-reporting/01-reporting-management.md` (module code `REPORTING`, Session 14) was
-the eleventh spec authored and the tenth and final bounded context `04-domain-model`'s map
-reserves. **Session 15 (Additive Change Consolidation)** then applied all nineteen additive
+**Phase**: Early specification phase — **twelve authoritative specs complete.** `14-reporting/
+01-reporting-management.md` (module code `REPORTING`, Session 14) was the eleventh spec
+authored and the tenth and final bounded context `04-domain-model`'s map reserves.
+**Session 15 (Additive Change Consolidation)** then applied all nineteen additive
 changes and all five `04-domain-model` status-label amendments this repository had carried as
 proposed-not-applied since Sessions 10–14 (`POLICY`, `INCIDENT`/`ISSUE`/`CAPA`, `THIRD-PARTY
 RISK`, `BUSINESS CONTINUITY`, `REPORTING` — see the Session 15 entry under Completed Work) — no
 reserved context, no dashed Bounded Context Map edge, and no open additive-change proposal
-remains anywhere in this repository. `15-analytics` (the KPI/metric catalog and dashboard
-visualization layer `14-reporting/01-*` explicitly defers) remains the one unauthored piece of
-`CLAUDE.md`'s original "REPORTING & ANALYTICS" vision. Session 14 proceeded directly to Phase
-11 per explicit instruction, superseding this file's own Session 13 "Order of next work"
+remained anywhere in this repository at that point. **Session 16** then authored
+`15-analytics/01-analytics-management.md` (module code `ANALYTICS`) — the KPI/metric catalog,
+threshold/banding measurement, and dashboard visualization-composition layer
+`14-reporting/01-*` Assumption 16 explicitly deferred, closing the one remaining unauthored
+piece of `CLAUDE.md`'s original "REPORTING & ANALYTICS" vision. This module proposes, but does
+not apply, an eleventh-bounded-context amendment to `04-domain-model` and two small additive
+changes to `14-reporting` (see the Session 16 entry under Completed Work) — the same
+propose-then-apply-later pattern this repository has used consistently since Session 6, so
+`04-domain-model`'s own bounded-context count and this repository's Specification Completion
+metric both deliberately stay at their Session 15 values (10/10) until a future session applies
+that amendment. Session 14 proceeded directly to Phase 11 per explicit instruction,
+superseding this file's own Session 13 "Order of next work"
 recommendation to run the additive-change consolidation first — Session 15 then executed
 exactly that consolidation, per its own explicit instruction (see the Session 14/15 entries and
 Assumption 43 below). The remainder of this
@@ -60,14 +67,18 @@ redesigned by any of these corrections.
 **Repository state**: Scaffolding (all 22 original `docs/NN-*/README.md` section indexes plus
 `docs/reference/`, extended with `23-policy` through `27-user-experience` at Session 9) was
 already initialized and validated internally consistent against `CLAUDE.md` prior to Session
-1. **Eleven authoritative specs now exist as of Session 14**: `RISK`, `CONTROLS`, the
+1. **Twelve authoritative specs now exist as of Session 16**: `RISK`, `CONTROLS`, the
 Enterprise Domain Model, `COMPLIANCE`, `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`,
-and `REPORTING`. **The Enterprise Domain Model's own Bounded Context Map now names all ten as
-authored** — `POLICY`'s, `INCIDENT`'s, `TPR`'s, `BCP`'s, and `REPORTING`'s own status-label
+`REPORTING`, and `ANALYTICS`. **The Enterprise Domain Model's own Bounded Context Map names ten
+contexts as authored** — `POLICY`'s, `INCIDENT`'s, `TPR`'s, `BCP`'s, and `REPORTING`'s own
+status-label
 amendments, each proposed at its own authoring session (Sessions 10–14) and left unapplied
 until now, were all applied together in Session 15 (see Assumptions 33, 35, 37, 40, 47, and the
 new Session 15 assumption below) — eleven total (all ten bounded contexts plus the Domain Model
-itself), all cross-references internally consistent. One traceability/assessment artifact
+itself), all cross-references internally consistent. `ANALYTICS`'s own eleventh-context
+amendment (proposed at Session 16, per `15-analytics/01-*` Assumption 3) remains unapplied,
+the same one-session lag every prior module's own status-label proposal has left before it —
+see the new Session 16 assumption below. One traceability/assessment artifact
 (`22-traceability/02-compliance-coverage-assessment.md`) supplements the master matrix,
 incrementally updated (not regenerated) each session.
 
@@ -1310,6 +1321,98 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   added below; Risks rows for the nineteen-changes/five-amendments backlog marked resolved;
   Open Decisions updated; Next Milestone refreshed).
 
+### Session 16 — 2026-07-22/23
+
+- Reviewed `CLAUDE.md`, this file (Current Status, the Master Execution Plan's Phase 11 entry,
+  Assumptions, Risks, Open Decisions), the Enterprise Domain Model, `14-reporting/01-*` in
+  full, both traceability artifacts, and — via a background research pass over all nine
+  authored business-domain specs (`10-risk`, `12-controls`, `11-compliance`, `13-audit`,
+  `09-security`, `23-policy`, `24-incident-issue-capa`, `25-third-party-risk`,
+  `26-business-continuity`) — every measurable field, enum, and existing "Reporting
+  Requirements" table each already carries, per explicit instruction to author the Master
+  Execution Plan's Phase 11 second document.
+- **Authored the repository's twelfth authoritative specification**,
+  [`15-analytics/01-analytics-management.md`](15-analytics/01-analytics-management.md) (module
+  code `ANALYTICS`) — the KPI/metric catalog, threshold/banding measurement, and dashboard
+  visualization-composition layer `14-reporting/01-*` Assumption 16 explicitly deferred,
+  completing `CLAUDE.md`'s original "REPORTING & ANALYTICS" vision and Master Execution Plan
+  Phase 11's own two-document deliverable.
+- **Designed a first-time-complete 48-row seed KPI/Metric Catalogue**: 42 rows consolidating
+  measurable facts already present in the nine authored business-domain modules' own data
+  models (severity/status enums, threshold-banded measurements, `AUDIT`'s own already-computed
+  Non-Compliance Rate/Rectification Index, trended rather than recomputed) plus 6 new
+  cross-module composite metrics (Enterprise Exception Aging Rollup, Enterprise CAPA On-Time &
+  Effectiveness Rollup, Residual Risk Heat Map, Control Effectiveness Trend by Family,
+  Regulatory Filing On-Time Rate, and a configurable Governance Health Index). This session's
+  own research confirmed that, besides `AUDIT`'s two named metrics, no prior module states an
+  aggregate ratio/rate formula of its own — every other "dashboard"/"posture"/"completion %"
+  mention across the nine modules is descriptive scope language over enum/count data. This
+  spec's central contribution is naming those formulas explicitly, once, rather than leaving
+  each future dashboard or AI-analytics feature to re-derive its own.
+- **Activated `14-reporting`'s already-reserved `DashboardWidget.widget_type =
+  METRIC_REFERENCE`/`metric_ref_id` slot with zero additive change to that module's schema** —
+  the missing piece that spec's own Assumption 16 named (a resolvable `GET
+  /metric-views/{id}/reference` endpoint and a catalogue entity, `MetricView`, to resolve to).
+  Confirmed and preserved, rather than redesigned, that `DashboardDefinition`/`DashboardWidget`
+  themselves remain exclusively owned by `REPORTING` (`04-domain-model` Assumption 5) — this
+  session's own spec introduces no competing dashboard aggregate; "Executive/Operational/
+  Regulatory dashboards" are realized as `REPORTING` `DashboardDefinition` instances composed of
+  `METRIC_REFERENCE` widgets resolving into this session's own `MetricView` catalogue.
+- **Preserved, rather than duplicated, two frozen ownership boundaries** discovered by this
+  session's own research to be at risk of conflict with the phase's brief: `KRI` (`RISK`) and
+  `VendorSLA` (`TPR`) are never re-modeled as parallel Metric Definitions with their own
+  measurement table — every KRI-/SLA-derived metric in the new catalogue is
+  `calculation_method = SOURCE_AGGREGATE`, computed by calling that module's own existing bulk
+  endpoint, per `04-domain-model` Assumption 3 and `25-third-party-risk` Assumption 10.
+- **Defined zero governed `module_actions` types** for the new module — an even smaller
+  governance footprint than `14-reporting`'s own single governed action, since every aggregate
+  is either ungoverned catalog content (`MetricDefinition`, `MetricView`) or an append-only
+  measurement fact (`MetricValue`, mirroring `KRIMeasurement`/`VendorSLAMeasurement`'s identical
+  green/amber/red banding shape, extended to a third module).
+- **Defined a canonical aging-bucket convention** (`FRESH`/`AGING`/`OVERDUE`/`CRITICAL_AGING`,
+  0–30/31–60/61–90/90+ days open) for the first time in this repository — confirmed, via this
+  session's own research, that no prior exception/finding-type entity across the nine modules
+  defines one of its own.
+- **Proposed, but did not apply, two categories of additive change**, following the established
+  propose-in-the-new-spec/apply-in-a-later-session pattern: (1) an eleventh-bounded-context
+  amendment to `04-domain-model` (adding `ANALYTICS` alongside `REPORTING` within the existing
+  "Reporting and Analytics" Supporting Subdomain, plus the matching Strategic Classification,
+  Ownership Responsibilities, Canonical Business Glossary, Cross-Context APIs table, and
+  Dependency Rule 5 extension); (2) two small additive changes to `14-reporting` (`dependencies:`
+  gains `ANALYTICS`; `DashboardDefinition.audience` gains `REGULATORY`). No frozen spec was
+  modified this session.
+- **Named two genuine new gaps, neither blocking this module's own MVP scope**: a generic
+  formula-execution/BI-computation engine (confirmed absent from `system.md` this session;
+  `MetricDefinition.formula_description` remains human-readable text, computed in application
+  code) and a roster-of-required-acknowledgers capability (surfaced by the new catalogue's own
+  `MTR-POL-001` Policy Acknowledgement Completion Rate metric — `23-policy/01-*` itself already
+  states it records who *did* acknowledge, not who *must*, so a true rate's denominator remains
+  undesignable without this capability).
+- Updated [`15-analytics/README.md`](15-analytics/README.md) from "Not yet authored" to
+  "Complete," summarizing the new spec's scope and its relationship to `14-reporting`.
+- Updated [`22-traceability/01-master-traceability-matrix.md`](22-traceability/01-master-traceability-matrix.md)
+  — new Business↔Regulatory row; new Capability↔PRSMTD row; new Requirement↔Spec gap-register
+  rows (the KPI/metric/dashboard capability itself now closed; the two new gaps named above;
+  the two proposed-not-applied amendments); new Session 16 Status paragraph. Only the sections
+  this session's changes affect were updated; all prior sessions' own analysis is preserved
+  unchanged.
+- Incrementally updated (never regenerated)
+  [`22-traceability/02-compliance-coverage-assessment.md`](22-traceability/02-compliance-coverage-assessment.md)
+  — Executive Summary (specification maturity, combined platform maturity, recommended-next-
+  module rows), Scope and Method (ERM verification bullet, now twelve documents), Question 2
+  (new Analytics bullet; "which roadmap items would still remain" paragraph), Platform
+  Capability Matrix and Enterprise Capability Matrix (`Analytics`/`Interactive Analytics` rows
+  moved from Not Specified/Not Started to Specified/Planned), Gap Assessment (Analytics gap row
+  closed; two new gap rows added; one new proposed-not-applied architecture row added),
+  Percentage Completion (Specification Completion **deliberately stays at 10/10 = 100%**, per
+  this document's own established convention that a proposed-not-applied `04-domain-model`
+  amendment does not move that metric; Platform Capability Completion moves to **13 Specified
+  but Pending, 8 Remaining, out of a 28-row denominator**, since `Analytics` is now a
+  specified, not merely reserved, capability independent of the domain-model amendment's own
+  application status), and the closing Traceability block (twelve authored specs).
+- Updated this file (this entry; Phase 11 marked fully complete below; a new Assumption and Risk
+  entry added; Next Milestone refreshed).
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -1406,7 +1509,7 @@ a future session.
 | 8 | 1 — Remaining Modules | Third-Party Risk Management Module (`TPR`) — **Complete, Session 12** | Yes | Yes (`04-domain-model`, proposed; `10-risk`/`12-controls`/`11-compliance`/`09-security`/`13-audit`/`24-incident-issue-capa`, proposed) | High | Phase 1 |
 | 9 | 1 — Remaining Modules | Business Continuity Management Module (`BCP`) — **Complete, Session 13** | Yes | Yes (`04-domain-model`, proposed; `10-risk`/`12-controls`/`11-compliance`/`23-policy`/`13-audit`/`24-incident-issue-capa`, proposed) | High | Phase 1 |
 | 10 | 1 — Remaining Modules | Records Retention Schedule Capability | No | Yes (five frozen specs) | Medium | None |
-| 11 | 2 — Reporting/AI/Integration/Deployment | Reporting & Analytics Module (`14-reporting`, `15-analytics`) — **`14-reporting` Complete, Session 14; `15-analytics` deferred** | Yes | No | High | All six frozen specs; Phases 6–9 (partial) |
+| 11 | 2 — Reporting/AI/Integration/Deployment | Reporting & Analytics Module (`14-reporting`, `15-analytics`) — **Complete: `14-reporting` Session 14, `15-analytics` Session 16** | Yes | No | High | All six frozen specs; Phases 6–9 (partial) |
 | 12 | 2 — Reporting/AI/Integration/Deployment | AI Governance Specification (`16-ai`) | Yes | No | Medium | Phase 11 (metric catalog) |
 | 13 | 2 — Reporting/AI/Integration/Deployment | Integrations Specification (`17-integrations`) | Yes | No | Medium-High | Phase 11 (reporting content) |
 | 14 | 2 — Reporting/AI/Integration/Deployment | Deployment Specification (`18-deployment`) | Yes | No | Medium | Phase 4 |
@@ -1956,17 +2059,21 @@ immediate-raise/governed-closure exception shape, opaque-reference shape, code-s
 
 #### Phase 11 — Reporting & Analytics Module (`14-reporting`, `15-analytics`)
 
-**Status: `14-reporting` Complete — Session 14 (2026-07-21); `15-analytics` deferred.**
+**Status: Complete — `14-reporting` Session 14 (2026-07-21); `15-analytics` Session 16
+(2026-07-22/23).**
 [`14-reporting/01-reporting-management.md`](../14-reporting/01-reporting-management.md) (module
-code `REPORTING`) is authored, per explicit instruction to execute this phase as a
-single-document deliverable this session — the KPI/metric catalog and dashboard visualization
-composition this phase's own Scope paragraph assigns to `15-analytics` remain explicitly
-deferred to a future phase (new spec's own Assumption 16), not silently dropped. This phase's
-own "author it once, referenced from both section documents" framing below is honored in spirit
-(`14-reporting/01-*`'s `ReportDefinition`/`DashboardDefinition` shape is the one shared
-bounded-context model a future `15-analytics/01-*.md` builds on, via the reserved, inert
-`DashboardWidget.widget_type = METRIC_REFERENCE` slot) without both documents being required to
-land in the same session.
+code `REPORTING`) was authored first, per explicit instruction to execute that half of this
+phase as a single-document deliverable in its own session — the KPI/metric catalog and
+dashboard visualization composition this phase's own Scope paragraph assigns to `15-analytics`
+were explicitly deferred at that point (that spec's own Assumption 16), not silently dropped.
+[`15-analytics/01-analytics-management.md`](../15-analytics/01-analytics-management.md) (module
+code `ANALYTICS`) then closed the deferred half two sessions later, activating
+`14-reporting`'s reserved, previously-inert `DashboardWidget.widget_type = METRIC_REFERENCE`
+slot with **zero** additive change to that module's schema — the "author it once, referenced
+from both section documents" framing below is honored exactly as anticipated: `14-reporting`'s
+`ReportDefinition`/`DashboardDefinition` shape is the shared bounded-context foundation
+`15-analytics/01-*`'s own `MetricDefinition`/`MetricValue`/`MetricView` builds on, without both
+documents having needed to land in the same session.
 
 - **Objective**: Author the `REPORTING` bounded context `04-domain-model` reserves as a
   Conformist consumer of every other context — the aggregation layer every one of the ten
@@ -1980,7 +2087,12 @@ land in the same session.
   definitions) — author it once, referenced from both section documents, not duplicated between
   them.
 - **Deliverables**: `14-reporting/01-regulatory-executive-reporting.md`,
-  `15-analytics/01-kpi-metric-catalog.md`.
+  `15-analytics/01-kpi-metric-catalog.md`. **As actually authored**, each document took the
+  `01-<module>-management.md` name every other module spec in this repository uses, for naming
+  consistency: [`14-reporting/01-reporting-management.md`](../14-reporting/01-reporting-management.md)
+  (Session 14) and [`15-analytics/01-analytics-management.md`](../15-analytics/01-analytics-management.md)
+  (Session 16) — this plan's own original filenames are preserved above as the historical
+  record of this phase's initial scoping, not corrected in place.
 - **Inputs**: All six frozen specs' own Reporting sections (each already has one — this phase
   consolidates and formalizes, the same relationship `09-security` had to the five prior specs'
   inline security content); Phases 6–9's modules if authored by this point (partial dependency —
@@ -3089,6 +3201,25 @@ Carried forward from both authored specs — re-verify if stale:
     change was applied, not merely *whether* — worth naming as a standing precedent: a future
     session applying a backlog of proposed changes must re-derive each one's dependency
     consequences against the *current* dependency graph, not merely replay what was proposed.
+50. **New (Session 16)**: `15-analytics/01-analytics-management.md` (module code `ANALYTICS`)
+    completes Master Execution Plan Phase 11 and `CLAUDE.md`'s original "REPORTING & ANALYTICS"
+    vision. It proposes, but does not apply, two categories of additive change: an
+    eleventh-bounded-context amendment to `04-domain-model` (adding `ANALYTICS` alongside
+    `REPORTING` within the already-named "Reporting and Analytics" Supporting Subdomain — this
+    document's own Assumption 5 named that subdomain as a pairing before either half was
+    authored, and now that both are, each is confirmed to own a genuinely distinct aggregate set
+    and vocabulary) and two small additive changes to `14-reporting` (`dependencies:` gains
+    `ANALYTICS`; `DashboardDefinition.audience` gains `REGULATORY`) — following the same
+    propose-then-apply-later pattern this repository has used consistently since Session 6. This
+    repository therefore again carries a small, precisely-scoped, open additive-change backlog
+    (three items total: one bounded-context amendment, two small `14-reporting` additions) —
+    unlike the nineteen-item backlog Assumption 46 named, small enough that a future session may
+    reasonably apply it alongside its own primary work rather than requiring a dedicated
+    consolidation session, though nothing prevents treating it as one if the backlog grows
+    further before it is applied. `ANALYTICS` reuses, rather than duplicates, `KRI` (`RISK`) and
+    `VendorSLA` (`TPR`) — no parallel measurement table was created for either — and defines
+    zero governed `module_actions` types, the smallest governance footprint of any module in
+    this repository to date.
 
 ## Risks
 
@@ -3114,6 +3245,8 @@ Carried forward from both authored specs — re-verify if stale:
 | **Resolved (Session 15)**: three additive changes `14-reporting/01-*` proposed (`GET /risks/{id}/reference` on `10-risk`; `GET /findings/{id}/reference`/`GET /engagements/{id}/reference` on `13-audit`), plus the fifth and final `04-domain-model` status-label amendment (`REPORTING`) | N/A — applied this session; `04-domain-model`'s map now labels all ten bounded contexts "(authored)," reaching Specification Completion's ceiling (10/10 = 100%, see `22-traceability/02-*`) | Closed; see Assumption 48 and each target document's own Amendment log. |
 | **New (Session 14)**: two genuinely new PRSMTD capability gaps named by `14-reporting/01-*` (scheduled-job/batch-execution mechanism; generic PDF/CSV export-rendering pipeline) | Neither blocks `REPORTING`'s own MVP scope, but a genuinely scheduled (not merely due-date-tracked) report generation capability, and an actual rendered export artifact, both remain unbuilt platform capabilities | Track explicitly (Assumption 45); revisit if a concrete tenant requirement or regulatory deadline makes either concrete, the same treatment SIEM/ABAC already received |
 | **New (Session 15)**: applying a backlog of proposed additive changes by replaying each proposal's own originally-drafted shape, without re-deriving its consequences against the *current* dependency graph, can silently introduce a cycle a single-proposal-at-a-time review would never have caught — two of nineteen changes this session applied (`SecurityFinding.linked_vendor_id`, `Incident.vendor_ref_id`) would have done exactly this had they been applied as first drafted | A future consolidation session applying several proposals together could introduce an undetected OWN-08 violation, especially where two proposals from different sessions each add a dependency edge between the same pair of contexts in opposite directions | Established as a standing precedent (Assumption 49): validate each proposed change against the dependency graph as it exists *at application time*, not merely against what was true when the change was proposed; prefer leaving a reference opaque and unresolved by its owning module over accepting a cycle, resolving it instead via a third module with no conflicting edge |
+| **New (Session 16)**: `15-analytics/01-*` proposes, but does not apply, its own eleventh-bounded-context amendment to `04-domain-model` and two small additive changes to `14-reporting` (Assumption 50) | A future session could forget this small backlog exists, since it is easy to assume Session 15's consolidation closed every open proposal permanently rather than as of the specs authored by that point | Track explicitly here and in `22-traceability/01-*`'s gap register; apply in a future session per the established propose-then-apply-later pattern — small enough (three items) to fold into that session's own primary work rather than requiring a dedicated consolidation session |
+| **New (Session 16)**: two genuinely new gaps named by `15-analytics/01-*` (a generic formula-execution/BI-computation engine; a roster-of-required-acknowledgers capability) | Neither blocks `ANALYTICS`'s own MVP scope, but a real formula engine and a real acknowledgement-roster capability both remain unbuilt/undesigned, and `MTR-POL-001`'s own completion-rate metric cannot compute a true rate until the latter exists | Track explicitly (Assumption 50); revisit if a concrete tenant requirement makes either concrete, the same treatment SIEM/ABAC/scheduled-job/export-rendering already received |
 
 ## Open Decisions
 
@@ -3249,31 +3382,37 @@ Carried forward from both authored specs — re-verify if stale:
   Completed Work, and each target document's own Amendment log. No longer open — this was the
   full, final backlog of this kind; no proposed-not-applied additive change remains anywhere in
   this repository.
-- **New (Session 14), still open**: **when to author `15-analytics`** (KPI/metric catalog,
-  dashboard visualization composition) — explicitly deferred by `14-reporting/01-*` Assumption
-  16, not yet its own scheduled Master Execution Plan phase distinct from Phase 11's original
-  two-document framing. `14-reporting/01-*`'s own `ReportDefinition`/`DashboardDefinition` shape
-  and the reserved, inert `DashboardWidget.widget_type = METRIC_REFERENCE` slot are ready to
-  build on whenever this is scheduled.
-- **Order of next work** — with the additive-change consolidation now complete (Session 15),
-  every reserved business-domain bounded context in `04-domain-model`'s map is both authored
-  and labeled "(authored)," and no proposed-not-applied change remains anywhere in this
-  repository. The choice is between the still-open persona-to-module-role/`system.md §18` ADR
-  consolidation (Phase 5), a future `15-analytics` phase (KPI/metric catalog, dashboard
-  visualization — the natural next step for the "REPORTING & ANALYTICS" vision `14-reporting`
-  only half-completed), Phase 12 (`16-ai` AI Governance, which per its own entry builds on a
-  metric catalog — likely `15-analytics` rather than `14-reporting` alone, so probably sequenced
-  after it), Phase 13 (`17-integrations`) or Phase 14 (`18-deployment`), the Tier 0 foundational
-  backlog (Phases 2–4: Vision, Business Architecture, Enterprise Architecture specifications,
-  never yet started), or beginning the Tier 4 cross-module consolidation (Phases 19–21: Data
-  Model, Workflow & Event Catalog, and REST API Catalog indexes, all of which now have every
-  business-domain module they depend on fully authored and internally consistent).
-  **Current recommendation**: `15-analytics` next (lowest effort relative to value — it
-  completes the "REPORTING & ANALYTICS" reserved node this document's own map has carried since
-  Session 3, and gives `16-ai` a real metric catalog to build on), then either Phase 5 (ADR
-  backfill, low effort, no new content) or the Tier 4 cross-module consolidation (Phases 19–21,
-  now unblocked since every phase they depend on — 6 through 11 — is complete), open for
+- **Resolved (Session 16)**: Master Execution Plan Phase 11 is now **fully** complete —
+  [`15-analytics/01-analytics-management.md`](15-analytics/01-analytics-management.md) is
+  authored, module code `ANALYTICS`, closing the "REPORTING & ANALYTICS" vision
+  `14-reporting/01-*` only half-completed at Session 14. No longer open.
+- **New (Session 16), open**: **applying `15-analytics/01-*`'s own proposed additive changes**
+  (an eleventh-bounded-context amendment to `04-domain-model`; `dependencies:`/
+  `DashboardDefinition.audience = REGULATORY` additions to `14-reporting`) — tracked as
+  Assumption 50 and a Risks row above; not yet scheduled as its own Master Execution Plan phase.
+  Small enough (three items) to fold into a future session's own primary work rather than
+  requiring a dedicated consolidation session, though it may reasonably be bundled with the
+  persona-to-module-role/`system.md §18` ADR consolidation (Phase 5) instead, open for
   reconsideration.
+- **Order of next work** — with `15-analytics` now authored, every capability named in
+  `CLAUDE.md`'s original "REPORTING & ANALYTICS" vision is specified, and every reserved
+  business-domain bounded context in `04-domain-model`'s map is authored (ten labeled
+  "(authored)," `ANALYTICS` itself an eleventh proposed, not yet applied, addition to that same
+  map). The choice is between the still-open persona-to-module-role/`system.md §18` ADR
+  consolidation (Phase 5, which could now also fold in Session 16's own small three-item
+  additive-change backlog), Phase 12 (`16-ai` AI Governance, which per its own entry builds on a
+  metric catalog — `15-analytics`'s own `MetricDefinition`/`MetricValue` catalogue is now that
+  real substrate), Phase 13 (`17-integrations`) or Phase 14 (`18-deployment`), the Tier 0
+  foundational backlog (Phases 2–4: Vision, Business Architecture, Enterprise Architecture
+  specifications, never yet started), or beginning the Tier 4 cross-module consolidation
+  (Phases 19–21: Data Model, Workflow & Event Catalog, and REST API Catalog indexes, all of
+  which now have every business-domain module they depend on — including both `REPORTING` and
+  `ANALYTICS` — fully authored and internally consistent).
+  **Current recommendation**: Phase 5 (ADR backfill, low effort, no new content, and the
+  natural place to also apply Session 16's own small additive-change backlog) or Phase 12
+  (`16-ai` AI Governance, now genuinely unblocked with a real metric catalog to build on) next,
+  then the Tier 4 cross-module consolidation (Phases 19–21, unblocked since every phase they
+  depend on — 6 through 11 — is complete), open for reconsideration.
 
 ## Traceability
 
