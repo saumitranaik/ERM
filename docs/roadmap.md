@@ -21,6 +21,33 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 20 (2026-07-24)** finalized the shared `.claude/settings.json`, applying the
+least-privilege refinements Session 19 had only recommended: removed two dead/obsolete entries
+(`node verify.js`, `chromium-cli`) and `npm init *` (no longer needed post-scaffolding), and
+narrowed `npm install *`/`npm ls *` to their exact, argument-free equivalents. No new
+permission was introduced; every surviving entry is a bare or fixed-argument command. Re-
+validated the file as free of secrets, personal information, and machine-specific
+configuration, and updated `.claude/README.md` to match. See the
+[Session 20](#session-20--2026-07-24) log entry below.
+
+**Session 19 (2026-07-24)** performed a repository governance review of `.claude/` (created
+during Session 18's prototype work): confirmed it is free of secrets and machine-specific
+configuration, kept it under version control with a new `.claude/README.md`, and recorded
+recommended least-privilege permission refinements for the owner to action. See the
+[Session 19](#session-19--2026-07-24) log entry below.
+
+**Session 18 (2026-07-24)** built a complete, interactive **UX Reference Prototype** at
+[`../prototype/`](../prototype/) — a locally-runnable Next.js application implementing every
+screen, dashboard, form, and maker-checker workflow named or implied by the 12 authored
+specifications, against realistic mock data for a fictional SEBI-regulated AMC ("Meridian
+Asset Management Ltd."). This is **not** a PRSMTD implementation and **not** a new authoritative
+ERM specification — it is the concrete, stakeholder-facing input to the still-unauthored UX
+Foundational Framework / Screen & Dashboard / Forms & Maker-Checker UX / Notifications work
+(Master Execution Plan Phases 15–18, `27-user-experience/`). See the
+[Session 18](#session-18--2026-07-24) log entry below,
+[`27-user-experience/README.md`](27-user-experience/README.md)'s new "Reference prototype"
+section, and [`../prototype/docs/README.md`](../prototype/docs/README.md) for full detail.
+
 **Session 17 (2026-07-23)** performed a comprehensive compliance coverage assessment across a
 much wider regulatory/standards scope than Sessions 1–16 ever assessed (9 Indian regulatory
 regimes, 22 international standards/frameworks, beyond the SEBI Mutual Fund AMC profile already
@@ -1495,6 +1522,149 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   further specification work alone.
 - Updated this file (this entry; Risks and Open Decisions entries added below; recommended next
   milestone restated).
+
+### Session 18 — 2026-07-24
+
+- **Built a complete, interactive UX Reference Prototype** at
+  [`../prototype/`](../prototype/), per explicit instruction to produce a stakeholder-validatable
+  visual/interaction blueprint for the 12 authored specifications before any PRSMTD
+  implementation work begins. This is a **greenfield build session**: no authoritative
+  specification's business rules, entity definitions, workflows, or traceability blocks were
+  modified — see the two small exceptions below and
+  [`../prototype/docs/defects-and-observations.md`](../prototype/docs/defects-and-observations.md)
+  for the full account.
+- **Stack**: Next.js 14 App Router + React 18, deliberately structured to mirror
+  `PRSMTD/frontend`'s own `app/` + `src/{components,features,lib}` organization (per the
+  binding reuse-before-redesign rule already in `27-user-experience/README.md`) — not to share
+  code with PRSMTD (nothing was copied), but so the eventual production build is a structural
+  port rather than a redesign. No backend, no database; a `localStorage`-backed in-memory mock
+  store simulates persistence, and a mock governance ledger
+  (`prototype/src/lib/governance.ts`) simulates PRSMTD's `pending_action` maker-checker
+  mechanism (GOV-07 single-pending-action-per-target dedup, separation-of-duties enforcement)
+  entirely client-side.
+- **One generic screen framework, eleven module configurations**: every module's list/detail/
+  create/edit screens are the same three components, driven by a per-entity `EntityConfig`
+  (`prototype/src/lib/registry.ts`) that each module populates in its own
+  `prototype/src/modules/<code>.ts` file — columns, filters, form fields, detail-tab sections,
+  workflow actions (governed vs. direct, with the exact status transitions and
+  `action_type`/permission names each spec defines), and cross-module/cross-collection
+  relations. This guarantees all eleven modules share one consistent UX language by
+  construction, and demonstrates the "specified once, referenced by every domain module" shared
+  kernel that `27-user-experience/README.md`'s Foundational Framework section calls for.
+- **Chart abstraction layer** (`prototype/src/components/charts/`): dashboards, KPI tiles, the
+  5×5 risk heat map, and trend lines are built on a stable prop interface with native
+  HTML/CSS/SVG implementations — no charting library dependency. Per explicit instruction, this
+  keeps dashboard composition, widget layout, and drill-down interaction fully specified and
+  demonstrated while leaving the actual visualization implementation replaceable once PRSMTD
+  adopts an official charting library (a candidate future PRSMTD capability, not decided here).
+- **Coverage**: all 11 modules (`RISK`, `CONTROLS`, `COMPLIANCE`, `AUDIT`,
+  `SECURITY`, `POLICY`, `INCIDENT`, `TPR`, `BCP`, `REPORTING`, `ANALYTICS`) — dashboards, ~46
+  entity types across them, each with list/detail/create/edit screens, plus enterprise-level
+  Home, cross-module Approvals queue, Notifications center, and Global Search. Mock data
+  (`prototype/src/data/*.json`) is internally cross-linked (risks ↔ controls ↔ obligations ↔
+  findings ↔ vendors ↔ continuity plans) and seeded across a spread of lifecycle states,
+  including ~35 hand-authored pending/decided governance-ledger entries, so the approvals queue
+  and every entity's History/Approvals tabs are populated realistically from first load, not
+  only after a demo user acts.
+- **Verification**: `tsc --noEmit` clean; a full Playwright pass against the running dev server
+  confirmed zero browser console errors across login, the Home dashboard, the RISK module
+  dashboard (heat map rendering), a risk detail page's Relationships tab, and a live
+  maker-checker approval (submitted-item disappeared from the checker queue, sidebar pending
+  count and Decision History count both updated correctly) — see screenshots referenced in the
+  session transcript.
+- **Two small, additive corrections made to non-authoritative index content** (not specs):
+  `docs/README.md`'s section table was stale (missing rows for sections 23–27, added at Session
+  9 but never indexed) — added the five missing rows and corrected the `05-modules` row's
+  description to match the binding index-only rule already stated in `CLAUDE.md`. See
+  [`../prototype/docs/defects-and-observations.md`](../prototype/docs/defects-and-observations.md)
+  for the full write-up; no numbered specification document was touched.
+- **Updated [`27-user-experience/README.md`](27-user-experience/README.md)** with a new
+  "Reference prototype" section pointing to `../prototype/` and its own docs, and clarified
+  that Phases 15–18 remain not yet authored — the prototype is their input, not a substitute.
+- **Deliverables**: the running application; `prototype/docs/README.md` (purpose, architecture,
+  limitations, how to run, mock data structure, folder organization); `screen-inventory.md`;
+  `navigation-map.md`; `component-inventory.md`; `user-journeys.md`; `defects-and-observations.md`
+  (this session's own defect log, referenced above).
+- Updated this file (this entry). No change to Assumptions, Risks, or Open Decisions registers
+  was required — this was a prototype-build session, not a specification or assessment session,
+  and does not itself resolve the still-open Phase 5 / Phase 12 / Tier 4 / Tier 6 sequencing
+  question from Sessions 16–17. It does add one new fact those future decisions can weigh:
+  Phases 15–18 (the UX specs) now have a concrete, working reference to write against, which
+  may make them a cheaper next phase than before.
+
+### Session 19 — 2026-07-24
+
+- **Repository governance review**: audited the newly-created `.claude/settings.json` (a
+  byproduct of Session 18's `prototype/` scaffolding and Playwright-based verification work)
+  to decide whether it belongs under version control. Confirmed it contains no secrets,
+  tokens, API keys, personal information, or absolute machine-specific paths — every entry is
+  a command-pattern permission rule, not embedded configuration or credentials.
+- **Decision: keep `.claude/` under version control.** Added [`../.claude/README.md`](../.claude/README.md)
+  documenting the directory's purpose, what belongs inside, what must never be stored there
+  (secrets, personal/machine config, unscoped wildcards, dangling references to deleted
+  scripts), and guidance for future contributors on least-privilege permission entries.
+- **Recommended (not yet applied) permission refinements** to `.claude/settings.json`,
+  left for the owner to action:
+  - Remove `Bash(node verify.js)` — no file by that name exists anywhere in the repository
+    (tracked, untracked, or ignored); this is stale session residue from Session 18's ad hoc
+    verification pass, not a committed script.
+  - Confirm the purpose of `Bash(chromium-cli --session erm --help)` — `chromium-cli` is not
+    on `PATH` and isn't part of the documented `prototype/` stack (Next.js + Playwright); if
+    it's a personal local tool rather than shared project tooling, it belongs in an untracked
+    `settings.local.json`, not here. Low risk as-is (scoped to `--help` only).
+  - Narrow `Bash(npm install *)` and `Bash(npm init *)` from open wildcards to the specific
+    invocations `prototype/` actually needs (e.g. plain `npm install` against the already-
+    committed `package-lock.json`); `npm init *` in particular is no longer needed now that
+    `prototype/package.json` is already scaffolded and committed.
+- No specification content, PRSMTD code, or repository structure was changed by this review —
+  a governance/tooling review only, per its own explicit scope.
+
+### Session 20 — 2026-07-24
+
+- **Finalized the shared `.claude/settings.json`**, applying the permission refinements
+  Session 19 had only recommended. Every change below is a removal or narrowing — no new
+  permission was introduced, per this session's explicit instruction to add nothing beyond
+  what an existing documented workflow (`prototype/docs/README.md`'s "How to run" section and
+  Session 18's Playwright verification pass) already requires.
+- **Removed** (obsolete/dead, not demonstrably required by any documented workflow):
+  - `Bash(node verify.js)` — confirmed again that no file by this name exists anywhere in the
+    repository (tracked, untracked, or ignored); stale residue, not a committed script.
+  - `Bash(chromium-cli --session erm --help)` — confirmed `chromium-cli` is not on any
+    contributor's `PATH`, is not referenced anywhere in `prototype/docs/`, and is not part of
+    the documented stack (Next.js 14 + Playwright, per `prototype/package.json` and
+    `prototype/docs/README.md`). No evidence it serves an existing documented workflow.
+  - `Bash(npm init *)` — `prototype/package.json` and `prototype/package-lock.json` are already
+    scaffolded and committed; the documented "How to run" step is `npm install`, not `npm init`.
+    Re-running scaffolding is not part of any ongoing workflow.
+- **Narrowed** (wildcard → exact command, same capability the documented workflow needs):
+  - `Bash(npm install *)` → `Bash(npm install)` — matches `prototype/docs/README.md`'s "How to
+    run" step verbatim (`cd prototype && npm install && npm run dev`); no documented step
+    passes arguments to `npm install`, so the wildcard only ever widened the approval surface
+    without adding capability.
+  - `Bash(npm ls *)` → `Bash(npm ls)` — retains the ability to sanity-check the installed
+    dependency tree after `npm install` (relevant here since `next@14.2.4` in
+    `prototype/package-lock.json` carries an upstream security advisory the team should stay
+    aware of) while removing the ability to pass arbitrary flags.
+- **Retained as-is** (demonstrably required by Session 18's documented Playwright verification
+  pass, already minimally scoped):
+  - `Skill(run)` / `Skill(run:*)` — launches/exercises `prototype/` per this repository's
+    standard run workflow.
+  - `Bash(node -e "require.resolve('playwright')")` — checks Playwright resolvability before
+    invoking it; exact fixed argument, no wildcard.
+  - `Bash(npx --yes playwright --version)` — exact fixed argument, no wildcard.
+  - `Bash(timeout 90 npx --yes playwright install chromium)` — exact fixed argument and a
+    bounded timeout; installs the browser binary the verification pass exercises.
+- **Validated** the final `settings.json`: no secrets, tokens, or API keys; no personal
+  information; no machine-specific paths or configuration; no remaining temporary/stale
+  entries. Every surviving entry is either a bare command or a fixed-argument invocation —
+  none use wildcards.
+- **Updated [`../.claude/README.md`](../.claude/README.md)** so its description matches the
+  final list exactly (previously it described the pre-refinement, wildcard-bearing set).
+- **No archiving required**: `verify.js` and `chromium-cli` were permission-string references
+  only, not files that ever existed in this repository, so there is nothing to move to an
+  archive location — removing the permission entries themselves is the complete cleanup.
+- No specification content, PRSMTD code, or repository structure was changed — a tooling/
+  governance finalization only, per its own explicit scope.
 
 ## Next Milestone
 

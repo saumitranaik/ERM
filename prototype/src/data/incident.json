@@ -1,0 +1,34 @@
+{
+  "incidents": [
+    { "id": "inc-01", "code": "INC-2026-0001", "title": "NAV recomputation incident — April price feed format change", "description": "Vendor price-feed format change caused three NAV recomputations in April before the tolerance-check patch was deployed.", "incidentType": "OPERATIONAL", "severity": "HIGH", "reportedById": "u-sanjay", "reportedDate": "2026-04-28", "departmentId": "d-fundops", "status": "CLOSED", "linkedRiskId": "r-001" },
+    { "id": "inc-02", "code": "INC-2026-0002", "title": "Attempted account takeover on investor portal", "description": "Automated credential-stuffing attempts detected against investor portal login; no successful takeover, portal auto-blocked source IPs.", "incidentType": "SECURITY", "severity": "HIGH", "reportedById": "u-imran", "reportedDate": "2026-06-20", "departmentId": "d-infosec", "status": "RESOLVED", "linkedRiskId": "r-017" },
+    { "id": "inc-03", "code": "INC-2026-0003", "title": "Dealing desk fat-finger order — wrong scheme code", "description": "Dealer entered an order against the wrong scheme code; caught by dual authorization before execution, absorbed as a near-miss.", "incidentType": "OPERATIONAL", "severity": "LOW", "reportedById": "u-sanjay", "reportedDate": "2026-05-15", "departmentId": "d-fundops", "status": "CLOSED", "linkedRiskId": "r-006" },
+    { "id": "inc-04", "code": "INC-2026-0004", "title": "RTA interface brief outage during EOD batch", "description": "RTA interface connectivity dropped for 40 minutes during end-of-day batch processing, delaying folio updates by one cycle.", "incidentType": "OPERATIONAL", "severity": "MEDIUM", "reportedById": "u-manoj", "reportedDate": "2026-07-10", "departmentId": "d-it", "status": "UNDER_INVESTIGATION", "linkedRiskId": "r-013" },
+    { "id": "inc-05", "code": "INC-2026-0005", "title": "Penetration test finding: DMZ lateral movement path", "description": "External penetration test confirmed an exploitable path from the web DMZ into RTA interface servers via unpatched middleware.", "incidentType": "SECURITY", "severity": "CRITICAL", "reportedById": "u-imran", "reportedDate": "2026-07-04", "departmentId": "d-infosec", "status": "CONTAINED", "linkedRiskId": "r-007" }
+  ],
+  "rootCauseAnalyses": [
+    { "id": "rca-01", "code": "RCA-2026-0001", "incidentId": "inc-01", "issueId": null, "methodology": "FIVE_WHYS", "rootCauseSummary": "Vendor changed the price file delimiter without notice; ingestion parser silently defaulted stale values instead of failing loud.", "contributingFactors": "No schema-change notification clause in the vendor contract; parser lacked strict validation.", "performedById": "u-arjun", "performedAt": "2026-05-02", "status": "APPROVED" },
+    { "id": "rca-02", "code": "RCA-2026-0002", "incidentId": "inc-05", "issueId": null, "methodology": "FISHBONE", "rootCauseSummary": "Unpatched middleware version combined with flat network segmentation allowed lateral movement from DMZ to interface servers.", "contributingFactors": "Patch SLA breach (see control exception CEX-2026-0001); segmentation baseline not enforced on interface subnet.", "performedById": "u-imran", "performedAt": "2026-07-08", "status": "SUBMITTED" }
+  ],
+  "issues": [
+    { "id": "iss-01", "code": "ISS-2026-0001", "title": "Price-feed ingestion lacks strict schema validation", "description": "The root cause of INC-2026-0001 — ingestion accepts malformed price files instead of rejecting them — is a systemic gap beyond the single incident.", "severity": "HIGH", "ownerId": "u-manoj", "raisedDate": "2026-05-02", "status": "CAPA_ASSIGNED", "sourceType": "INCIDENT", "sourceIncidentId": "inc-01" },
+    { "id": "iss-02", "code": "ISS-2026-0002", "title": "Interface subnet segmentation not enforced per baseline", "description": "The DMZ-to-interface lateral movement path exposed a systemic segmentation gap versus the network segmentation baseline (SBL-2026-0002).", "severity": "CRITICAL", "ownerId": "u-rohan", "raisedDate": "2026-07-08", "status": "CAPA_ASSIGNED", "sourceType": "AUDIT_FINDING", "sourceIncidentId": null }
+  ],
+  "capas": [
+    { "id": "capa-01", "code": "CPA-2026-0001", "title": "Harden price-feed ingestion validation", "description": "Implement strict schema and delimiter validation on the price-feed ingestion pipeline with hard failure on malformed files.", "capaType": "CORRECTIVE", "issueId": "iss-01", "ownerId": "u-manoj", "targetCompletionDate": "2026-08-31", "status": "IN_PROGRESS", "effectivenessReviewRequired": true },
+    { "id": "capa-02", "code": "CPA-2026-0002", "title": "Enforce network segmentation baseline on interface subnet", "description": "Apply and verify the network segmentation baseline on all RTA/interface subnets; add continuous compliance scanning.", "capaType": "BOTH", "issueId": "iss-02", "ownerId": "u-rohan", "targetCompletionDate": "2026-09-30", "status": "APPROVED", "effectivenessReviewRequired": true },
+    { "id": "capa-03", "code": "CPA-2026-0003", "title": "Vendor contract schema-change notification clause", "description": "Add a mandatory 30-day advance notice clause for price-feed schema changes to the vendor contract renewal.", "capaType": "PREVENTIVE", "issueId": "iss-01", "ownerId": "u-manoj", "targetCompletionDate": "2026-10-15", "status": "PENDING_APPROVAL", "effectivenessReviewRequired": false }
+  ],
+  "capaActionItems": [
+    { "id": "cai-01", "capaId": "capa-01", "description": "Define strict JSON/CSV schema for accepted price-feed formats.", "ownerId": "u-manoj", "dueDate": "2026-08-10", "status": "COMPLETED" },
+    { "id": "cai-02", "capaId": "capa-01", "description": "Deploy validation gate rejecting non-conforming files with alerting.", "ownerId": "u-manoj", "dueDate": "2026-08-25", "status": "IN_PROGRESS" },
+    { "id": "cai-03", "capaId": "capa-02", "description": "Apply segmentation rules to interface subnet firewall.", "ownerId": "u-rohan", "dueDate": "2026-08-31", "status": "IN_PROGRESS" },
+    { "id": "cai-04", "capaId": "capa-02", "description": "Add continuous compliance scan for segmentation drift.", "ownerId": "u-rohan", "dueDate": "2026-09-15", "status": "OPEN" }
+  ],
+  "capaClosureVerifications": [],
+  "capaEffectivenessReviews": [],
+  "incidentEscalations": [
+    { "id": "iesc-01", "code": "IES-2026-0001", "title": "Critical penetration test finding escalation", "incidentId": "inc-05", "issueId": null, "capaId": null, "escalationReason": "Critical severity DMZ lateral movement path requires CRO and CISO joint acknowledgement.", "severity": "CRITICAL", "raisedAt": "2026-07-04", "status": "ACKNOWLEDGED" },
+    { "id": "iesc-02", "code": "IES-2026-0002", "title": "Segmentation CAPA nearing due date escalation", "incidentId": null, "issueId": "iss-02", "capaId": "capa-02", "escalationReason": "System-raised: CAPA target completion within 14 days with two open action items.", "severity": "HIGH", "raisedAt": "2026-07-20", "status": "RAISED" }
+  ]
+}

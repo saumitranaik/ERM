@@ -17,7 +17,7 @@ which holds the phasing/release-plan specification.
 | 02 | [business-architecture](02-business-architecture/) | Capability maps, value streams, personas |
 | 03 | [enterprise-architecture](03-enterprise-architecture/) | Target-state architecture, C4 views |
 | 04 | [domain-model](04-domain-model/) | Bounded contexts, ubiquitous language, aggregates |
-| 05 | [modules](05-modules/) | Per-capability module specs (maps to PRSMTD `modules/`) |
+| 05 | [modules](05-modules/) | Module index/registry only — one entry per module, pointing to its authoritative spec elsewhere |
 | 06 | [data-model](06-data-model/) | Entity models, Liquibase-changeset-ready schemas |
 | 07 | [workflows](07-workflows/) | State machines, maker-checker flows |
 | 08 | [api](08-api/) | API contracts, versioning, error contracts |
@@ -35,6 +35,11 @@ which holds the phasing/release-plan specification.
 | 20 | [adr](20-adr/) | Architecture Decision Records |
 | 21 | [standards](21-standards/) | Naming, documentation, and modeling standards |
 | 22 | [traceability](22-traceability/) | Cross-cutting traceability matrices |
+| 23 | [policy](23-policy/) | Policy taxonomy, governed lifecycle, policy-to-control/obligation mapping |
+| 24 | [incident-issue-capa](24-incident-issue-capa/) | Incident intake, issue tracking, corrective/preventive action |
+| 25 | [third-party-risk](25-third-party-risk/) | Vendor/third-party inventory, due diligence, ongoing risk monitoring |
+| 26 | [business-continuity](26-business-continuity/) | Business impact analysis, continuity/DR plans, RTO/RPO targets |
+| 27 | [user-experience](27-user-experience/) | Presentation-layer specs: screens, navigation, dashboards, forms |
 | — | [reference](reference/) | Primary source material (regulatory circulars, external inputs) |
 
 ## Conventions

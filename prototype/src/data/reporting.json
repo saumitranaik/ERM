@@ -1,0 +1,23 @@
+{
+  "reportDefinitions": [
+    { "id": "rd-01", "code": "RPT-2026-0001", "title": "Board Risk Report (Quarterly)", "reportCategory": "REGULATORY", "primarySourceModule": "RISK", "description": "Quarterly risk register, escalation log and KRI summary for the Board Risk Committee and Trustees per the SEBI RMS circular.", "ownerId": "u-priya", "approvalRequired": true, "status": "ACTIVE" },
+    { "id": "rd-02", "code": "RPT-2026-0002", "title": "Half-Yearly Trustee Report", "reportCategory": "REGULATORY", "primarySourceModule": "CROSS_MODULE", "description": "Consolidated compliance, risk and governance report filed with SEBI per Regulation 18(23).", "ownerId": "u-anita", "approvalRequired": true, "status": "ACTIVE" },
+    { "id": "rd-03", "code": "RPT-2026-0003", "title": "Control Effectiveness Dashboard", "reportCategory": "OPERATIONAL", "primarySourceModule": "CONTROLS", "description": "Control effectiveness by family and nature, testing calendar and exception aging.", "ownerId": "u-sneha", "approvalRequired": false, "status": "ACTIVE" },
+    { "id": "rd-04", "code": "RPT-2026-0004", "title": "Compliance Coverage & Exception Report", "reportCategory": "EXECUTIVE", "primarySourceModule": "COMPLIANCE", "description": "Obligation compliance posture, regulatory change pipeline and exception aging for executive review.", "ownerId": "u-deepak", "approvalRequired": true, "status": "ACTIVE" },
+    { "id": "rd-05", "code": "RPT-2026-0005", "title": "Internal Audit Status Report", "reportCategory": "OPERATIONAL", "primarySourceModule": "AUDIT", "description": "Engagement status, finding aging and non-compliance rate trend for the Audit Committee.", "ownerId": "u-meera", "approvalRequired": true, "status": "ACTIVE" },
+    { "id": "rd-06", "code": "RPT-2026-0006", "title": "Cyber Security Posture Report", "reportCategory": "EXECUTIVE", "primarySourceModule": "SECURITY", "description": "Security finding trends, patch SLA status and access governance summary for the CISO and Board.", "ownerId": "u-rohan", "approvalRequired": true, "status": "ACTIVE" },
+    { "id": "rd-07", "code": "RPT-2026-0007", "title": "Vendor Risk Summary", "reportCategory": "OPERATIONAL", "primarySourceModule": "TPR", "description": "Vendor criticality distribution, SLA performance and exception status.", "ownerId": "u-farhan", "approvalRequired": false, "status": "ACTIVE" },
+    { "id": "rd-08", "code": "RPT-2026-0008", "title": "Business Continuity Readiness Report", "reportCategory": "OPERATIONAL", "primarySourceModule": "BCP", "description": "Critical service RTO/RPO attainment and exercise outcome summary.", "ownerId": "u-suresh", "approvalRequired": false, "status": "ACTIVE" },
+    { "id": "rd-09", "code": "RPT-2026-0009", "title": "Enterprise GRC Executive Summary", "reportCategory": "CROSS_MODULE", "primarySourceModule": "CROSS_MODULE", "description": "Cross-module executive dashboard consolidating risk, compliance, controls, audit and security posture.", "ownerId": "u-priya", "approvalRequired": true, "status": "ACTIVE" }
+  ],
+  "reportInstances": [
+    { "id": "ri-01", "code": "RIN-2026-0001", "definitionId": "rd-01", "title": "Board Risk Report — Q2 FY27", "periodStart": "2026-04-01", "periodEnd": "2026-06-30", "generatedById": "u-divya", "generatedAt": "2026-07-05", "status": "SUBMITTED" },
+    { "id": "ri-02", "code": "RIN-2026-0002", "definitionId": "rd-05", "title": "Internal Audit Status Report — July 2026", "periodStart": "2026-07-01", "periodEnd": "2026-07-24", "generatedById": "u-divya", "generatedAt": "2026-07-22", "status": "FINALIZED" },
+    { "id": "ri-03", "code": "RIN-2026-0003", "definitionId": "rd-09", "title": "Enterprise GRC Executive Summary — July 2026", "periodStart": "2026-07-01", "periodEnd": "2026-07-24", "generatedById": "u-divya", "generatedAt": "2026-07-23", "status": "DRAFT" },
+    { "id": "ri-04", "code": "RIN-2026-0004", "definitionId": "rd-04", "title": "Compliance Coverage & Exception Report — Q2 FY27", "periodStart": "2026-04-01", "periodEnd": "2026-06-30", "generatedById": "u-divya", "generatedAt": "2026-07-08", "status": "FINALIZED" }
+  ],
+  "dashboardDefinitions": [
+    { "id": "dd-01", "code": "DSH-2026-0001", "title": "Executive GRC Dashboard", "description": "Cross-module KPI summary for the CRO, CISO and Head of Compliance.", "ownerId": "u-priya", "status": "ACTIVE" },
+    { "id": "dd-02", "code": "DSH-2026-0002", "title": "Operational Risk & Controls Dashboard", "description": "Operational-tier drill-down for risk owners and control owners.", "ownerId": "u-arjun", "status": "ACTIVE" }
+  ]
+}

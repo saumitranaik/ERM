@@ -1,0 +1,305 @@
+/**
+ * TPR (Third-Party Risk) module entity configuration — grounded in
+ * docs/25-third-party-risk/01-third-party-risk-management.md (vendor
+ * lifecycle, due diligence, SLA monitoring, immediate-raise/governed-closure
+ * exceptions).
+ */
+import type { EntityConfig } from '../lib/registry';
+
+export const tprEntities: EntityConfig[] = [
+  {
+    module: 'TPR',
+    slug: 'vendors',
+    labelSingular: 'Vendor',
+    labelPlural: 'Vendor Inventory',
+    collection: 'vendors',
+    codePrefix: 'VEN',
+    titleField: 'name',
+    description: 'Third-party vendor inventory with criticality tiering, due diligence status and inherent/residual risk ratings.',
+    initialStatus: 'PROSPECTIVE',
+    editableStatuses: ['PROSPECTIVE'],
+    statusTones: { ONBOARDING: 'warning', OFFBOARDING: 'orange', TERMINATED: 'neutral' },
+    columns: [
+      { key: 'code', label: 'Code', cell: 'code' },
+      { key: 'name', label: 'Vendor' },
+      { key: 'category', label: 'Category', cell: 'badge', tone: 'secondary' },
+      { key: 'criticality', label: 'Criticality', cell: 'severity' },
+      { key: 'residualRiskRating', label: 'Residual Risk', cell: 'severity' },
+      { key: 'nextReassessmentDate', label: 'Next Reassessment', cell: 'date' },
+      { key: 'status', label: 'Status', cell: 'status' },
+    ],
+    filters: [
+      { key: 'status', label: 'Statuses' },
+      { key: 'criticality', label: 'Criticality', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+      { key: 'category', label: 'Categories' },
+    ],
+    formFields: [
+      { key: 'name', label: 'Vendor Name', type: 'text', required: true, full: true },
+      { key: 'description', label: 'Description', type: 'textarea', required: true, full: true },
+      { key: 'category', label: 'Category', type: 'select', required: true, options: ['RTA', 'CUSTODIAN', 'FUND_ACCOUNTANT', 'IT_INFRASTRUCTURE', 'MARKET_DATA', 'MARKETING', 'PAYMENTS', 'PROFESSIONAL_SERVICES', 'OPERATIONS_SUPPORT'] },
+      { key: 'criticality', label: 'Criticality', type: 'select', required: true, options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+      { key: 'ownerId', label: 'Vendor Owner', type: 'user', required: true },
+      { key: 'inherentRiskRating', label: 'Inherent Risk Rating', type: 'select', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+    ],
+    detailSections: [
+      {
+        title: 'Classification',
+        fields: [
+          { key: 'category', label: 'Category', cell: 'badge' },
+          { key: 'criticality', label: 'Criticality', cell: 'severity' },
+          { key: 'ownerId', label: 'Owner', cell: 'user' },
+        ],
+      },
+      {
+        title: 'Risk Rating',
+        fields: [
+          { key: 'inherentRiskRating', label: 'Inherent Risk', cell: 'severity' },
+          { key: 'residualRiskRating', label: 'Residual Risk', cell: 'severity' },
+          { key: 'onboardedDate', label: 'Onboarded', cell: 'date' },
+          { key: 'nextReassessmentDate', label: 'Next Reassessment', cell: 'date' },
+        ],
+      },
+    ],
+    workflowActions: [
+      { id: 'DUE_DILIGENCE_APPROVAL', label: 'Submit Due Diligence for Approval', fromStatuses: ['PROSPECTIVE', 'ONBOARDING'], governed: true, pendingStatus: 'ONBOARDING', targetStatus: 'ACTIVE', rejectedStatus: 'PROSPECTIVE', permission: 'CREATE', description: 'Vendor due-diligence approval' },
+      { id: 'REASSESSMENT_APPROVAL', label: 'Submit Reassessment', fromStatuses: ['ACTIVE'], governed: true, pendingStatus: 'UNDER_REVIEW', targetStatus: 'ACTIVE', rejectedStatus: 'ACTIVE', permission: 'CREATE', description: 'Periodic vendor reassessment approval' },
+      { id: 'BEGIN_OFFBOARDING', label: 'Begin Offboarding', fromStatuses: ['ACTIVE'], governed: false, targetStatus: 'OFFBOARDING', permission: 'CREATE', tone: 'outline', description: 'Offboarding initiated' },
+      { id: 'OFFBOARDING_APPROVAL', label: 'Approve Termination', fromStatuses: ['OFFBOARDING'], governed: true, pendingStatus: 'OFFBOARDING', targetStatus: 'TERMINATED', rejectedStatus: 'ACTIVE', permission: 'CREATE', tone: 'destructive', description: 'Vendor offboarding approval' },
+    ],
+    relations: [
+      {
+        label: 'Contracts', collection: 'vendorContracts', module: 'TPR', entitySlug: 'contracts', foreignKey: 'vendorId',
+        columns: [
+          { key: 'code', label: 'Code', cell: 'code' }, { key: 'title', label: 'Contract' },
+          { key: 'contractEnd', label: 'Ends', cell: 'date' }, { key: 'status', label: 'Status', cell: 'status' },
+        ],
+      },
+      {
+        label: 'Assessments', collection: 'vendorAssessments', module: 'TPR', entitySlug: 'assessments', foreignKey: 'vendorId',
+        columns: [
+          { key: 'code', label: 'Code', cell: 'code' }, { key: 'title', label: 'Assessment' },
+          { key: 'assessmentType', label: 'Type', cell: 'badge' }, { key: 'outcome', label: 'Outcome', cell: 'status' },
+          { key: 'status', label: 'Status', cell: 'status' },
+        ],
+      },
+      {
+        label: 'SLAs', collection: 'vendorSlas', module: 'TPR', entitySlug: 'slas', foreignKey: 'vendorId',
+        columns: [
+          { key: 'code', label: 'Code', cell: 'code' }, { key: 'name', label: 'SLA' },
+          { key: 'currentBand', label: 'Band', cell: 'severity' }, { key: 'status', label: 'Status', cell: 'status' },
+        ],
+      },
+      {
+        label: 'Exceptions', collection: 'vendorExceptions', module: 'TPR', entitySlug: 'exceptions', foreignKey: 'vendorId',
+        columns: [
+          { key: 'code', label: 'Code', cell: 'code' }, { key: 'title', label: 'Exception' },
+          { key: 'severity', label: 'Severity', cell: 'severity' }, { key: 'status', label: 'Status', cell: 'status' },
+        ],
+      },
+      {
+        label: 'Linked Controls', collection: 'controls', module: 'CONTROLS', entitySlug: 'controls', localKey: 'linkedControlIds',
+        columns: [
+          { key: 'code', label: 'Code', cell: 'code' }, { key: 'name', label: 'Control' }, { key: 'status', label: 'Status', cell: 'status' },
+        ],
+      },
+    ],
+    hasEvidence: true,
+  },
+  {
+    module: 'TPR',
+    slug: 'contracts',
+    labelSingular: 'Contract',
+    labelPlural: 'Vendor Contracts',
+    collection: 'vendorContracts',
+    codePrefix: 'VCT',
+    titleField: 'title',
+    description: 'Vendor contract terms, value and SLA references.',
+    initialStatus: 'ACTIVE',
+    editableStatuses: ['ACTIVE'],
+    statusTones: { EXPIRING_SOON: 'warning' },
+    columns: [
+      { key: 'code', label: 'Code', cell: 'code' },
+      { key: 'title', label: 'Contract' },
+      { key: 'contractEnd', label: 'Ends', cell: 'date' },
+      { key: 'annualValue', label: 'Annual Value (₹)', cell: 'number' },
+      { key: 'status', label: 'Status', cell: 'status' },
+    ],
+    filters: [{ key: 'status', label: 'Statuses' }],
+    formFields: [
+      { key: 'title', label: 'Title', type: 'text', required: true, full: true },
+      { key: 'vendorId', label: 'Vendor', type: 'reference', refCollection: 'vendors', refModule: 'TPR', refEntity: 'vendors', required: true },
+      { key: 'contractStart', label: 'Contract Start', type: 'date', required: true },
+      { key: 'contractEnd', label: 'Contract End', type: 'date', required: true },
+      { key: 'annualValue', label: 'Annual Value (₹)', type: 'number', min: 0 },
+      { key: 'slaReference', label: 'SLA Reference', type: 'text' },
+    ],
+    detailSections: [
+      {
+        title: 'Contract',
+        fields: [
+          { key: 'contractStart', label: 'Start', cell: 'date' },
+          { key: 'contractEnd', label: 'End', cell: 'date' },
+          { key: 'annualValue', label: 'Annual Value', cell: 'number' },
+          { key: 'slaReference', label: 'SLA Reference' },
+        ],
+      },
+    ],
+    workflowActions: [
+      { id: 'MARK_EXPIRING', label: 'Mark Expiring Soon', fromStatuses: ['ACTIVE'], governed: false, targetStatus: 'EXPIRING_SOON', permission: 'CREATE', tone: 'outline', description: 'Contract nearing expiry' },
+      { id: 'RENEW', label: 'Renew', fromStatuses: ['EXPIRING_SOON'], governed: false, targetStatus: 'ACTIVE', permission: 'CREATE', description: 'Contract renewed' },
+      { id: 'TERMINATE', label: 'Terminate', fromStatuses: ['ACTIVE', 'EXPIRING_SOON'], governed: false, targetStatus: 'TERMINATED', permission: 'APPROVE', tone: 'destructive', description: 'Contract terminated' },
+    ],
+    relations: [],
+    hasEvidence: true,
+  },
+  {
+    module: 'TPR',
+    slug: 'assessments',
+    labelSingular: 'Vendor Assessment',
+    labelPlural: 'Vendor Assessments',
+    collection: 'vendorAssessments',
+    codePrefix: 'VAS',
+    titleField: 'title',
+    description: 'Due diligence, risk, security and compliance assessments driving vendor onboarding and reassessment.',
+    initialStatus: 'DRAFT',
+    editableStatuses: ['DRAFT'],
+    columns: [
+      { key: 'code', label: 'Code', cell: 'code' },
+      { key: 'title', label: 'Assessment' },
+      { key: 'assessmentType', label: 'Type', cell: 'badge', tone: 'secondary' },
+      { key: 'outcome', label: 'Outcome', cell: 'status' },
+      { key: 'assessmentDate', label: 'Date', cell: 'date' },
+      { key: 'status', label: 'Status', cell: 'status' },
+    ],
+    filters: [
+      { key: 'status', label: 'Statuses' },
+      { key: 'assessmentType', label: 'Types', options: ['DUE_DILIGENCE', 'RISK_ASSESSMENT', 'SECURITY_ASSESSMENT', 'COMPLIANCE_ASSESSMENT'] },
+    ],
+    formFields: [
+      { key: 'title', label: 'Title', type: 'text', required: true, full: true },
+      { key: 'vendorId', label: 'Vendor', type: 'reference', refCollection: 'vendors', refModule: 'TPR', refEntity: 'vendors', required: true },
+      { key: 'assessmentType', label: 'Type', type: 'select', required: true, options: ['DUE_DILIGENCE', 'RISK_ASSESSMENT', 'SECURITY_ASSESSMENT', 'COMPLIANCE_ASSESSMENT'] },
+      { key: 'assessmentDate', label: 'Assessment Date', type: 'date', required: true },
+      { key: 'assessorId', label: 'Assessor', type: 'user', required: true },
+      { key: 'outcome', label: 'Outcome', type: 'select', required: true, options: ['SATISFACTORY', 'CONDITIONAL', 'UNSATISFACTORY'] },
+      { key: 'notes', label: 'Notes', type: 'textarea', required: true, full: true },
+    ],
+    detailSections: [
+      {
+        title: 'Assessment',
+        fields: [
+          { key: 'assessmentType', label: 'Type', cell: 'badge' },
+          { key: 'assessmentDate', label: 'Date', cell: 'date' },
+          { key: 'assessorId', label: 'Assessor', cell: 'user' },
+          { key: 'outcome', label: 'Outcome', cell: 'status' },
+          { key: 'notes', label: 'Notes' },
+        ],
+      },
+    ],
+    workflowActions: [
+      { id: 'ASSESSMENT_APPROVAL', label: 'Submit for Approval', fromStatuses: ['DRAFT'], governed: true, pendingStatus: 'SUBMITTED', targetStatus: 'APPROVED', rejectedStatus: 'DRAFT', permission: 'CREATE', description: 'Vendor assessment approval' },
+    ],
+    relations: [],
+    hasEvidence: true,
+  },
+  {
+    module: 'TPR',
+    slug: 'slas',
+    labelSingular: 'Vendor SLA',
+    labelPlural: 'Vendor SLAs',
+    collection: 'vendorSlas',
+    codePrefix: 'VSL',
+    titleField: 'name',
+    description: 'Measured SLA metrics with green/amber/red thresholds, mirroring the KRI pattern one level down (owned by vendor).',
+    initialStatus: 'ACTIVE',
+    editableStatuses: ['ACTIVE'],
+    columns: [
+      { key: 'code', label: 'Code', cell: 'code' },
+      { key: 'name', label: 'SLA' },
+      { key: 'currentBand', label: 'Band', cell: 'severity' },
+      { key: 'measurementFrequency', label: 'Frequency', cell: 'badge' },
+      { key: 'status', label: 'Status', cell: 'status' },
+    ],
+    filters: [{ key: 'currentBand', label: 'Bands', options: ['GREEN', 'AMBER', 'RED'] }],
+    formFields: [
+      { key: 'name', label: 'Name', type: 'text', required: true, full: true },
+      { key: 'vendorId', label: 'Vendor', type: 'reference', refCollection: 'vendors', refModule: 'TPR', refEntity: 'vendors', required: true },
+      { key: 'unit', label: 'Unit', type: 'text', required: true },
+      { key: 'measurementFrequency', label: 'Frequency', type: 'select', required: true, options: ['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY'] },
+      { key: 'direction', label: 'Direction', type: 'select', required: true, options: ['HIGHER_IS_WORSE', 'LOWER_IS_WORSE'] },
+      { key: 'thresholdGreen', label: 'Green Threshold', type: 'number', required: true },
+      { key: 'thresholdAmber', label: 'Amber Threshold', type: 'number', required: true },
+      { key: 'thresholdRed', label: 'Red Threshold', type: 'number', required: true },
+    ],
+    detailSections: [
+      {
+        title: 'SLA Definition',
+        fields: [
+          { key: 'unit', label: 'Unit' },
+          { key: 'measurementFrequency', label: 'Frequency', cell: 'badge' },
+          { key: 'direction', label: 'Direction', cell: 'badge' },
+          { key: 'currentBand', label: 'Current Band', cell: 'severity' },
+        ],
+      },
+    ],
+    workflowActions: [],
+    relations: [],
+    hasEvidence: false,
+  },
+  {
+    module: 'TPR',
+    slug: 'exceptions',
+    labelSingular: 'Vendor Exception',
+    labelPlural: 'Vendor Exceptions',
+    collection: 'vendorExceptions',
+    codePrefix: 'VEX',
+    titleField: 'title',
+    description: 'Vendor SLA breaches or security/compliance gaps raised immediately; closure and risk-acceptance are governed.',
+    initialStatus: 'OPEN',
+    editableStatuses: ['OPEN'],
+    columns: [
+      { key: 'code', label: 'Code', cell: 'code' },
+      { key: 'title', label: 'Exception' },
+      { key: 'category', label: 'Category', cell: 'badge', tone: 'secondary' },
+      { key: 'severity', label: 'Severity', cell: 'severity' },
+      { key: 'targetCloseDate', label: 'Target Close', cell: 'date' },
+      { key: 'status', label: 'Status', cell: 'status' },
+    ],
+    filters: [
+      { key: 'status', label: 'Statuses' },
+      { key: 'severity', label: 'Severities', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+    ],
+    formFields: [
+      { key: 'title', label: 'Title', type: 'text', required: true, full: true },
+      { key: 'vendorId', label: 'Vendor', type: 'reference', refCollection: 'vendors', refModule: 'TPR', refEntity: 'vendors', required: true },
+      { key: 'category', label: 'Category', type: 'select', required: true, options: ['SLA_BREACH', 'SECURITY_GAP', 'COMPLIANCE_GAP', 'CONTRACT_ISSUE', 'OTHER'] },
+      { key: 'severity', label: 'Severity', type: 'select', required: true, options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+      { key: 'raisedDate', label: 'Raised Date', type: 'date', required: true },
+      { key: 'ownerId', label: 'Owner', type: 'user', required: true },
+      { key: 'targetCloseDate', label: 'Target Close Date', type: 'date' },
+      { key: 'description', label: 'Description', type: 'textarea', required: true, full: true },
+      { key: 'remediationPlan', label: 'Remediation Plan', type: 'textarea', full: true },
+    ],
+    detailSections: [
+      {
+        title: 'Exception',
+        fields: [
+          { key: 'category', label: 'Category', cell: 'badge' },
+          { key: 'severity', label: 'Severity', cell: 'severity' },
+          { key: 'raisedDate', label: 'Raised', cell: 'date' },
+          { key: 'ownerId', label: 'Owner', cell: 'user' },
+          { key: 'targetCloseDate', label: 'Target Close', cell: 'date' },
+          { key: 'remediationPlan', label: 'Remediation Plan' },
+        ],
+      },
+    ],
+    workflowActions: [
+      { id: 'START_REMEDIATION', label: 'Start Remediation', fromStatuses: ['OPEN'], governed: false, targetStatus: 'REMEDIATION_IN_PROGRESS', permission: 'CREATE', tone: 'outline', description: 'Remediation plan actioned' },
+      { id: 'SUBMIT_VERIFICATION', label: 'Submit for Verification', fromStatuses: ['REMEDIATION_IN_PROGRESS'], governed: false, targetStatus: 'PENDING_VERIFICATION', permission: 'CREATE', tone: 'outline', description: 'Remediation complete, awaiting sign-off' },
+      { id: 'CLOSURE_APPROVAL', label: 'Propose Closure', fromStatuses: ['PENDING_VERIFICATION'], governed: true, pendingStatus: 'PENDING_VERIFICATION', targetStatus: 'CLOSED', rejectedStatus: 'REMEDIATION_IN_PROGRESS', permission: 'CREATE', description: 'Exception closure approval' },
+      { id: 'RISK_ACCEPTANCE', label: 'Propose Risk Acceptance', fromStatuses: ['OPEN', 'PENDING_VERIFICATION'], governed: true, pendingStatus: 'PENDING_VERIFICATION', targetStatus: 'RISK_ACCEPTED', rejectedStatus: 'OPEN', permission: 'CREATE', tone: 'outline', description: 'Exception risk-acceptance disposition approval' },
+    ],
+    relations: [],
+    hasEvidence: true,
+  },
+];

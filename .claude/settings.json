@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(npm ls)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(timeout 90 npx --yes playwright install chromium)",
+      "Bash(npm install)"
+    ]
+  }
+}

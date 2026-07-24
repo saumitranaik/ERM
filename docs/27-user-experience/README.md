@@ -73,6 +73,27 @@ module spec already applies to backend capability gaps.
 - `PRSMTD/frontend/` (`app/`, `src/components/`, `src/features/`) — the frontend this section's
   specs must be directly buildable against, per the Reuse-before-redesign rule above
 
+## Reference prototype (Session 18, 2026-07-24)
+
+A high-fidelity, interactive **UX Reference Prototype** now exists at
+[`../../prototype/`](../../prototype/) — a locally-runnable Next.js
+application implementing every completed specification's screens, dashboards,
+forms, and maker-checker workflows against mock data, built to demonstrate
+(not replace) the Foundational Framework, Screen/Navigation/Dashboard specs,
+Forms/Validation/Maker-Checker UX, and Notifications work this section still
+owes (Master Execution Plan Phases 15–18). See
+[`../../prototype/docs/README.md`](../../prototype/docs/README.md) for its
+purpose, architecture and limitations, and
+[`../../prototype/docs/screen-inventory.md`](../../prototype/docs/screen-inventory.md)
+for the full screen list.
+
+The prototype is a concrete, stakeholder-validated input to the four phases
+below — it is not a substitute for authoring them. Once Phases 15–18 are
+written, each should cross-reference the corresponding prototype screens as
+worked examples, and note any place where stakeholder feedback on the
+prototype changed a decision from what was first built.
+
 ## Status
 
-Not yet authored.
+Phases 15–18 (the formal specifications) are **not yet authored**. The
+reference prototype above is available as their input.
