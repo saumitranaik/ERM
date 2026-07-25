@@ -22,4 +22,13 @@ eventually").
 
 ## Status
 
-Not yet authored.
+The phasing/release-plan specification itself is **not yet authored** — see
+[`../roadmap.md`](../roadmap.md) for where that content currently lives (the Master
+Execution Plan, consolidated there per Session 8).
+
+- [`01-demonstration-workflow-catalogue.md`](01-demonstration-workflow-catalogue.md) —
+  authored (2026-07-25). A planning artifact, not the section's authoritative phasing spec:
+  it catalogues 46 candidate stakeholder-demonstration workflows derivable from the 12
+  authored ERM module specifications and the `../../prototype/` reference prototype, with a
+  phased deck-production sequence (§6–§11). It does not phase platform delivery and is not a
+  substitute for the still-unauthored specification above.

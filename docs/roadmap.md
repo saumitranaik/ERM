@@ -21,6 +21,28 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 21 (2026-07-25)** reviewed a newly created planning artifact, the **ERM
+Demonstration Workflow Catalogue**, against repository governance. It had been created at
+`docs/reports/erm_demo_workflow_catalogue.md` — outside the approved `docs/NN-section-name/`
+hierarchy, the same violation Session 5 already resolved once for a different document (see
+Assumption 18/51). Verified the catalogue's 46 cataloged demonstration workflows, dependency
+matrix, deck-creation sequence, and workflow-count arithmetic against the 12 authored ERM
+module specifications and the `../prototype/` reference prototype (personas, roles,
+maker-checker pairs, entity/screen counts, and the "6 validated journeys" claim all checked
+out); found and corrected two unsupported claims (a fabricated "Implementation Status: Not
+Started" quote attributed to `22-traceability/01-master-traceability-matrix.md`, and an
+off-by-one count of "index-only stub" sections that omitted `22-traceability`'s two
+substantive documents) and one naming-standard defect (invented module-code abbreviations —
+e.g. `CTRLS`, `CMPL`, `AUD` — that diverge from the specs' own authoritative `module.code`
+values; corrected to map explicitly to them). Relocated the corrected catalogue, per explicit
+user decision, into [`19-roadmap/01-demonstration-workflow-catalogue.md`](19-roadmap/01-demonstration-workflow-catalogue.md)
+— the section whose stated purpose (phasing/release sequencing) fits a deck-production
+roadmap most closely — updated [`19-roadmap/README.md`](19-roadmap/README.md)'s Status
+section accordingly, and removed the now-empty `docs/reports/` directory. The catalogue
+remains an explicitly-labeled planning artifact (not added to `22-traceability/`'s matrices);
+no authoritative specification, PRSMTD file, or the prototype was modified. See the
+[Session 21](#session-21--2026-07-25) log entry below.
+
 **Session 20 (2026-07-24)** finalized the shared `.claude/settings.json`, applying the
 least-privilege refinements Session 19 had only recommended: removed two dead/obsolete entries
 (`node verify.js`, `chromium-cli`) and `npm init *` (no longer needed post-scaffolding), and
@@ -1665,6 +1687,69 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   archive location — removing the permission entries themselves is the complete cleanup.
 - No specification content, PRSMTD code, or repository structure was changed — a tooling/
   governance finalization only, per its own explicit scope.
+
+### Session 21 — 2026-07-25
+
+- **Reviewed the newly created ERM Demonstration Workflow Catalogue** against repository
+  governance, per explicit session instruction. The document (46 cataloged stakeholder-demo
+  workflows, a dependency matrix, a phased deck-production roadmap, and an effort estimate,
+  derived from the 12 authored ERM module specs plus the `../prototype/` reference prototype)
+  had been placed at `docs/reports/erm_demo_workflow_catalogue.md` — a top-level location
+  `CLAUDE.md` does not approve, structurally identical to the `docs/reports/` request Session 5
+  already rejected once for a different document (Assumption 18).
+- **Verified factual grounding** against the 12 authored specs and the prototype before moving
+  or trusting anything in it:
+  - Persona names, job titles, departments, and maker/checker role pairs all matched
+    `prototype/src/data/org.json` exactly (16 personas, no invented names or roles).
+  - Entity-type (51) and screen-count (~150 + 11 dashboards + 5 enterprise) headline figures
+    matched `prototype/docs/screen-inventory.md`'s own per-module table.
+  - The "6 validated prototype journeys" claim matched `prototype/docs/user-journeys.md`
+    (journeys 1–5 map onto L1-01, L1-06, L2-07, L1-23, L1-28 respectively; journey 6 is a
+    demo-utility reset action, not a business workflow of the same kind — noted as a
+    clarification in the catalogue, not an error).
+  - Spot-checked five workflows' underlying state-machine/lifecycle claims directly against
+    their owning specs (`10-risk`, `12-controls`, `13-audit`, `24-incident-issue-capa`,
+    `26-business-continuity`) — all five confirmed, including the deliberately-ungoverned
+    DR/crisis plan activation flag (L1-29, `MC=N`).
+  - The catalogue's internal arithmetic (31+10+4+1=46 workflows; Simple/Medium/Complex band
+    counts 22/14/10; the 26-deck bundling count) was independently recomputed from its own
+    tables and found internally consistent.
+- **Found and corrected two unsupported claims**:
+  - §12 cited `22-traceability/01-master-traceability-matrix.md` for the phrase
+    "Implementation Status: Not Started" — that field/phrase does not exist in that document
+    (it tracks specification-authorship status, not a PRSMTD build-status field). Corrected to
+    cite `CLAUDE.md`'s PRSMTD capability inventory ("greenfield") instead, without the
+    fabricated file-specific quote.
+  - The headline "15 sections are index-only stubs" count was off by one: `22-traceability`
+    is unauthored as a *phasing spec* but is not index-only — it holds two substantive
+    documents (`01-master-traceability-matrix.md`, `02-compliance-coverage-assessment.md`)
+    the catalogue itself cites as sources. Corrected to 14, with the exception named
+    explicitly.
+- **Found and corrected one naming-standard defect**: the catalogue's "Module codes" legend
+  used invented abbreviations (`CTRLS`, `CMPL`, `AUD`, `SEC`, `POL`, `INC`, `RPT`, `ANA`) that
+  diverge from the specs' own authoritative `module.code` values (`CONTROLS`, `COMPLIANCE`,
+  `AUDIT`, `SECURITY`, `POLICY`, `INCIDENT`, `REPORTING`, `ANALYTICS` — confirmed by grep
+  across all 12 specs), conflicting with `CLAUDE.md`'s Naming Standards ("UPPERCASE module
+  codes matching PRSMTD's `module.code` convention"). Relabeled as table-shorthand
+  abbreviations with an explicit mapping to the real codes, rather than rewriting all 46
+  table rows (a much larger, out-of-scope change for what is a correctness/labeling fix, not
+  a content error).
+- **Relocated** the corrected catalogue to
+  [`19-roadmap/01-demonstration-workflow-catalogue.md`](19-roadmap/01-demonstration-workflow-catalogue.md)
+  — chosen, after presenting the option to the user against `22-traceability/` and
+  `27-user-experience/` alternatives, because `19-roadmap/`'s own stated purpose ("Phasing and
+  release planning... sequencing, not vision") most directly matches the catalogue's own §6
+  "Demonstration Roadmap" and §7 "Recommended Deck Creation Order" content. It is the first
+  document in that section; `19-roadmap/README.md`'s Status section now names it explicitly as
+  a planning artifact distinct from the section's still-unauthored phasing/release-plan
+  specification (which continues to live in this file's own Master Execution Plan, per Session
+  8 — no change to that consolidation this session).
+- **Removed** the now-empty `docs/reports/` directory. No other file in the repository
+  referenced the catalogue's old path (confirmed by repository-wide search before and after
+  the move), so no other cross-reference required updating.
+- **Did not** convert the catalogue into an authoritative specification, add it to
+  `22-traceability/`'s matrices, modify any of the 12 frozen module specs, modify the
+  prototype, or touch PRSMTD — all explicitly out of scope per this session's instruction.
 
 ## Next Milestone
 
@@ -3473,6 +3558,19 @@ Carried forward from both authored specs — re-verify if stale:
     `VendorSLA` (`TPR`) — no parallel measurement table was created for either — and defines
     zero governed `module_actions` types, the smallest governance footprint of any module in
     this repository to date.
+51. **New (Session 21)**: a second `docs/reports/`-outside-the-hierarchy incident occurred —
+    this time a fully-authored document (`erm_demo_workflow_catalogue.md`, 46 cataloged
+    demonstration workflows) was created there directly, not merely requested as in Session 5.
+    Resolved the same way, per Assumption 18's own instruction to future sessions ("treat this
+    resolution as precedent"): relocated into the closest-fitting existing numbered section
+    (`19-roadmap/`) rather than creating a new section or leaving it in place. Verification
+    against the 12 authored specs and `prototype/` confirmed the catalogue's core claims
+    (workflow counts, dependency matrix, deck sequence, persona/role data, five spot-checked
+    state-machine claims) but surfaced two unsupported claims (a fabricated
+    "Implementation Status: Not Started" quote attributed to `22-traceability/01-*`; an
+    off-by-one index-only-stub section count) and a Naming Standards violation (invented
+    module-code abbreviations diverging from the specs' authoritative `module.code` values) —
+    all corrected in place before relocation. Precedent reaffirmed, not superseded.
 
 ## Risks
 
