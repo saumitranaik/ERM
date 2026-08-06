@@ -21,6 +21,32 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 24 (2026-08-06)** produced the **ERM Demonstration Video Production Framework** —
+`demos/video-production-framework.md` — an infrastructure/process document, not a business
+specification, not a PRSMTD artifact, and explicitly not Demonstration Video 02. With Video 01's
+production package (Session 23) now the repository's one validated video deliverable, this
+session reviewed it alongside Deck 01 (Session 22), the Demonstration Workflow Catalogue
+(Session 21), and `prototype/docs/README.md`, then extracted what Video 01 already proved works
+— its 400ms cross-fade / hard-cut-only-for-governed-state-change rule, its 1.6× zoom ceiling, its
+150 wpm narration pace, its chapter-card offset reconciliation method, its nine-document package
+shape — and generalized it into 24 numbered standards (architecture, production, visual,
+narration, subtitle, animation, callout, transition, camera, zoom, cursor, persona, chapter,
+audio, music, QA, rendering, naming, directory, asset-reuse, versioning, defect-logging,
+governance, and future-AI-opportunity standards), nine reusable templates (Opening Sequence,
+Chapter Card, Persona Introduction, Workflow Explanation, Maker-Checker Explanation, Business
+Outcome Summary, Executive Summary, Closing Sequence, End Credits), and an explicit
+asset-reuse determination table distinguishing what is genuinely reusable today (narration
+patterns, the visual-language rulebook, transition standards) from what is not yet produced and
+therefore not yet reusable (icons, concept-plate graphics — honestly flagged rather than implied
+to exist). The framework also fixed two ambiguities Video 01 left implicit: an undocumented
+callout accent color (now fixed at `#F5A623`, flagged as a new, unconfirmed visual-standard
+decision) and an unwritten per-video directory contract (now `demos/video-NN-<slug>/` with a
+fixed nine-file shape). Also created `demos/README.md` (did not previously exist) indexing both
+existing deliverables and pointing future sessions at the framework document first. No video was
+produced or regenerated, no `docs/` specification was touched, the prototype was not run or
+modified, and PRSMTD was not read. See the [Session 24](#session-24--2026-08-06) log entry
+below.
+
 **Session 23 (2026-08-06)** produced **Demonstration Video 01's production package** — a
 narrated-video treatment of the same L1-01 workflow (Risk Assessment Approval) Session 22
 already built as a static deck, this time scoped for a full executive-quality video with
@@ -1928,6 +1954,63 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   the prototype beyond running its already-documented `npm run dev` (stopped at the end of the
   session), modify any authoritative specification, or touch PRSMTD.
 
+### Session 24 — 2026-08-06
+
+- **Instructed to establish a reusable enterprise demonstration video production framework**
+  before producing additional videos — explicitly scoped as infrastructure/process work, not a
+  business specification, not a PRSMTD implementation task, and not Demonstration Video 02.
+- **Reviewed prior art before writing anything**: the full nine-document Video 01 package
+  (`source-workflow.md`, `narration-script.md`, `chapters.md`, `timeline.md`, `scene-list.md`,
+  `asset-inventory.md`, `recording-log.md`, `observations.md`, plus its `audio/README.md` and
+  `project/README.md` placeholders), Deck 01's three companion documents
+  (`screenshot-inventory.md`, `slide-workflow-mapping.md`, `defects-and-gaps-observed.md`), the
+  full Demonstration Workflow Catalogue (`19-roadmap/01-*`), `prototype/docs/README.md` (mock
+  governance engine, chart abstraction layer, module-config architecture), and this file's own
+  Session 21–23 entries, before drafting `video-production-framework.md`.
+- **Extracted and generalized Video 01's already-proven conventions** rather than inventing new
+  ones where a working pattern already existed: the 400ms cross-fade / hard-cut-reserved-for-
+  governed-state-change transition rule, the 1.6× zoom ceiling with 400ms easing, the 120px
+  cursor-spotlight-leads-callout rule, the 150 wpm narration-pace estimation method, the
+  chapter-card cumulative-offset timing-reconciliation method, the word-count-weighted subtitle
+  allocation method, and the nine-file-plus-screenshots package shape — each written up as a
+  numbered standard (§3–§11, §4–§5, §13) in the new framework document rather than left as an
+  implicit convention only discoverable by reading Video 01's own files line by line.
+- **Generalized the fixed 10-chapter shape into a tier-scaling formula** (§13): fixed bookend
+  chapters (Introduction, Domain Overview, Personas, conditional Governance Review, Audit Trail,
+  Final Outcome, Ending) plus variable middle chapters scaling with each catalogue workflow's own
+  `Scr/Act` figure, plus a new "Cross-Module Transition" chapter type identified as necessary
+  starting at Level 2 (none of the 46 catalogued workflows below L2 need one, but 10 of the 46 —
+  every Level 2 fan-out — do) and not previously named anywhere in this repository.
+- **Fixed two ambiguities Video 01 left implicit rather than leaving them to drift per-video**:
+  (1) no callout accent color had ever been named — checked the prototype's own `--primary`/
+  `--accent` design tokens (`prototype/app/globals.css`) first (reuse-before-redesign check) and
+  found them unsuitable for on-screen video legibility (a neutral application-chrome palette, not
+  a highlight color), so proposed a new, explicitly-flagged-as-unconfirmed video-specific accent
+  (`#F5A623`) instead of silently inventing one without disclosure; (2) no per-video directory
+  contract had ever been written down — Video 01's own shape was reverse-engineerable but not
+  specified — now fixed as `demos/video-NN-<workflow-slug>/` with an explicit nine-file set.
+- **Wrote nine reusable templates** (Opening Sequence, Chapter Card, Persona Introduction,
+  Workflow Explanation, Maker-Checker Explanation, Business Outcome Summary, Executive Summary,
+  Closing Sequence, End Credits), each a documented structure only — no template, icon, concept
+  plate, or script was actually built, per the task's explicit "document only, no implementation"
+  instruction.
+- **Produced an honest asset-reuse determination table** (§26): distinguished assets that are
+  genuinely reusable today (narration patterns for platform-orientation/governance-explainer
+  content, the full visual-language rulebook, transition standards) from assets that are not yet
+  reusable because nothing has been produced yet to reuse (icons, concept-plate graphics — both
+  Deck 01 and Video 01 used only plain screenshots and text callouts, confirmed by re-checking
+  both packages' own asset inventories before making this claim either way).
+- **Created `demos/README.md`** (did not previously exist) indexing both existing deliverables
+  (Deck 01, Video 01) and directing future sessions to read the new framework document first,
+  mirroring the "read the section README first" convention `docs/` sections already establish.
+- **Did not** create `demos/_shared/` (a directory for cross-video reusable assets once they
+  physically exist) — documented as explicit future work requiring the same propose-then-confirm
+  discipline this repository already applies to every new top-level/cross-cutting location
+  (Assumption 52 precedent), rather than scaffolding an empty directory speculatively. **Did not**
+  produce, regenerate, or begin Demonstration Video 02, modify Video 01 or Deck 01, modify any
+  authoritative `docs/` specification, run or modify the prototype, add or increase any Liquibase
+  changeset, or read/touch PRSMTD.
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -3758,6 +3841,14 @@ Carried forward from both authored specs — re-verify if stale:
     markdown deliverables (screenshot inventory, slide-workflow mapping, defects/gaps
     observed) — planning/demo output, never authoritative specification content, mirroring how
     `../prototype/` itself is explicitly excluded from the specification-first tree.
+53. **New (Session 24)**: `demos/video-production-framework.md` fixed a visual standard
+    (`#F5A623` callout accent) that has no precedent anywhere in PRSMTD or the prototype — the
+    prototype's own `--primary`/`--accent` design tokens were checked first and found unsuitable
+    (neutral application chrome, not a video-legible highlight color), so this is a genuinely new
+    decision, not a reuse. Flagged explicitly in the framework document itself (§3, §7, §26) as
+    unconfirmed and open for revision via the framework's own Amendment Log (§21) rather than
+    presented as settled. Treat as a standing example of this repository's "propose, don't
+    silently invent" discipline applied to a visual-design decision, not just a structural one.
 
 ## Risks
 
@@ -3787,6 +3878,7 @@ Carried forward from both authored specs — re-verify if stale:
 | **New (Session 16)**: two genuinely new gaps named by `15-analytics/01-*` (a generic formula-execution/BI-computation engine; a roster-of-required-acknowledgers capability) | Neither blocks `ANALYTICS`'s own MVP scope, but a real formula engine and a real acknowledgement-roster capability both remain unbuilt/undesigned, and `MTR-POL-001`'s own completion-rate metric cannot compute a true rate until the latter exists | Track explicitly (Assumption 50); revisit if a concrete tenant requirement makes either concrete, the same treatment SIEM/ABAC/scheduled-job/export-rendering already received |
 | **New (Session 17)**: the extended compliance assessment's ≈40/100 Overall Compliance Readiness Score, and its Structural-Crosswalk ratings for 14 international standards, could be misread out of context as either an alarm ("only 40%!") or an overstatement ("crosswalked to ISO 27001!") if the score's own weighting methodology or the Structural-Crosswalk basis tag is stripped away when cited elsewhere | A stakeholder deck, sales conversation, or regulator submission that cites this session's numbers without their stated methodology/caveats would misrepresent both this repository's actual maturity and its actual gaps | Always cite the full basis tag (Repository-Sourced / Structural Crosswalk / Scope-Level Only / N/A) alongside any rating from `22-traceability/02-*`'s Session 17 section, never the rating alone; the score's own five-dimension breakdown must travel with the composite number, per that section's own "never a standalone headline claim" instruction |
 | **New (Session 17)**: Master Execution Plan Phase 25's originally-scoped 6-item international list (ISO 27001/27701/22301/31000, COBIT, NIST CSF) is now superseded in practice by this session's 22-item list, but Phase 25's own written entry (Tier 6) has not been edited to reflect the wider scope | A future session executing "Phase 25" from its own written text alone could under-scope the crosswalk relative to what this session's assessment actually found relevant | Treat `22-traceability/02-*`'s Session 17 section, not Phase 25's original Tier 6 entry, as the authoritative scope statement for any future Phase 25 execution; reconcile Phase 25's own text the next time this file's Master Execution Plan section is revisited |
+| **New (Session 24)**: `demos/video-production-framework.md` formalizes a full 9-stage video production pipeline, but Stage 8 (assembly/rendering) remains blocked by the same environment gap Session 23 first disclosed — no video encoder, no professional text-to-speech/voice-over resource, no motion-graphics/compositing tool, and no licensed music source | Producing this framework does not itself unblock Video 02 (or any future video) from reaching a rendered `.mp4` — a future session could mistake "the framework exists" for "the tooling gap is resolved" and either stall unnecessarily or attempt to fabricate a lower-quality render to compensate | Follow the framework's own §17 standing disclosure protocol at the start of any future video session: confirm current tooling availability first, and if the gap persists, present the same three scoping options Session 23 used (full package/no render, disclosed best-effort render, planning-only) rather than assuming full production is always achievable |
 
 ## Open Decisions
 
