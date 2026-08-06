@@ -21,6 +21,49 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 23 (2026-08-06)** produced **Demonstration Video 01's production package** — a
+narrated-video treatment of the same L1-01 workflow (Risk Assessment Approval) Session 22
+already built as a static deck, this time scoped for a full executive-quality video with
+voice-over, animated callouts, chapter cards, subtitles, and music. The session opened by
+disclosing a hard tooling gap to the user before starting: this environment has no video
+encoder (`ffmpeg`), no professional text-to-speech or voice-over resource, no
+motion-graphics/compositing tool, and no licensed music source. Given an explicit user choice
+between three scoping options, the user selected **"Full production package, no final MP4"** —
+write every planning/script document to full production quality and capture real prototype
+screenshots, but do not fabricate an `.mp4` that would misrepresent what tooling actually
+produced it. Delivered: `narration-script.md` (16:20 voice-over script across 10 chapters plus
+intro/ending, cue-timed at a 150 wpm professional-narrator estimate), `chapters.md` and
+`timeline.md` (reconciled master timing, 16:55 total runtime including chapter cards),
+`scene-list.md` (33 scenes of shot-by-shot cursor-spotlight/zoom/callout/transition direction),
+`subtitles.srt` (169 timed cues), `source-workflow.md` (traceability of every claim to a spec
+or prototype source), `recording-log.md`, `observations.md`, and `asset-inventory.md` (a full,
+honest accounting of what was and wasn't produced and why). Recaptured the same 8
+business-state screenshots Session 22 identified for this workflow, this time at 1920×1080
+(the video's target resolution) via a throwaway Playwright script — reconfirming, on an
+independent capture pass, Session 22's finding of zero prototype defects and zero
+specification inconsistencies. `git status --short prototype/` was empty before and after.
+Deliverables live in `demos/video-01-risk-assessment-approval/`, alongside Session 22's own
+`demos/deck-01-risk-assessment-approval/`. See the
+[Session 23](#session-23--2026-08-06) log entry below.
+
+**Session 22 (2026-07-25)** produced **Demonstration Deck 01** — the catalogue's recommended
+Day-1 workflow, L1-01 (Risk Assessment Approval) — executed live against the running
+`../prototype/` UX reference application rather than mocked up. Risk Manager Arjun Mehta
+submitted a governed re-assessment on RSK-2026-0004 (ACTIVE); Chief Risk Officer Priya
+Raghunathan, a separate checker persona, reviewed and approved it; the workflow ran cleanly
+end to end with zero prototype defects, zero specification inconsistencies, and zero demo-data
+changes required (the risk was already `ACTIVE` in the prototype's own seed dataset — `git
+status --short prototype/` remained empty throughout). Captured 8 screenshots (Playwright,
+against the prototype's own UI/routes only) after each meaningful business-state transition,
+and built a 16-slide PowerPoint deck from them covering title, executive summary, business
+objective, personas, workflow overview, an 8-step walkthrough (user action / expected system
+response / governance event per step), a governance-events summary, the final business
+outcome, and key takeaways. Per explicit user decision, deliverables live in a new top-level
+`../demos/` directory — `demos/deck-01-risk-assessment-approval/` — the same kind of
+deliberate, narrowly-scoped exception to the specification-first `docs/` tree that
+`../prototype/` already established (Session 18); nothing was added to `docs/`. See the
+[Session 22](#session-22--2026-07-25) log entry below.
+
 **Session 21 (2026-07-25)** reviewed a newly created planning artifact, the **ERM
 Demonstration Workflow Catalogue**, against repository governance. It had been created at
 `docs/reports/erm_demo_workflow_catalogue.md` — outside the approved `docs/NN-section-name/`
@@ -1750,6 +1793,140 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
 - **Did not** convert the catalogue into an authoritative specification, add it to
   `22-traceability/`'s matrices, modify any of the 12 frozen module specs, modify the
   prototype, or touch PRSMTD — all explicitly out of scope per this session's instruction.
+
+### Session 22 — 2026-07-25
+
+- **Produced Demonstration Deck 01**, the catalogue's recommended Day-1 workflow: **L1-01,
+  Risk Assessment Approval** (`docs/19-roadmap/01-demonstration-workflow-catalogue.md` §10),
+  per explicit session instruction to build only this one deck and go no further.
+- **Confirmed deliverable location with the user first**: since a `.pptx` and screenshots need
+  a permanent home outside both `prototype/` (off-limits per this session's own constraint) and
+  the specification-first `docs/` tree, presented three options and built to the user's choice
+  — a new top-level `../demos/` directory, structurally the same kind of exception
+  `../prototype/` already is (Assumption 52).
+- **Reviewed the workflow definition** (catalogue row `L1-01`) and the corresponding validated
+  journey (`prototype/docs/user-journeys.md` §1, "Risk assessment approval") before touching
+  the running application, to plan an exact, evidence-grounded click path rather than
+  improvising one.
+- **Set up screenshot tooling without touching the prototype**: installed the Playwright
+  Python bindings via `pip install --user playwright` (already-cached Chromium binary at
+  `%LOCALAPPDATA%\ms-playwright`, reused from Session 18's verification pass — no re-download).
+  This tooling lives entirely outside the repository (Python site-packages); nothing was added
+  to `prototype/package.json`, `prototype/node_modules`, or any other prototype file.
+- **Executed the workflow live** against `npm run dev` (prototype/, port 3100), using the
+  prototype's own unmodified seed dataset — RSK-2026-0004 ("Credit default of a portfolio
+  issuer below investment grade") was already `ACTIVE`, so no demo-data changes, fixture
+  edits, or `Reset demo data` action were needed before or after capture. Confirmed
+  `git status --short prototype/` was empty both before and after the entire session.
+- **Captured 8 screenshots** after each meaningful business-state transition (persona sign-in;
+  Risk Register list; Risk Detail before action; the governed re-assessment dialog;
+  `ACTIVE → UNDER_REVIEW` with GOV-07 enforced; the checker queue; the approval decision
+  dialog; `UNDER_REVIEW → ACTIVE` with the full maker-checker trail) — using the documented
+  personas throughout (Arjun Mehta as maker, Priya Raghunathan as checker, matching
+  `prototype/src/data/org.json`'s actual role grants).
+- **The workflow ran cleanly on first execution**: zero prototype defects, zero
+  inconsistencies against `docs/10-risk/01-enterprise-risk-management.md` or the documented
+  journey, and zero unsupported assumptions. Recorded this — including two non-defect
+  observations worth knowing for future deck sessions (the checker queue is not empty at
+  session start, since it carries the prototype's own seeded pending items; module-code
+  routing is case-insensitive) — in
+  `demos/deck-01-risk-assessment-approval/defects-and-gaps-observed.md`, per this session's
+  explicit instruction not to fix anything found, only report it.
+- **Built a 16-slide PowerPoint deck** (`python-pptx`) from the captured screenshots: title,
+  executive summary, business objective, personas, workflow overview, 8 step-by-step slides
+  (each with actor, user action, expected system response, and governance/maker-checker event
+  where applicable), a governance-events summary table, the final business outcome, and key
+  takeaways — every section the task specified, no more.
+- **Caught and fixed two layout bugs before finalizing**, using PowerPoint COM automation
+  (already installed on this machine) to export every slide to PNG and visually inspect each
+  one: (a) a table-header cell rendered in navy-on-navy (invisible) text on the Workflow
+  Overview slide; (b) a governance-events table whose row Y-positions were computed from the
+  wrong row-height constant, causing rows to overlap and clip each other's text. Both were
+  code defects in this session's own deck-building script, not in the prototype or the
+  catalogue — fixed, then re-rendered and re-verified clean.
+- **Produced the two companion mapping/inventory documents** the task required:
+  `screenshot-inventory.md` (every screenshot, the persona and app route it was captured
+  from, and reuse notes for later decks) and `slide-workflow-mapping.md` (every slide mapped
+  to its catalogue field or journey step, plus an explicit coverage check against both source
+  documents).
+- **Did not** begin Demonstration Deck 02, catalogue any additional workflow, modify the
+  prototype (beyond running its already-documented `npm run dev`, which was stopped at the end
+  of the session), modify any authoritative specification, or touch PRSMTD — all explicitly
+  out of scope per this session's instruction.
+
+### Session 23 — 2026-08-06
+
+- **Instructed to produce Demonstration Video 01** — a full executive-quality narrated video
+  treatment (voice-over, animated cursor spotlight/zoom/callouts, chapter title cards, section
+  transitions, synchronized subtitles, subtle background music, encoded MP4/H.264/1920×1080/
+  30fps/AAC) of the same L1-01 workflow (Risk Assessment Approval) Session 22 already built as
+  a static PowerPoint deck.
+- **Disclosed a hard tooling gap before starting any production work**: checked the session
+  environment directly and confirmed no `ffmpeg` (or any video encoder), no professional
+  text-to-speech/voice-over engine, no motion-graphics or video-compositing tool, and no
+  licensed music source are available. Windows' built-in SAPI voice was identified as a
+  possible fallback for narration and explicitly not used, since it would not meet the brief's
+  "experienced enterprise product trainer" quality bar.
+- **Presented the user three scoping options** (full production package with no final MP4;
+  best-effort assembled MP4 using SAPI narration and simple overlays; or planning documents
+  only, no screenshots) rather than silently downgrading scope or fabricating a video. The
+  user selected **"Full production package, no final MP4"** — the same category of deliberate,
+  disclosed scope reduction Session 22 itself made when it chose a slide deck over a video in
+  the first place, now made explicit for a session that was actually asked for a video.
+- **Read grounding sources before writing anything**: the `L1-01` catalogue row
+  (`docs/19-roadmap/01-demonstration-workflow-catalogue.md` §4.1), the validated journey
+  (`prototype/docs/user-journeys.md` §1), the governed `REASSESSMENT` action and FR-05
+  separation-of-duties requirement (`docs/10-risk/01-enterprise-risk-management.md`), the
+  GOV-07 single-pending-action rule (`prototype/src/lib/governance.ts`), and Session 22's own
+  `deck-01-risk-assessment-approval/` deliverables (screenshot inventory, defects log, slide
+  mapping) as prior art for the same workflow — captured all of this in
+  `source-workflow.md` before drafting any narration.
+- **Captured 8 screenshots at 1920×1080** (the video's target resolution, a step up from
+  `deck-01`'s 1440×900) using a throwaway Playwright script installed outside the repository
+  (npm package in this session's scratchpad, browser binaries in the user profile's
+  Playwright cache) — nothing added to `prototype/package.json`, `prototype/node_modules`, or
+  any other prototype file. Confirmed `git status --short prototype/` was empty both before
+  and after. The capture pass independently reconfirmed Session 22's finding: zero prototype
+  defects, zero specification inconsistencies, zero demo-data changes required (RSK-2026-0004
+  was already `ACTIVE` in seed data). Two tooling-only issues were hit and fixed during script
+  authoring (a checker-queue-card locator that searched for text the compact card view doesn't
+  actually render; a missing `chromium-headless-shell` browser build) — neither was a
+  prototype or specification defect; both are logged in `recording-log.md`.
+- **Wrote the full narration script** (`narration-script.md`): 10 chapters plus intro and
+  ending, matching the brief's suggested chapter list exactly, each cue grounded in
+  `source-workflow.md` and timed at a 150 words/minute professional-narrator estimate. Total
+  narration runtime 16:20 — longer than the brief's suggested "~90-120s" introduction alone
+  would imply for the whole video, because the introduction's own required-content list (seven
+  distinct beats: ERM, risk registers, governance, maker-checker, auditability, the PRSMTD/ERM
+  relationship, and a workflow preview) does not compress into 90-120 seconds without cutting
+  one of those seven required beats — flagged as Observation 4 in `observations.md` rather
+  than silently either overrunning the brief's guidance or dropping required content.
+- **Built the full reconciled timing model**: `chapters.md` (10 chapter cards + 1 closing
+  card, each a 3-second hold, with the cumulative card-offset arithmetic worked out explicitly
+  against the narration-only timestamps) and `timeline.md` (the authoritative master timeline,
+  reconciling chapter cards against narration cues against screenshots — total runtime 16:55).
+- **Wrote `scene-list.md`**: 33 scenes of shot-by-shot visual direction (cursor spotlight
+  behavior, zoom targets and limits, callout balloon sequencing, transition types, and an
+  explicit rule set for when a hard cut vs. a cross-fade is used) grounded in the actual
+  captured screenshots and consistent with the brief's "avoid distracting animations"
+  instruction.
+- **Generated `subtitles.srt`** (169 cues) programmatically from a hand-timed cue list —
+  each narration cue's text was split into subtitle-sized chunks and time-allocated
+  proportionally (by word count) across that cue's known `timeline.md` video window, with the
+  final chunk of each cue snapped to land exactly on the window's known end second — guaranteeing
+  the subtitle track is internally consistent with the master timeline rather than independently
+  (and potentially divergently) estimated.
+- **Wrote `asset-inventory.md`, `recording-log.md`, and `observations.md`** as an honest,
+  explicit accounting: every text/planning/screenshot deliverable the brief asked for was
+  produced in full; `video-01-risk-assessment-approval.mp4` was not, with the reason stated
+  plainly rather than implied. Added `README.md` placeholders in the required-but-empty
+  `audio/` and `project/` directories explaining what belongs there once recording/assembly
+  tooling exists.
+- **Did not** attempt to fabricate a lower-quality MP4 (e.g., via OS text-to-speech and a
+  plain slideshow) to satisfy the letter of the required-outputs list at the expense of the
+  brief's own explicit "not merely a screen recording," executive-quality bar. Did not modify
+  the prototype beyond running its already-documented `npm run dev` (stopped at the end of the
+  session), modify any authoritative specification, or touch PRSMTD.
 
 ## Next Milestone
 
@@ -3571,6 +3748,16 @@ Carried forward from both authored specs — re-verify if stale:
     off-by-one index-only-stub section count) and a Naming Standards violation (invented
     module-code abbreviations diverging from the specs' authoritative `module.code` values) —
     all corrected in place before relocation. Precedent reaffirmed, not superseded.
+52. **New (Session 22)**: `../demos/` is a second top-level, non-`docs/` deliverable directory,
+    alongside `../prototype/` (Session 18). Established by the same discipline: presented to
+    the user as an explicit choice against two `docs/`-internal alternatives
+    (`22-traceability/`, `27-user-experience/`) before creating it, per `CLAUDE.md`'s "propose
+    a new top-level location explicitly rather than inventing one silently" instruction. Scope
+    is narrow and precedent-following: per-deck subdirectories
+    (`demos/deck-NN-<slug>/`) holding a `.pptx`, its `screenshots/`, and the three companion
+    markdown deliverables (screenshot inventory, slide-workflow mapping, defects/gaps
+    observed) — planning/demo output, never authoritative specification content, mirroring how
+    `../prototype/` itself is explicitly excluded from the specification-first tree.
 
 ## Risks
 

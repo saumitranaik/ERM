@@ -1,0 +1,675 @@
+1
+00:00:03,000 --> 00:00:06,000
+Welcome to the ERM platform demonstration series.
+
+2
+00:00:06,000 --> 00:00:12,000
+Over the next several minutes, you'll watch a real risk move through governed approval
+
+3
+00:00:12,000 --> 00:00:17,000
+from a Risk Manager's first submission to a Chief Risk Officer's final sign-off.
+
+4
+00:00:17,000 --> 00:00:23,000
+This is the pattern that governs every risk, control, incident, and audit finding across this platform.
+
+5
+00:00:26,000 --> 00:00:30,000
+Every regulated financial institution carries risk it cannot fully eliminate:
+
+6
+00:00:30,000 --> 00:00:33,000
+credit risk, operational risk, technology risk, third-party risk.
+
+7
+00:00:33,000 --> 00:00:37,000
+What separates a well-governed institution isn't the absence of risk —
+
+8
+00:00:37,000 --> 00:00:43,000
+it's whether that risk is identified, scored, owned, and reviewed on a disciplined cycle,
+
+9
+00:00:43,000 --> 00:00:52,000
+and whether every change to that picture can be defended to a board, a regulator, or an auditor after the fact.
+
+10
+00:00:52,000 --> 00:00:55,000
+That discipline starts with a risk register —
+
+11
+00:00:55,000 --> 00:01:01,000
+a single, structured system of record where every identified risk has an owner, a category,
+
+12
+00:01:01,000 --> 00:01:05,000
+a documented likelihood and impact score, and a scheduled review date.
+
+13
+00:01:05,000 --> 00:01:11,000
+Today you'll see that register inside a real, working application — not a slide.
+
+14
+00:01:11,000 --> 00:01:14,000
+But a register on its own isn't governance —
+
+15
+00:01:14,000 --> 00:01:17,000
+anyone could edit a score and walk away.
+
+16
+00:01:17,000 --> 00:01:19,000
+Real governance requires separation of duties:
+
+17
+00:01:19,000 --> 00:01:24,000
+the person who proposes a change to a risk's rating, the maker,
+
+18
+00:01:24,000 --> 00:01:28,000
+can never be the same person who approves it, the checker.
+
+19
+00:01:28,000 --> 00:01:32,000
+This maker-checker control is a cornerstone requirement for regulated entities —
+
+20
+00:01:32,000 --> 00:01:40,000
+including SEBI-regulated Mutual Fund Asset Management Companies, the primary market this platform is built for today.
+
+21
+00:01:40,000 --> 00:01:43,000
+This platform is built on two layers.
+
+22
+00:01:43,000 --> 00:01:47,000
+PRSMTD is the underlying governance substrate: multi-tenancy, role-based access,
+
+23
+00:01:47,000 --> 00:01:52,000
+and — critically — an append-only governance ledger that enforces maker-checker wherever it's needed
+
+24
+00:01:52,000 --> 00:01:55,000
+and records every decision permanently for audit.
+
+25
+00:01:55,000 --> 00:02:00,000
+ERM is the specification and module layer built on top of it:
+
+26
+00:02:00,000 --> 00:02:05,000
+Risk, Controls, Compliance, Audit, Policy, Incident and CAPA, Third-Party Risk, and more —
+
+27
+00:02:05,000 --> 00:02:10,000
+each one reusing that same governance engine rather than inventing its own.
+
+28
+00:02:10,000 --> 00:02:16,000
+In this first demonstration, you'll watch the canonical example of that pattern end to end:
+
+29
+00:02:16,000 --> 00:02:20,000
+a Risk Manager submits a periodic re-assessment on an active risk,
+
+30
+00:02:20,000 --> 00:02:27,000
+and a Chief Risk Officer — a different person, holding a different role — reviews and decides it.
+
+31
+00:02:27,000 --> 00:02:31,000
+Watch for three things: how separation of duties is enforced automatically,
+
+32
+00:02:31,000 --> 00:02:34,000
+how the risk's status changes at each step,
+
+33
+00:02:34,000 --> 00:02:38,000
+and how a complete, timestamped decision trail is left behind
+
+34
+00:02:38,000 --> 00:02:44,000
+for anyone who later needs to answer: who approved this, and why.
+
+35
+00:02:47,000 --> 00:02:59,000
+The platform you're about to see is populated with a fictional but realistic tenant:
+
+36
+00:02:59,000 --> 00:03:07,000
+Meridian Asset Management Limited, a SEBI-regulated mutual fund AMC.
+
+37
+00:03:07,000 --> 00:03:17,000
+Every persona, risk, and record you'll see belongs to this one illustrative organization.
+
+38
+00:03:17,000 --> 00:03:20,000
+Two people carry this workflow.
+
+39
+00:03:20,000 --> 00:03:27,000
+Arjun Mehta is Meridian's Risk Manager, sitting in the Risk Management department.
+
+40
+00:03:27,000 --> 00:03:35,000
+His job is to keep the risk register current — identifying risks, running periodic re-assessments,
+
+41
+00:03:35,000 --> 00:03:41,000
+and proposing changes to a risk's likelihood, impact, or status.
+
+42
+00:03:41,000 --> 00:03:47,000
+He is today's maker: the person who proposes the change.
+
+43
+00:03:47,000 --> 00:03:51,000
+Priya Raghunathan is Meridian's Chief Risk Officer.
+
+44
+00:03:51,000 --> 00:04:01,000
+She owns the independent risk management function and holds the checker role for the Risk module —
+
+45
+00:04:01,000 --> 00:04:09,000
+meaning any governed change Arjun proposes must pass across her desk before it takes effect.
+
+46
+00:04:09,000 --> 00:04:17,000
+She is today's checker: the person who decides.
+
+47
+00:04:17,000 --> 00:04:26,000
+Notice that Arjun and Priya sit in the same department but hold different roles.
+
+48
+00:04:26,000 --> 00:04:32,000
+That's deliberate — separation of duties is about role, not department,
+
+49
+00:04:32,000 --> 00:04:35,000
+and the platform enforces it structurally, not just as a formality.
+
+50
+00:04:38,000 --> 00:04:43,000
+Arjun signs in and lands on the Risk Register —
+
+51
+00:04:43,000 --> 00:04:52,000
+the enterprise-wide list of every identified risk at Meridian, spanning fund management, operations, customer service, and more.
+
+52
+00:04:52,000 --> 00:04:59,000
+This is the single source of truth the rest of the organization works from:
+
+53
+00:04:59,000 --> 00:05:08,000
+risk owners, department heads, and the CRO all read from this same list rather than separate spreadsheets.
+
+54
+00:05:08,000 --> 00:05:17,000
+Each row shows a risk code, its title, category, current status, and its inherent and residual score —
+
+55
+00:05:17,000 --> 00:05:20,000
+the two numbers that drive prioritization.
+
+56
+00:05:20,000 --> 00:05:27,000
+Arjun opens RSK-2026-0004: ‘Credit default of a portfolio issuer below investment grade’ —
+
+57
+00:05:27,000 --> 00:05:33,000
+a credit risk owned by the Investment Management function, currently Active,
+
+58
+00:05:33,000 --> 00:05:39,000
+with an inherent score of ten and a residual score of eight
+
+59
+00:05:39,000 --> 00:05:48,000
+after existing controls are taken into account.
+
+60
+00:05:48,000 --> 00:05:54,000
+Notice the detail screen's action bar: Submit Re-assessment, Escalate, Propose Risk Acceptance, Propose Retirement.
+
+61
+00:05:54,000 --> 00:06:01,000
+These are the governed actions available to Arjun in this risk's current status —
+
+62
+00:06:01,000 --> 00:06:07,000
+and only because no other action is already pending against this record.
+
+63
+00:06:07,000 --> 00:06:18,000
+That constraint matters, and you'll see why in a moment.
+
+64
+00:06:21,000 --> 00:06:30,000
+This risk's last assessment was in June, with its next review due in September.
+
+65
+00:06:30,000 --> 00:06:34,000
+Rather than wait, Arjun has fresh information —
+
+66
+00:06:34,000 --> 00:06:40,000
+a rating agency has revised its outlook on the issuer —
+
+67
+00:06:40,000 --> 00:06:51,000
+and he's initiating a periodic re-assessment now.
+
+68
+00:06:51,000 --> 00:06:53,000
+He clicks Submit Re-assessment.
+
+69
+00:06:53,000 --> 00:06:59,000
+This is a governed action: the button itself tells him so,
+
+70
+00:06:59,000 --> 00:07:06,000
+warning that once submitted, no further changes are allowed until a checker decides.
+
+71
+00:07:06,000 --> 00:07:10,000
+A justification is mandatory — free text won't do;
+
+72
+00:07:10,000 --> 00:07:21,000
+this is the evidentiary record an auditor will read later.
+
+73
+00:07:21,000 --> 00:07:28,000
+Arjun writes his rationale: credit spreads have widened following a one-notch outlook revision,
+
+74
+00:07:28,000 --> 00:07:32,000
+but the segregated-portfolio trigger has not been breached,
+
+75
+00:07:32,000 --> 00:07:38,000
+and existing controls and heightened monitoring continue to operate effectively.
+
+76
+00:07:38,000 --> 00:07:43,000
+He confirms the residual likelihood and impact are unchanged.
+
+77
+00:07:43,000 --> 00:07:51,000
+This is the maker's case — the reasoning a checker will independently evaluate, not simply rubber-stamp.
+
+78
+00:07:54,000 --> 00:07:57,000
+Arjun clicks ‘Submit for approval.’
+
+79
+00:07:57,000 --> 00:08:02,000
+Watch the status badge: Active becomes Under Review,
+
+80
+00:08:02,000 --> 00:08:12,000
+and a second badge appears — Awaiting checker.
+
+81
+00:08:12,000 --> 00:08:15,000
+This is the governance ledger at work.
+
+82
+00:08:15,000 --> 00:08:22,000
+Behind the scenes, the platform has created a pending action record, linked to this risk,
+
+83
+00:08:22,000 --> 00:08:29,000
+and — critically — it will allow exactly one pending action per record at a time.
+
+84
+00:08:29,000 --> 00:08:33,000
+This is a rule the platform calls GOV-07,
+
+85
+00:08:33,000 --> 00:08:42,000
+and you can see its effect immediately: every action button that was available a moment ago has disappeared.
+
+86
+00:08:42,000 --> 00:08:49,000
+Arjun cannot submit anything further against this risk, and he cannot approve his own submission.
+
+87
+00:08:49,000 --> 00:08:52,000
+The system tells him so directly: separation of duties requires a different checker to decide it.
+
+88
+00:08:52,000 --> 00:08:58,000
+The risk is now frozen in a governed, in-flight state
+
+89
+00:08:58,000 --> 00:09:06,000
+until someone with the right authority makes a decision.
+
+90
+00:09:09,000 --> 00:09:12,000
+This is the moment worth pausing on,
+
+91
+00:09:12,000 --> 00:09:21,000
+because it's the heart of enterprise governance: maker-checker control.
+
+92
+00:09:21,000 --> 00:09:25,000
+Why does separation of duties exist at all?
+
+93
+00:09:25,000 --> 00:09:32,000
+Because a single person acting alone — however well-intentioned — is a single point of failure.
+
+94
+00:09:32,000 --> 00:09:34,000
+Errors go uncaught.
+
+95
+00:09:34,000 --> 00:09:41,000
+Pressure to hit a number, close a quarter, or avoid an uncomfortable conversation
+
+96
+00:09:41,000 --> 00:09:44,000
+can quietly bias a self-approved decision.
+
+97
+00:09:44,000 --> 00:09:48,000
+Regulators require independent review of risk management activity
+
+98
+00:09:48,000 --> 00:09:55,000
+precisely because self-review cannot be trusted to catch what an independent reviewer will.
+
+99
+00:09:55,000 --> 00:10:04,000
+The platform enforces this structurally: the same rule that blocked Arjun from deciding his own submission a moment ago
+
+100
+00:10:04,000 --> 00:10:09,000
+would block anyone, on any record, in any module built on this governance ledger.
+
+101
+00:10:09,000 --> 00:10:15,000
+We now switch personas to Priya Raghunathan, Meridian's Chief Risk Officer —
+
+102
+00:10:15,000 --> 00:10:18,000
+the checker you met earlier.
+
+103
+00:10:18,000 --> 00:10:25,000
+Because she holds the checker role and did not create this submission,
+
+104
+00:10:25,000 --> 00:10:32,000
+the platform grants her exactly the authority Arjun didn't have a moment ago:
+
+105
+00:10:32,000 --> 00:10:39,000
+the ability to decide it.
+
+106
+00:10:39,000 --> 00:10:43,000
+Priya opens Approvals — a single, cross-module queue
+
+107
+00:10:43,000 --> 00:10:52,000
+that surfaces every pending action waiting on a role she holds, regardless of which module it came from.
+
+108
+00:10:52,000 --> 00:10:56,000
+Her queue already carries several other pending items;
+
+109
+00:10:56,000 --> 00:11:01,000
+Arjun's new submission has landed at the top.
+
+110
+00:11:01,000 --> 00:11:06,000
+This is what auditors value most about this design:
+
+111
+00:11:06,000 --> 00:11:14,000
+every governed decision, across every module, flows through one traceable queue and one ledger —
+
+112
+00:11:14,000 --> 00:11:21,000
+nothing is approved by side channel, email, or verbal sign-off.
+
+113
+00:11:24,000 --> 00:11:30,000
+On the pending item, Priya can see exactly what Arjun submitted:
+
+114
+00:11:30,000 --> 00:11:34,000
+his justification, in full, with a timestamp.
+
+115
+00:11:34,000 --> 00:11:40,000
+She has three options: Approve, Reject, or Return for rework —
+
+116
+00:11:40,000 --> 00:11:48,000
+this last option sends it back to Arjun with feedback rather than forcing an outright rejection,
+
+117
+00:11:48,000 --> 00:12:00,000
+useful when the case is close but incomplete.
+
+118
+00:12:00,000 --> 00:12:02,000
+Priya clicks Approve.
+
+119
+00:12:02,000 --> 00:12:07,000
+A decision dialog opens, asking for an optional comment —
+
+120
+00:12:07,000 --> 00:12:14,000
+optional here because approval doesn't require justification the way a rejection or a return does,
+
+121
+00:12:14,000 --> 00:12:18,000
+though a disciplined checker adds one anyway.
+
+122
+00:12:18,000 --> 00:12:22,000
+Priya writes that she reviewed the credit-spread data,
+
+123
+00:12:22,000 --> 00:12:26,000
+confirmed the segregated-portfolio trigger has not been breached,
+
+124
+00:12:26,000 --> 00:12:30,000
+and confirms the existing control remains effective.
+
+125
+00:12:30,000 --> 00:12:36,000
+She concurs with the re-assessment.
+
+126
+00:12:36,000 --> 00:12:38,000
+She clicks ‘Confirm approve.’
+
+127
+00:12:38,000 --> 00:12:43,000
+This is the moment the governance ledger closes the loop:
+
+128
+00:12:43,000 --> 00:12:46,000
+the pending action is marked decided,
+
+129
+00:12:46,000 --> 00:12:51,000
+the platform's projection logic updates the underlying risk record,
+
+130
+00:12:51,000 --> 00:13:00,000
+and both the maker's justification and the checker's decision comment are written permanently to the record's history.
+
+131
+00:13:00,000 --> 00:13:06,000
+Arjun will also receive a notification that his submission was decided —
+
+132
+00:13:06,000 --> 00:13:10,000
+closing the loop back to the person who started it.
+
+133
+00:13:13,000 --> 00:13:16,000
+Back on the risk record's Approvals tab,
+
+134
+00:13:16,000 --> 00:13:22,000
+the full decision is now visible as a single, permanent entry:
+
+135
+00:13:22,000 --> 00:13:24,000
+Risk Reassessment — Approved.
+
+136
+00:13:24,000 --> 00:13:28,000
+Maker: Arjun Mehta, Risk Manager, with his timestamp.
+
+137
+00:13:28,000 --> 00:13:32,000
+Checker: Priya Raghunathan, Chief Risk Officer, with hers.
+
+138
+00:13:32,000 --> 00:13:45,000
+Both the original justification and the final decision comment are preserved verbatim, side by side.
+
+139
+00:13:45,000 --> 00:13:50,000
+This is what an internal auditor or a SEBI inspection would actually look for:
+
+140
+00:13:50,000 --> 00:13:55,000
+not just that a risk score changed, but who proposed the change, why,
+
+141
+00:13:55,000 --> 00:14:00,000
+who independently reviewed it, what they said, and exactly when each step happened.
+
+142
+00:14:00,000 --> 00:14:03,000
+Nothing here can be edited after the fact —
+
+143
+00:14:03,000 --> 00:14:08,000
+the governance ledger this platform is built on is append-only by design.
+
+144
+00:14:08,000 --> 00:14:12,000
+A new correction is a new entry, never a silent overwrite.
+
+145
+00:14:12,000 --> 00:14:21,000
+That immutability is what turns a risk register from a spreadsheet anyone could quietly edit into a defensible system of record.
+
+146
+00:14:24,000 --> 00:14:28,000
+The risk itself is back to Active —
+
+147
+00:14:28,000 --> 00:14:34,000
+re-assessment doesn't necessarily mean the picture changed, and here it didn't:
+
+148
+00:14:34,000 --> 00:14:38,000
+residual likelihood and impact were reconfirmed, not revised.
+
+149
+00:14:38,000 --> 00:14:42,000
+What changed is something just as important:
+
+150
+00:14:42,000 --> 00:14:49,000
+the organization now has fresh, independently reviewed evidence that this risk is still correctly scored,
+
+151
+00:14:49,000 --> 00:14:56,000
+current as of today rather than a stale June assessment, with a documented trail proving the review actually happened.
+
+152
+00:14:56,000 --> 00:15:01,000
+That's the real business outcome of a maker-checker workflow.
+
+153
+00:15:01,000 --> 00:15:05,000
+It's not paperwork for its own sake —
+
+154
+00:15:05,000 --> 00:15:11,000
+it's the difference between an organization that can say ‘we manage this risk’
+
+155
+00:15:11,000 --> 00:15:20,000
+and one that can prove it, on demand, to a board committee or a regulator, months or years later.
+
+156
+00:15:20,000 --> 00:15:26,000
+You've just watched the platform's most fundamental governance pattern end to end:
+
+157
+00:15:26,000 --> 00:15:30,000
+a maker proposes, a checker independently decides,
+
+158
+00:15:30,000 --> 00:15:34,000
+and every step is captured permanently for audit.
+
+159
+00:15:34,000 --> 00:15:39,000
+This same pattern — not a different one per module —
+
+160
+00:15:39,000 --> 00:15:46,000
+is what will govern control testing, compliance assessments, audit findings, policy publication, incident closure,
+
+161
+00:15:46,000 --> 00:15:54,000
+and every other approval across this platform, because it all runs on the same governance ledger you saw today.
+
+162
+00:15:54,000 --> 00:16:01,000
+For a Board or CRO, this is the assurance that risk data is trustworthy.
+
+163
+00:16:01,000 --> 00:16:09,000
+For a CISO or Compliance Officer, this is a control you can point to in an audit.
+
+164
+00:16:09,000 --> 00:16:17,000
+For an implementation team, this is one governance engine to build once and reuse everywhere,
+
+165
+00:16:17,000 --> 00:16:26,000
+not a bespoke approval flow per module.
+
+166
+00:16:26,000 --> 00:16:29,000
+This concludes Demonstration 01.
+
+167
+00:16:29,000 --> 00:16:35,000
+Future demonstrations in this series will walk through control exception handling,
+
+168
+00:16:35,000 --> 00:16:39,000
+compliance assessment approval, and audit finding closure —
+
+169
+00:16:39,000 --> 00:16:50,000
+each one exercising this same governed pattern in a different part of the platform.
