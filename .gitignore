@@ -31,3 +31,5 @@ venv/
 
 # Diagram/export byproducts
 *.diagram.png.tmp
+demos/*.mp4
+demos/*/*.mp4
