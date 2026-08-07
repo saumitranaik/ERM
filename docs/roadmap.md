@@ -21,6 +21,74 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 27 (2026-08-07)** produced the **ERM Demonstration Video Production Manifest** —
+`demos/video-production-manifest.md` — the single authoritative planning artifact for which
+video is produced next, production order, dependencies, status, and output locations across the
+entire 46-workflow catalogue. This is explicitly a planning/governance task, not a specification,
+not a PRSMTD engagement, and not the production of Demonstration Video 02. Reviewed `CLAUDE.md`,
+this file, `19-roadmap/01-demonstration-workflow-catalogue.md`, `demos/video-production-
+framework.md`, Video 01's full production package, and `prototype/docs/` before writing. The
+manifest resolves the one real gap left after Session 24's framework: the catalogue's own
+recommended build order (§7) is a 26-item **bundled deck** sequence, but the framework's
+one-workflow-one-package rule (framework §2 rule 7) forbids that bundling for video — so this
+session unbundled catalogue §7's deck order into a 46-item, 1:1 video sequence (Video 01 already
+occupies `01`; Videos 02–46 assigned in dependency-respecting order, preserving catalogue §11's
+two hard sequencing rules), assigned every video a folder/output name, and built a three-part,
+Video-Number-keyed status table (Production Package / Rendering / QA / Approval — a finer split
+than the single "status" field originally sketched, since Video 01 itself is already Production
+Package Complete and Rendered but not yet Approved, three genuinely different facts). Marked
+Video 01 accurately against that table (Production Package Complete; Rendered — Version 1 Silent
+Demonstration; QA Complete for that scope; Approval Not Started) and all other 45 videos Not
+Started, per explicit instruction not to begin Video 02. Flagged, rather than silently resolved,
+two pre-existing gaps found in the catalogue's own dependency matrix while building the
+dependency-translation table: L1-18's informal "familiarity" dependency on L1-21 conflicts with
+the module-grouped build order that sequences L1-18 (Video 18) before L1-21 (Video 21), and
+L1-29/L1-31 carry no documented dependency at all — both recorded in the manifest's own Known
+Constraints section with a recommended (not mandated) default. Updated `demos/README.md` to
+point to the new manifest as the first document to read. No authoritative `docs/` specification,
+the prototype, or PRSMTD was touched; no Liquibase changeset was added; Video 01's own package
+and rendered `.mp4` were not modified. This session's own instruction was scoped entirely to the
+demonstration-video track — it neither actions nor supersedes Session 25's standing, still-open
+recommendation to resume Master Execution Plan phase work (see Risks and Open Decisions below).
+See the [Session 27](#session-27--2026-08-07) log entry below.
+
+**Session 26 (2026-08-07)** rendered **Demonstration Video 01 — Version 1 (Silent
+Demonstration)**: `demos/video-01-risk-assessment-approval/video-01-risk-assessment-approval.mp4`
+now exists (H.264, 1920×1080, 30fps, AAC, 16:55, ~50MB), closing the one gap Session 23 left
+open. No narration and no background music, both by explicit instruction for this version, not
+by tooling failure this time — a portable `ffmpeg` build (no admin rights required) and a new
+Python/Pillow compositing pipeline (`demos/video-01-risk-assessment-approval/project/
+render_pipeline.py`) took the place of the video-editing tool Session 23 lacked, rendering every
+frame (zoom/pan, cursor spotlight, callout balloons, chapter cards, concept plates, transitions,
+burned-in subtitles) directly from the existing `scene-list.md` / `timeline.md` / `chapters.md`
+/ `subtitles.srt` without rewriting any of them. The pipeline is narration-ready
+(`--narration <track>` re-renders identically with a real voice-over once one is recorded) for a
+future Version 2. This session explicitly did not act on Session 25's recommendation to resume
+Master Execution Plan phases — see the [Session 26 log entry](#session-26--2026-08-07) — that
+recommendation still stands unactioned.
+
+**Session 25 (2026-08-06)** performed a **comprehensive repository review** — the first
+session whose sole purpose is auditing, not authoring: verified every phase this file marks
+complete (1, 6, 7, 8, 9, 11) against actual file state (all twelve authoritative specs, all
+five extended `docs/NN-*/` sections, `20-adr/` through `18-deployment/` still README-only where
+claimed); confirmed no obsolete planning artifact currently needs archiving (the one prior
+violation of the `docs/NN-section-name/` hierarchy, `docs/reports/`, was already resolved and
+removed at Session 21 — nothing has recurred); and produced a full gap analysis, dependency-
+and value-ordered prioritization, and a recommended next phase (see the new [Session 25 log
+entry](#session-25--2026-08-06), updated Risks, and updated Open Decisions below). The
+headline finding: **Sessions 17–24 (eight consecutive sessions) advanced zero Master Execution
+Plan phases.** That work was not wasted — Session 18's UX Reference Prototype is a genuine,
+high-value input to the still-unauthored Tier 3 UX suite (Phases 15–18), and Sessions 21–24
+produced the repository's first stakeholder-facing demonstration collateral (Deck 01, Video 01's
+production package, a reusable video-production framework) — but none of it is Master Execution
+Plan phase work, and the Plan's own "Order of next work" recommendation has sat unactioned since
+Session 17 (which itself named Phase 24, DPDP Act & CERT-In regulatory content, as priority one).
+This session recommends resuming Plan execution, starting with the now-stale three-item
+`ANALYTICS`/`04-domain-model`/`14-reporting` additive-change backlog (open since Session 16, the
+smallest and cheapest item on the register) and then Phase 24 — see Recommended Next Phase in
+the Open Decisions section below for the full reasoning. No authoritative specification, the
+prototype, or PRSMTD was modified; this file is the only change.
+
 **Session 24 (2026-08-06)** produced the **ERM Demonstration Video Production Framework** —
 `demos/video-production-framework.md` — an infrastructure/process document, not a business
 specification, not a PRSMTD artifact, and explicitly not Demonstration Video 02. With Video 01's
@@ -2011,6 +2079,197 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   authoritative `docs/` specification, run or modify the prototype, add or increase any Liquibase
   changeset, or read/touch PRSMTD.
 
+### Session 25 — 2026-08-06
+
+- **Instructed to conduct a comprehensive review of the repository following successful CI
+  validation** — Master Execution Plan, `docs/roadmap.md`, `CLAUDE.md`, all authored
+  specifications, traceability documents, the prototype, demonstration assets, and the video
+  production framework — and to produce a gap analysis, a prioritization of remaining work, and
+  a recommended next phase, updating this file accordingly. Explicitly not an implementation
+  session: no phase was executed, no spec was authored or modified.
+- **Verified every phase this file marks "Complete" against actual repository state**: Phase 1
+  (Session 9's five new section directories — `23-policy` through `27-user-experience` — exist
+  with the governance refinements recorded in `CLAUDE.md`); Phases 6–9 (`23-policy/01-*`,
+  `24-incident-issue-capa/01-*`, `25-third-party-risk/01-*`, `26-business-continuity/01-*` all
+  exist and are cross-referenced from `22-traceability/01-*`); Phase 11 (`14-reporting/01-*`,
+  `15-analytics/01-*` both exist). No discrepancy found between a claimed-complete phase and
+  actual file state anywhere in the repository.
+- **Verified every phase this file does *not* mark complete is in fact still README-only**:
+  `01-vision/`, `02-business-architecture/`, `03-enterprise-architecture/`, `20-adr/`,
+  `16-ai/`, `17-integrations/`, `18-deployment/`, `27-user-experience/`, `06-data-model/`,
+  `07-workflows/`, `08-api/`, `21-standards/`, and `05-modules/` each contain only their scaffold
+  `README.md` — confirming Phases 2–5, 10, 12–29 (23 of 29 phases) genuinely have not started,
+  not merely that this file forgot to mark them complete.
+- **Checked for obsolete planning artifacts requiring archival** (an explicit constraint of this
+  session's brief): none found. `docs/reports/` (the one prior hierarchy violation, Sessions 5
+  and 21) is already removed with no dangling references; root directory contains only the
+  four items `CLAUDE.md` permits (`CLAUDE.md`, `README.md`, `.gitignore`, plus the two approved
+  non-`docs/` exceptions `prototype/` and `demos/`); no stale or duplicate document was found
+  anywhere else in `docs/`.
+- **Found the review's central finding**: Sessions 17–24 (eight sessions since Phase 11
+  completed at Session 16) advanced **zero** Master Execution Plan phases. Session 17 was a
+  read-only compliance assessment; Session 18 built the UX Reference Prototype (valuable input
+  to Phases 15–18, but not itself a numbered phase); Sessions 19–20 were `.claude/` governance
+  cleanup; Sessions 21–24 built the repository's first demonstration collateral (workflow
+  catalogue relocation, Deck 01, Video 01's production package, the video production framework)
+  — a legitimate, user-directed, narrowly-scoped body of work, but one entirely outside the
+  Plan's own phase numbering. Session 17's own "Order of next work" recommendation (Phase 24,
+  DPDP Act & CERT-In, ranked priority one in `22-traceability/02-*`'s Prioritized Implementation
+  Roadmap) has consequently sat unactioned for seven sessions, and the small three-item
+  `ANALYTICS`/`04-domain-model`/`14-reporting` additive-change backlog (Assumption 50, proposed
+  Session 16) has sat unapplied for eight — the longest either kind of open item has ever gone
+  unaddressed in this repository's history.
+- **Produced a full gap analysis** (remaining phases, deliverables, dependencies, blockers,
+  obsolete items) and a **prioritized ordering of remaining work** by dependency order, business
+  value, architectural readiness, and implementation readiness — see the updated Risks and Open
+  Decisions sections below for the recommendation this session's analysis converged on.
+- **Did not** execute any Master Execution Plan phase, author or modify any `docs/`
+  specification, modify the prototype, modify PRSMTD, or produce new demonstration collateral.
+  This file (`docs/roadmap.md`) is the only file changed this session.
+
+### Session 26 — 2026-08-07
+
+- **Instructed to render Demonstration Video 01 as a finished MP4** using only the existing
+  Session 23 production package (`demos/video-01-risk-assessment-approval/`), explicitly not to
+  perform any roadmap work, author any specification, or begin Video 02. An initial framing of
+  this session (full narrated video, matching Session 23's original brief) was scoped down by
+  the user, mid-session, to **Version 1 (Silent Demonstration)**: no spoken narration, no
+  background music, synchronized burned-in subtitles only — with the explicit requirement that
+  the rendering pipeline remain narration-ready so a real voice-over can be added later without
+  touching any visual asset.
+- **Re-checked the Session 23 tooling gap directly rather than trusting the prior record**:
+  confirmed `ffmpeg` was still absent and Windows SAPI was still the only TTS available. Found
+  two things Session 23 did not have: Chocolatey was present (but a system-wide `ffmpeg` install
+  failed — no admin rights, `lib-bad` directory access denied) and a portable static `ffmpeg`
+  build could be downloaded and used without any system install. Asked the user, via
+  `AskUserQuestion`, how far to push given this partial capability before taking any action —
+  the user's answer was the Version 1 (Silent Demonstration) scope described above.
+- **Wrote `demos/video-01-risk-assessment-approval/project/render_pipeline.py`** — a Python
+  (Pillow + numpy) frame-compositing pipeline standing in for the video-editing/motion-graphics
+  tool that was never available in this environment. It reads `scene-list.md`'s 33 scenes and
+  `chapters.md`'s 10 chapter cards + closing card (reconciled against `timeline.md`) as a data
+  table, composites every frame (zoom/pan camera moves, a cursor spotlight, callout balloons,
+  concept-plate diagrams, click-pulse highlights, cross-fade/hard-cut transitions per
+  `scene-list.md`'s own transition rules, and burned-in subtitles from `subtitles.srt`), and
+  pipes raw frames into `ffmpeg` for H.264/AAC encoding. On-screen callout and spotlight target
+  coordinates were read directly off the real 1920×1080 screenshots, not estimated. No document
+  in the existing production package was rewritten to produce this — the pipeline consumes them
+  as-is, per the brief's "do not rewrite unless an actual rendering defect is found" constraint.
+- **Validated incrementally before the full ~17-minute render**: rendered short preview slices
+  of each chapter and inspected extracted frames, catching and fixing two real defects first —
+  a concept-plate connector-arrow coordinate bug (the arrow overshot into adjacent box text) and
+  three emoji glyphs (padlock, cross, check mark) Segoe UI does not cover, rendering as tofu
+  boxes — replacing the emoji draw calls with small hand-drawn vector icons. Both fixes were
+  re-verified by re-rendering the same preview slices before committing to the full render.
+  Neither defect reached the previously-shipped documents; both were introduced and caught
+  within this session's own new code.
+- **Rendered the full video**: 30,450 frames (16:55 at 30fps, matching `timeline.md` exactly)
+  encoded in one pass, verified via `ffprobe` (H.264/yuv420p/1920×1080/30fps video, AAC/48kHz/
+  stereo silent audio, 1015.00s duration). Ran a QA pass sampling frames across all 10 chapters,
+  the Ending, and the closing card against the brief's checklist (narration/subtitle sync,
+  chapter timing, transition smoothness, absence of glitches, correct branding/terminology,
+  workflow fidelity) — see `observations.md` and `recording-log.md`'s new "Rendering pass"
+  section for the full record, including two scenes (the Scene 22 persona-switcher dropdown and
+  the Scene 29–30 status-badge callout) where an honest adaptation was made rather than
+  fabricating screenshot content that was never actually captured.
+- **Updated the production package's own documentation to match reality**: `asset-inventory.md`
+  (MP4 now marked produced, with the Version 1/Version 2 distinction spelled out),
+  `recording-log.md` and `observations.md` (new sections documenting the rendering pass), and
+  `audio/README.md` / `project/README.md` (rewritten to describe what is actually now present
+  and how to add narration later) — all per this session's own "update package docs on success"
+  instruction, none of it roadmap or specification work.
+- **Did not** perform any Master Execution Plan phase work, author or modify any authoritative
+  `docs/NN-*/` specification, modify the prototype or PRSMTD, begin Demonstration Video 02, or
+  regenerate any of Session 23's planning documents beyond the documentation updates listed
+  above. This session's own instruction explicitly named this scope; Session 25's standing
+  recommendation to resume Plan execution was neither actioned nor superseded by this session.
+
+### Session 27 — 2026-08-07
+
+- **Instructed to create a single authoritative Video Production Manifest** governing every
+  remaining demonstration video, explicitly scoped as planning/governance work — not a
+  specification task, not a PRSMTD engagement, and explicitly not the production of
+  Demonstration Video 02. Reviewed `CLAUDE.md`, this file (`Current Status` and session log),
+  `docs/19-roadmap/01-demonstration-workflow-catalogue.md`, `demos/video-production-
+  framework.md`, Video 01's full nine-document production package plus its rendered `.mp4`
+  status, and `demos/README.md` before writing anything.
+- **Identified the one real planning gap the framework (Session 24) left open**: the catalogue's
+  own recommended production order (§7) is a 26-item sequence that bundles multiple Level 1
+  workflows into single "module foundation" **decks**, but the framework's "one workflow, one
+  package" rule (framework §2 rule 7) forbids that same bundling for **video** — so no document
+  actually stated, unambiguously, which video comes after Video 01, or what any of the other 45
+  videos' folder names, dependencies, or statuses are.
+- **Created `demos/video-production-manifest.md`**, containing: purpose/scope and explicit
+  relationships to the catalogue and the framework (referencing, never duplicating, either);
+  repository governance rules restating this session's own constraints (PRSMTD/prototype
+  read-only, no authoritative spec or Liquibase change, archive-not-delete, no Video 02); video
+  numbering/folder/output-naming conventions; an eight-value production-status vocabulary (Not
+  Started → In Progress → Production Package Complete → Rendered → \[Narrated] → QA Complete →
+  Approved → Published) applied across four independent status axes rather than one combined
+  field, because Video 01 itself is simultaneously Production Package Complete, Rendered, and
+  QA Complete but **not** Approved — three different facts a single status column would have
+  collapsed; a production readiness checklist, quality gates, and rendering/narration/asset-
+  reuse/versioning/naming rules that cross-reference the framework's own numbered standards
+  rather than restating them; a video dependency section translating the catalogue's own §5
+  dependency matrix into Video-Number references; release-readiness rules tying "Published" to
+  an explicit, separately-authorized user decision (per this repository's own hard-to-reverse-
+  action discipline); production metrics honestly stating that no per-video effort/runtime model
+  exists yet beyond the catalogue's deck-medium estimate and Video 01's own single data point;
+  lessons learned carried forward from Sessions 22–26 (grounding-first discipline, disclosure-
+  before-fabrication, incremental preview validation, honest adaptation over fabrication); known
+  constraints; and future enhancements.
+- **Unbundled catalogue §7's 26-deck order into a 46-video, one-workflow-per-video sequence**,
+  preserving catalogue §11's two hard sequencing rules (never a Level 2+ fan-out before its
+  Level 1 prerequisite; L2-07/L2-10 immediately after the Level 1 module videos and before the
+  fan-out chains; L4-01 always last) — Video 01 (already produced, L1-01) → Videos 02–31 (the
+  remaining 30 Level 1 workflows, unbundled in catalogue §7's own per-module order) → Video 32
+  (L2-07) → Video 33 (L2-10) → Videos 34–41 (the remaining eight Level 2 fan-outs, catalogue
+  §7's own priority order) → Videos 42–45 (the four Level 3 journeys) → Video 46 (L4-01,
+  capstone). Verified against the catalogue directly: all 46 workflows appear exactly once,
+  numbering is sequential, and no orphan or duplicate workflow exists.
+- **Built the three-part Video Manifest Table** (Workflow Identification & Scope; Personas/
+  Duration/Complexity/Dependencies/Prototype Scope; Status/Repository Output/Traceability — split
+  across three tables joined by Video Number rather than one 20-column table, for maintainability)
+  covering all 46 videos, sourcing every workflow fact (name, modules, personas, complexity,
+  Start → End Screen scope) directly from the catalogue and every duration estimate from the
+  framework's own §4 runtime bands — inventing no workflow, persona, or screen not already named
+  in either source document.
+- **Flagged, rather than silently resolved, two pre-existing gaps in the catalogue's own
+  dependency matrix (§5)** discovered while building the dependency-translation table: L1-18
+  (Video 18) lists an informal familiarity dependency on L1-21 (Video 21, produced later) — a
+  genuine tension between the catalogue's module-grouped build order and its own workflow-level
+  dependency table, not introduced by this manifest — and L1-29/L1-31 carry no documented
+  dependency entry at all in either the catalogue's foundational list or its "Builds on" table.
+  Both are recorded in the manifest's own Known Constraints section with a recommended, explicitly
+  non-authoritative default, per this repository's "explicitly identify gaps rather than glossing
+  over them" principle.
+- **Marked current status accurately**: Video 01 — Production Package Complete, Rendered
+  (Version 1, Silent Demonstration), QA Complete (Version 1 scope only), Approval Not Started (no
+  distinct stakeholder sign-off decision has been recorded for this package, separate from its
+  QA pass). All other 45 videos — Not Started on every axis, per this session's explicit
+  instruction not to begin Video 02.
+- **Documented the "Next Recommended Video" as Video 02** (L1-02, Risk Treatment Plan Approval):
+  its only dependency (Video 01) is already Production Package Complete and Rendered; it shares
+  Video 01's exact maker/checker persona pair (Arjun Mehta / Priya Raghunathan), so its persona
+  cards and tenant-context beat are directly reusable in shortened form; and, being the second
+  video in the RISK module family, its Domain/Module Overview chapter should use the framework's
+  shortened variant rather than Video 01's full-length one.
+- **Wrote an automation rule** (manifest §29): the next pending video is simply the first row in
+  the manifest's own status table whose Production Package Status is "Not Started," because the
+  video ordering already encodes dependency-respecting sequencing by construction — designed
+  explicitly so a future session can act on the instruction "produce the next pending video from
+  the Video Production Manifest" without manually re-selecting a workflow.
+- **Updated `demos/README.md`** to point to the new manifest as the first document any future
+  video session should read, ahead of the framework document, with the existing Contents table
+  annotated to note that full 46-video status now lives in the manifest, not there.
+- **Did not** author or modify any authoritative `docs/NN-*/` specification, add or imply any
+  Liquibase changeset, modify `../prototype/` or PRSMTD, modify or regenerate Video 01's own
+  production package or its rendered `.mp4`, or begin any production work on Demonstration Video
+  02 or any other video. This session's own instruction was scoped entirely to the demonstration-
+  video planning track; it neither actions nor supersedes Session 25's still-open recommendation
+  to resume Master Execution Plan phase work (see Risks and Open Decisions below) — that
+  recommendation stands, unactioned, for a ninth consecutive session outside this track.
+
 ## Next Milestone
 
 **Superseded by the [Master Execution Plan](#master-execution-plan-for-remaining-work) below
@@ -3849,6 +4108,19 @@ Carried forward from both authored specs — re-verify if stale:
     unconfirmed and open for revision via the framework's own Amendment Log (§21) rather than
     presented as settled. Treat as a standing example of this repository's "propose, don't
     silently invent" discipline applied to a visual-design decision, not just a structural one.
+54. **New (Session 25)**: a comprehensive repository review (this session) is a distinct kind of
+    session from every prior one — it authors nothing and applies no additive change, only
+    verifies and re-prioritizes. Its findings are read-only observations about existing state,
+    not new architectural decisions, and carry the same evidentiary discipline as every other
+    claim in this file: every "verified" statement above (Phase 1/6–9/11 completeness; Phases
+    2–5/10/12–29 non-completion; the absence of obsolete artifacts) was checked directly against
+    the filesystem this session, not inferred from this file's own prior narrative alone — this
+    file's own Current Status and Completed Work entries can and did drift from strict phase-by-
+    phase accuracy in what they emphasize (see the Session 25 Risks rows), even though no single
+    "Complete" claim was found to be factually wrong. Establish, as a precedent for any future
+    review-only session: verify claims against the repository's actual file state, not only
+    against this document's own prose, and distinguish "this file's narrative emphasizes X" from
+    "phase X is complete" as two different questions.
 
 ## Risks
 
@@ -3879,6 +4151,10 @@ Carried forward from both authored specs — re-verify if stale:
 | **New (Session 17)**: the extended compliance assessment's ≈40/100 Overall Compliance Readiness Score, and its Structural-Crosswalk ratings for 14 international standards, could be misread out of context as either an alarm ("only 40%!") or an overstatement ("crosswalked to ISO 27001!") if the score's own weighting methodology or the Structural-Crosswalk basis tag is stripped away when cited elsewhere | A stakeholder deck, sales conversation, or regulator submission that cites this session's numbers without their stated methodology/caveats would misrepresent both this repository's actual maturity and its actual gaps | Always cite the full basis tag (Repository-Sourced / Structural Crosswalk / Scope-Level Only / N/A) alongside any rating from `22-traceability/02-*`'s Session 17 section, never the rating alone; the score's own five-dimension breakdown must travel with the composite number, per that section's own "never a standalone headline claim" instruction |
 | **New (Session 17)**: Master Execution Plan Phase 25's originally-scoped 6-item international list (ISO 27001/27701/22301/31000, COBIT, NIST CSF) is now superseded in practice by this session's 22-item list, but Phase 25's own written entry (Tier 6) has not been edited to reflect the wider scope | A future session executing "Phase 25" from its own written text alone could under-scope the crosswalk relative to what this session's assessment actually found relevant | Treat `22-traceability/02-*`'s Session 17 section, not Phase 25's original Tier 6 entry, as the authoritative scope statement for any future Phase 25 execution; reconcile Phase 25's own text the next time this file's Master Execution Plan section is revisited |
 | **New (Session 24)**: `demos/video-production-framework.md` formalizes a full 9-stage video production pipeline, but Stage 8 (assembly/rendering) remains blocked by the same environment gap Session 23 first disclosed — no video encoder, no professional text-to-speech/voice-over resource, no motion-graphics/compositing tool, and no licensed music source | Producing this framework does not itself unblock Video 02 (or any future video) from reaching a rendered `.mp4` — a future session could mistake "the framework exists" for "the tooling gap is resolved" and either stall unnecessarily or attempt to fabricate a lower-quality render to compensate | Follow the framework's own §17 standing disclosure protocol at the start of any future video session: confirm current tooling availability first, and if the gap persists, present the same three scoping options Session 23 used (full package/no render, disclosed best-effort render, planning-only) rather than assuming full production is always achievable |
+| **New (Session 25)**: eight consecutive sessions (17–24) advanced zero Master Execution Plan phases while producing legitimate but Plan-external work (compliance assessment, the UX prototype, `.claude/` governance, demonstration collateral) | A repository can accumulate an increasingly large "current work" narrative that reads as progress in this file's own Completed Work log while the dependency-ordered Plan itself — the thing `CLAUDE.md` and this file both name as authoritative for sequencing — silently stalls; a future session skimming only the most recent Session entries (rather than the Phase Summary table) could mistake demo-production activity for Plan advancement | Treat the Phase Summary table's own "Complete"/blank status, not the recency of the last few Session log entries, as the authoritative signal for what to do next; this session's Open Decisions entry below makes that recommendation explicit again |
+| **New (Session 25)**: the three-item `ANALYTICS`/`04-domain-model`/`14-reporting` additive-change backlog (Assumption 50, proposed Session 16) has now sat unapplied for eight sessions — the longest any proposed-not-applied change has gone unaddressed in this repository's history, longer than the nineteen-item backlog Session 15 eventually consolidated | A small backlog left open long enough can be forgotten entirely, or a future session could stack a second, conflicting proposal on top of `04-domain-model`'s bounded-context map before this one is resolved | Apply this backlog first, before starting any new phase — it is smaller and lower-risk than any single item Session 15 already cleared, and closing it restores the "zero open proposals" invariant this repository maintained from Session 15 through Session 16 |
+| **New (Session 27)**: `demos/video-production-manifest.md`'s 46-video sequence, dependency translation, and automation rule are validated only against Video 01's already-known history — no second, independently-produced video has yet tested whether the manifest's mechanics (its status axes, its "first Not Started row" automation rule, its recommended defaults for the L1-18/L1-21/L1-29/L1-31 catalogue dependency gaps) actually hold up under a live production run | A future session could treat the manifest's untested mechanics as settled and discover a gap only mid-production, rather than the manifest catching it in review | Treat the first video produced after this manifest (recommended: Video 02, per the manifest's own §26) as a validation pass on the manifest's own mechanics as well as a production run — correct the manifest via its own Amendment Log if that run reveals a gap, per the same discipline this repository applies to every other planning artifact |
+| **New (Session 27)**: nine consecutive sessions outside Sessions 17–26 (now including 27) have advanced legitimate but Plan-external work (compliance assessment, the UX prototype, `.claude/` governance, demonstration collateral including this session's manifest) while the dependency-ordered Master Execution Plan itself has advanced zero phases since Session 16 | The same risk Session 25 already named (see the Session 25 row above) compounds by one more session — a future session skimming only recent Current Status entries could keep mistaking demo-track planning activity for Plan advancement | Unchanged from Session 25's mitigation: treat the Phase Summary table's own status, not session recency, as the authoritative signal for what to do next; this session's own instruction was explicitly scoped to the demo track and did not purport to supersede that recommendation |
 
 ## Open Decisions
 
@@ -4059,6 +4335,47 @@ Carried forward from both authored specs — re-verify if stale:
   proceed on its own timeline without blocking or being blocked by Tier 0/2/4 work. Not resolved
   this session; a future session should pick one explicitly rather than treating both
   recommendations as automatically sequential.
+- **New (Session 25), resolved — Recommended Next Phase**: this session's comprehensive review
+  (gap analysis, dependency/business-value/architectural-readiness/implementation-readiness
+  prioritization across all 23 not-started phases) converges on the same answer Session 17's own
+  compliance assessment already reached and that seven subsequent sessions left unactioned. In
+  order:
+  1. **Apply the stale three-item additive-change backlog** (Assumption 50 / the new Session 25
+     Risks rows above: `04-domain-model`'s proposed eleventh bounded context, `ANALYTICS`; two
+     small `14-reporting` additions) — near-zero effort, no new content decisions, and it
+     restores the "zero open proposals" invariant before any new phase begins. Do this first,
+     regardless of which phase is chosen next.
+  2. **Then execute Phase 24 (Regulatory Content Extension: DPDP Act & CERT-In)** as the next
+     substantive phase. Reasoning against all four prioritization criteria this session's brief
+     specified: **dependency order** — zero blocking dependency, `11-compliance` (its only
+     prerequisite) has been complete since Session 4; **business value** — the only remaining
+     phase citing a real, dated statutory exposure (DPDP Act consent/breach-notification duties;
+     CERT-In's binding 6-hour incident-reporting clock) rather than a voluntary or purely
+     internal-consistency concern, a distinction `22-traceability/02-*` itself draws explicitly
+     when it ranks this phase first; **architectural readiness** — `11-compliance`'s
+     `Obligation`/`ObligationCategory` registry and `24-incident-issue-capa`'s incident-timeline
+     substrate are both confirmed, by that same assessment, to need no redesign, only new seed
+     content; **implementation readiness** — Medium complexity per the Phase Summary table, the
+     smallest true content-authoring phase remaining in Tier 6, with a clear, bounded scope (two
+     obligation categories, not a new module).
+  - **Close alternatives, not this session's recommendation but reasonable if priorities
+    differ**: Phase 5 (ADR backfill — the persona-to-module-role convention is now confirmed by
+    **all eleven** business-domain/cross-cutting modules, not the five it was confirmed by when
+    last assessed; low effort, purely consolidative) and Tier 4 (Phases 19–21, cross-module
+    Data Model/Workflow/API consolidation — every phase they depend on, 6 through 11, is now
+    complete, so all three are fully unblocked for the first time). Both remain open items this
+    session did not resolve, per the same "propose, don't silently decide for a future session"
+    discipline this repository has applied to every other multi-option recommendation.
+  - **Explicitly not recommended next**: resuming the demonstration-video track (Video 02 or
+    beyond). Legitimate future work, but Plan-external — see the new Session 25 Risks rows above
+    for why continuing it again before resuming Plan execution would extend, not close, the
+    eight-session gap this review's central finding names.
+  - **Session 27 update**: Session 27 nonetheless produced `demos/video-production-manifest.md`,
+    per an explicit, narrowly-scoped user instruction to establish demo-track governance *before*
+    Video 02 rather than to produce Video 02 itself. This is planning/governance work, not Plan
+    execution, and does not supersede the recommendation above — see the new Session 27 Risks
+    rows. The next session, whichever track it addresses, should still treat this Open Decisions
+    entry as the authoritative unresolved choice, not assume the manifest's existence answers it.
 
 ## Traceability
 
