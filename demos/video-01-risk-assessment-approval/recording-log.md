@@ -73,12 +73,66 @@ set. See `observations.md` for the substantive (non-tooling) findings from this 
   showed only the new, untracked `demos/video-01-risk-assessment-approval/` directory and this
   session's own `docs/roadmap.md` update — no changes anywhere under `prototype/`.
 
+## Rendering pass (Session 26, 2026-08-07)
+
+Distinct from the capture pass above: this section logs how
+`video-01-risk-assessment-approval.mp4` (Version 1, Silent Demonstration — see
+`asset-inventory.md`) was actually rendered, once a rendering path became available. The
+`prototype/` was **not** touched in this pass — no `npm run dev`, no capture script; only the 8
+screenshots already captured in Session 23 were used.
+
+1. **Tooling gap re-checked directly** rather than assumed from Session 23's record: confirmed
+   `ffmpeg` still absent, Windows SAPI (`System.Speech`) still the only TTS available (again
+   declined — see `asset-inventory.md`), and Chocolatey present but blocked by lack of admin
+   rights (`lib-bad` directory access denied).
+2. **Obtained a portable static `ffmpeg` build** (gyan.dev `ffmpeg-release-essentials.zip`,
+   version 9.0) — downloaded and extracted to the session's scratch directory (outside this
+   repository, outside `PATH`), not installed system-wide. No admin rights required.
+3. **Wrote `project/render_pipeline.py`** — a Python (Pillow + numpy) frame compositor that
+   reads `scene-list.md`'s 33 scenes and `chapters.md`'s 10 chapter cards + closing card
+   (reconciled against `timeline.md`'s authoritative timestamps) as a data table, renders every
+   frame (zoom/pan via crop+resize, a precomputed radial-gradient cursor spotlight, callout
+   balloons with clean alpha-only fades, click-pulse highlights, cross-fade/hard-cut
+   transitions, and burned-in subtitles from `subtitles.srt`), and pipes raw RGB24 frames into
+   `ffmpeg` for H.264/AAC encoding. On-screen anchor coordinates (row positions, button boxes,
+   badge locations) for every callout and spotlight target were read directly off the actual
+   1920×1080 screenshots, not estimated.
+4. **Validated incrementally before committing to the full ~17-minute render**: rendered short
+   `--preview` slices of each chapter and visually inspected extracted frames. This caught two
+   real defects before the full render: (a) an off-by-one in the concept-plate connector-arrow
+   coordinates that made the arrow overshoot into the adjacent box's text; (b) three emoji
+   glyphs (padlock, heavy cross, check mark) that Segoe UI does not cover, rendering as tofu
+   boxes. Both were fixed by replacing the emoji-text draw calls with small vector icons drawn
+   from primitives (`draw_lock_icon`, `draw_check_icon`, reusing the existing `draw_ghost_x`)
+   and correcting the arrow's gap-relative coordinate — verified fixed by re-rendering the same
+   preview slices before proceeding.
+5. **Full render**: 30,450 frames (16:55 at 30fps) rendered and encoded in ~22.5 minutes on this
+   machine. Output verified via `ffprobe`: H.264/yuv420p/1920×1080/30fps video, AAC/48kHz/stereo
+   audio (silent), duration 1015.00s video / 1014.997s audio (sub-frame AAC rounding, not a
+   truncation), matching `timeline.md`'s 16:55 exactly.
+6. **QA pass**: sampled frames across all 10 chapters, the Ending, and the closing card (in
+   addition to the preview slices in step 4) — confirmed correct screen/screenshot at every
+   sampled timestamp, correctly-positioned callouts and spotlights, working cross-fades and the
+   two scripted hard cuts (Scenes 17 and 26, per `scene-list.md`), no further glyph or geometry
+   glitches, and subtitle text matching `subtitles.srt` at every sampled point.
+7. **Two scenes required an honest adaptation, not fabrication**, both flagged in
+   `observations.md`: Scene 22's persona-switcher dropdown (never actually screenshotted per
+   `scene-list.md`'s own note) was synthesized as a UI overlay anchored at the real user-menu
+   coordinates on the actual `04-*` screenshot, rather than invented as a full fake screen; and
+   Scene 29/30's "scoring panel" reference was adapted to callout only the status badge actually
+   visible in the reused `07-*` screenshot (an Approvals-tab capture), since that capture does
+   not show the Overview tab's scoring panel and inventing that region would not be a real
+   screenshot.
+
 ## Traceability
 
 - **Business Requirement**: Provide an auditable record of exactly how this package's visual
-  assets were produced, for anyone reproducing or extending this deliverable.
+  assets — and, as of Session 26, its rendered video — were produced, for anyone reproducing or
+  extending this deliverable.
 - **Regulatory Requirement**: None.
 - **PRSMTD Capability**: None — tooling/process log, not a platform capability.
 - **ERM Capability**: N/A.
-- **Dependencies**: `source-workflow.md`, `asset-inventory.md`.
-- **Future Work**: None — capture pass is complete for this video's scope.
+- **Dependencies**: `source-workflow.md`, `asset-inventory.md`, `project/render_pipeline.py`.
+- **Future Work**: Re-run `project/render_pipeline.py --narration <track>` once real narration
+  is recorded (see `audio/README.md`); no further capture or rendering-pipeline work is needed
+  for that step.

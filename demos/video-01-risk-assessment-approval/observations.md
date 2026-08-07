@@ -71,11 +71,47 @@ that deck, exercises only the `RISK` module's own governed re-assessment action.
    timing model, but necessarily approximate until a real narrator's recorded track exists to
    re-time against.
 
+## New observations from the rendering pass (Session 26, 2026-08-07)
+
+7. **Item 5 above is superseded, not wrong.** It accurately described Session 23's state.
+   Session 26 obtained a portable `ffmpeg` build and wrote a Python compositing pipeline
+   (`project/render_pipeline.py`) to render `video-01-risk-assessment-approval.mp4` as
+   **Version 1 (Silent Demonstration)** — see `asset-inventory.md` for the full accounting.
+   `prototype/` was not touched in this pass; only the screenshots already captured in Session
+   23 were used.
+8. **Scene 22's persona-switcher dropdown was never a real screenshot** — `scene-list.md`
+   itself describes it as "captured as a UI detail within the app chrome," but no such capture
+   exists in `screenshots/`. Rendered instead as a synthesized dropdown overlay, anchored at the
+   real user-menu coordinates on the actual `04-risk-under-review-pending.png` capture, and
+   visually distinct in style from the surrounding real screenshots only in that it is
+   necessarily an approximation of a UI state that was never photographed. Flagged here rather
+   than left implicit.
+9. **Scenes 29–30's "scoring panel" direction in `scene-list.md` does not match what
+   `07-risk-detail-approved-decision-history.png` actually shows.** That capture is the
+   Approvals tab (used in Scenes 27–28); it does not contain the Overview tab's Scoring & Review
+   panel. Rather than fabricate a scoring-panel region that was never captured, the rendered
+   video's callout in Scenes 29–30 references only the status badge actually visible in that
+   same screenshot's header, with the (already-known, source-workflow.md-grounded) score values
+   stated in callout text rather than pointed at non-existent on-screen boxes.
+10. **Subtitle timing (item 6 above) still stands, with one addition**: because Version 1 is
+    silent, `subtitles.srt`'s narration-derived text is now the video's *only* spoken-content
+    channel (not a caption alongside a voice track) — its word-count-weighted timing estimate is
+    therefore what actually paces the viewer's reading, not merely a caption for a recorded
+    voice. This is a reasonable substitute for narration, not equivalent to it; re-timing against
+    a real recorded track remains future work once one exists.
+11. **Two rendering-pipeline defects were found and fixed before the full render**, not left in
+    the deliverable: a concept-plate connector-arrow coordinate bug that made the arrow overshoot
+    into adjacent box text, and three emoji glyphs (padlock, heavy cross, check mark) that Segoe
+    UI does not cover, rendering as tofu boxes. See `recording-log.md` "Rendering pass" for
+    detail. Both were caught by preview-rendering short slices and inspecting frames before
+    committing to the full ~17-minute render, not discovered after the fact.
+
 ## Traceability
 
 - **Workflow executed**: L1-01, `docs/19-roadmap/01-demonstration-workflow-catalogue.md` §4.1.
 - **Journey followed**: `prototype/docs/user-journeys.md` §1.
 - **Specification exercised**: `docs/10-risk/01-enterprise-risk-management.md` (governed
   `REASSESSMENT` action).
-- **Prototype build exercised**: `prototype/` as of 2026-08-06, unmodified.
+- **Prototype build exercised**: `prototype/` as of 2026-08-06, unmodified; not touched again in
+  Session 26's rendering pass.
 - **Prior deliverable cross-checked**: `demos/deck-01-risk-assessment-approval/`.

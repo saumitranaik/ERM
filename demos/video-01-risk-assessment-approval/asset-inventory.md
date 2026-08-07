@@ -7,19 +7,19 @@ and why. This file is the single place to check "is this deliverable actually fi
 
 | Required output | Status | Notes |
 |---|---|---|
-| `narration-script.md` | **Produced** | Full voice-over script, all 10 chapters + intro + ending, cue-timed. |
-| `subtitles.srt` | **Produced** | 169 cues, SRT format, timed against `timeline.md`'s video timestamps. |
+| `narration-script.md` | **Produced** | Full voice-over script, all 10 chapters + intro + ending, cue-timed. Reference document — not spoken in Version 1 (see below). |
+| `subtitles.srt` | **Produced** | 169 cues, SRT format, timed against `timeline.md`'s video timestamps. Burned into the rendered MP4. |
 | `chapters.md` | **Produced** | 10 chapter cards + closing card, reconciled timestamps. |
 | `timeline.md` | **Produced** | Authoritative master timeline (cards + narration + screens). |
 | `scene-list.md` | **Produced** | Shot-by-shot camera/callout/transition direction, 33 scenes. |
 | `asset-inventory.md` | **Produced** | This file. |
-| `recording-log.md` | **Produced** | How the screenshots were actually captured. |
+| `recording-log.md` | **Produced** | How the screenshots were captured, and (Session 26) how the MP4 was rendered. |
 | `observations.md` | **Produced** | Defects/gaps/inconsistencies log (none found) plus production notes. |
 | `source-workflow.md` | **Produced** | Grounding of every claim in the package to a spec/prototype source. |
 | `screenshots/` | **Produced** | 8 PNGs, 1920×1080, real captures of the running prototype. |
-| `video-01-risk-assessment-approval.mp4` | **Not produced** | See "Not produced" below. |
-| `audio/` | **Not produced (directory present, empty of audio)** | See below. |
-| `project/` | **Not produced (directory present, empty of an editor project file)** | See below. |
+| `video-01-risk-assessment-approval.mp4` | **Produced — Version 1 (Silent Demonstration)** | See "Version 1 (Silent Demonstration)" below. |
+| `audio/` | **Not produced (directory present, empty of audio)** | By design for Version 1 — see `audio/README.md`. |
+| `project/` | **Produced** | `render_pipeline.py`, the Python/ffmpeg compositing pipeline that rendered the MP4 — see `project/README.md`. |
 
 ## Screenshots
 
@@ -43,36 +43,43 @@ underlying business state does not change between those two chapters (see `timel
 "Screenshot reuse"), consistent with the brief's own "reuse screenshots only where appropriate"
 instruction.
 
-## Not produced, and why
+## Version 1 (Silent Demonstration)
 
-This session opened with an explicit tooling-gap disclosure and a recorded user decision (see
-`observations.md` item 5) before any production work began. The environment available for this
-session has no:
+**Session 23** (2026-08-06) produced every document above except the MP4 itself, and disclosed
+a hard tooling gap that blocked rendering at that time: no video encoder, no professional
+text-to-speech/voice-talent resource, no motion-graphics/compositing tool, and no licensed
+music source were available in that session's environment. The user's recorded decision at that
+time was "full production package, no final MP4" rather than fabricating a lower-quality
+artifact.
 
-- **Video encoder** — no `ffmpeg` (or equivalent) installed, so there is no way to composite
-  screenshots, motion graphics, narration audio, and music into an actual H.264/AAC MP4
-  container.
-- **Professional text-to-speech or voice talent** — no TTS engine wired into this session's
-  tools capable of "experienced enterprise product trainer" quality narration. (Windows'
-  built-in SAPI voice was identified as a fallback and explicitly declined in favor of not
-  producing a lower-quality synthetic voice at all — see the session's initial scoping
-  decision.)
-- **Motion-graphics / compositing tool** — nothing equivalent to a video editor or animation
-  engine to actually build the cursor spotlights, zooms, callout balloons, and transitions
-  `scene-list.md` specifies.
-- **Licensed background music** — no music library this session is authorized to draw from;
-  the brief's "subtle professional background music" requirement cannot be fulfilled without
-  either a licensed source or original composition, neither available here.
+**Session 26** (2026-08-07) revisited that gap. A portable static `ffmpeg` build was obtained
+(no admin rights required — see `recording-log.md`), and a Python/Pillow compositing pipeline
+(`project/render_pipeline.py`) was written to perform the same role a dedicated video-editing
+tool would have: zoom/pan camera moves, a cursor spotlight, callout balloons, chapter cards,
+concept plates, cross-fade/hard-cut transitions, and burned-in subtitles, all driven directly by
+this package's own `scene-list.md` / `timeline.md` / `chapters.md` / `subtitles.srt`.
 
-Given that gap, producing `video-01-risk-assessment-approval.mp4` was not attempted — doing so
-would have meant either fabricating a lower-quality artifact (e.g., a plain slideshow-with-TTS
-video) and presenting it as meeting the brief's explicit "not merely a screen recording,"
-"executive-quality," "SAP/Salesforce-comparable" bar, or silently omitting the file. Neither is
-acceptable; instead, every planning and script document a video editor or voice-over artist
-would need to actually produce that file was completed in full. `audio/` and `project/` are
-present as directories (per the brief's required output structure) with a short `README.md`
-in each explaining what belongs there once recording/assembly tooling is available — see those
-files directly.
+Two constraints were **not** resolved and define this as "Version 1 (Silent Demonstration)"
+rather than the originally-briefed fully-narrated video:
+
+- **No narration.** No professional voice-over resource exists in this environment, and Windows'
+  built-in SAPI voice was again explicitly declined as a substitute (same reasoning as Session
+  23: it would not meet an "experienced enterprise product trainer" quality bar). The user's
+  instruction for this session was explicit: render a *silent* version, with `narration-script.md`
+  retained as the recording brief for a future real voice-over pass. Burned-in subtitles
+  (`subtitles.srt`) carry the narration content in the interim.
+- **No background music.** No licensed or royalty-free music file was available locally, and
+  the user's instruction for this session explicitly prohibited downloading or synthesizing one
+  as a substitute. The video is silent except for its (silent) AAC audio track, present only for
+  container/player compatibility.
+
+The rendering pipeline is explicitly narration-ready: supplying a real `narration.wav`/`.mp3` to
+`render_pipeline.py --narration` re-renders the identical visual program with that track muxed
+in, and `--music` mixes in a real music bed at low volume — no change to any other file in this
+package is required. See `project/README.md`.
+
+**Rendered file**: `video-01-risk-assessment-approval.mp4` — H.264, 1920×1080, 30fps, yuv420p,
+AAC 48kHz stereo (silent), duration 16:55 (1015.00s, matching `timeline.md` exactly), ~50MB.
 
 ## Traceability
 
@@ -82,7 +89,7 @@ files directly.
 - **PRSMTD Capability**: None.
 - **ERM Capability**: N/A.
 - **Dependencies**: All other files in this directory.
-- **Future Work**: Record narration against `narration-script.md`; assemble
-  `video-01-risk-assessment-approval.mp4` per `scene-list.md` and `timeline.md` using a real
-  video-editing/compositing tool once available; re-time `subtitles.srt` against the actual
-  recorded track.
+- **Future Work**: Record real narration against `narration-script.md` and re-render with
+  `project/render_pipeline.py --narration <track>` (and `--music <bed>` once a licensed source
+  is available) to produce a fully-narrated Version 2, per the original brief. No visual asset,
+  timeline, or subtitle change is expected to be required.
