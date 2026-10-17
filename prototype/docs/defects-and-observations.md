@@ -68,6 +68,70 @@ treated as illustrative rather than a preemptive schema decision. This is
 expected and appropriate for a UX prototype: `CLAUDE.md` explicitly defers
 schema-level naming to `06-data-model/`, which does not exist yet.
 
+## Open governance gaps found while verifying risk logging (decisions required)
+
+### A. Risk Owner may also be the approving Checker — spec is internally inconsistent
+
+**What the specs say.** `docs/10-risk/01-enterprise-risk-management.md` Assumption 6
+states "Risk Owner and Checker are always distinct individuals", and the Security
+Considerations threat note names "a `RISK_CHECKER` account being the same person as the
+risk owner" as the primary module threat. Both say this is "prevented structurally" by
+PRSMTD's `approved_by <> created_by` constraint on `pending_action` (system.md §3), and that
+the module "defines no bespoke SoD logic".
+
+**Why that does not hold.** The constraint compares the *submitter* to the *approver*. It
+does not look at `risk_owner_user_id`. A Risk Manager (maker) can log a risk naming the CRO
+as owner, submit it, and the CRO — a different person from the submitter — can approve it
+while being its owner. The mechanism the spec relies on does not enforce the rule the spec
+states. Observed in the prototype: Arjun (RISK_MAKER) logs a risk owned by Priya (CRO);
+Priya sees Approve/Reject on it. The prototype correctly enforces what the platform
+constraint does (the submitter never sees Approve on their own submission).
+
+**What is not specified.** Whether owner≠checker is a hard rule or a stated intent; whether
+it is enforced at decision time (block the owner from deciding), at owner selection
+(not possible by role alone — the checker is whoever later decides), or both; and whether
+it is a new PRSMTD platform capability (a decide-time guard keyed on a module-supplied
+"subject user"), since the spec forbids bespoke module SoD logic.
+
+**Not implemented.** No governance policy was invented. Decision needed from the owner:
+*"Must the Risk Owner be barred from deciding the approval of their own risk, and if so is
+that a PRSMTD platform guard (preferred, reusable across modules that name an owner) or a
+RISK-module rule?"* Once answered, the prototype change is small (extend the `canDecide`
+check in `ApprovalPanel.tsx` with an owner comparison, plus one E2E/unit case).
+
+### B. `RiskScoringMatrix` bands are not specified; prototype bands are invented
+
+**What the specs establish.** `RiskScoringMatrix` is tenant-editable reference data
+(`module_risk_scoring_matrix`: `likelihood_levels`, `impact_levels`, `matrix_definition`
+jsonb, `is_default`), FR-03 requires a numeric score *and* a band label "e.g.,
+Low/Medium/High/Critical" from a configurable likelihood × impact matrix, and
+non-functional requirements make it configurable rather than hardcoded.
+
+**What is not specified anywhere in `docs/`.** The number of levels (a 5×5 grid is not
+stated), the score thresholds, the band names beyond the "e.g.", and the SEBI_AMC seed
+matrix. `matrix_definition` is described only as "band labels/thresholds".
+
+**Prototype divergence.** The 1–5 input range (`validation`/form field config), the
+`ScoreChip` and heat-map colour cut-offs (≥5, ≥10, ≥17) and the dashboard legend
+"Low (1–4) / Medium (5–9) / High (10–16) / Critical (17–25)" are prototype conventions, not
+specified values. Score arithmetic (likelihood × impact) is specified; band labels and
+thresholds are not. The legend is therefore labelled output of an unmodelled matrix, not a
+conflict with a specified one.
+
+**Not implemented.** Decision needed: the tenant's default matrix (levels and band
+thresholds/labels for the SEBI_AMC profile), ideally supplied by the AMC's risk function.
+Next step once decided: seed one `RiskScoringMatrix` record and drive `ScoreChip`, the
+heat-map and the legend from it, and make form range validation read its level counts.
+
+### C. Related gaps deliberately left out of the risk-logging scope
+
+Residual score from an approved assessment (spec: assessments are `module_risk_assessment`
+rows with maker-checker approval; the prototype still takes residual L×I on the risk form),
+reference-data-backed categories/sub-categories (`module_risk_category`; the prototype uses a
+fixed `RISK_CATEGORIES` list and free-text sub-category) and the full assessment,
+assignment and review lifecycle. Each depends on the scoring-matrix decision (B) or on
+reference-data modelling, and none was changed.
+
 ## Process note
 
 No authoritative specification's business rules, entity definitions,

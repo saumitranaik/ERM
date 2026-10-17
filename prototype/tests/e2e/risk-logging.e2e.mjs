@@ -54,11 +54,18 @@ const typeInto = async (sel, value) => {
 };
 const ALL = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'];
 const fire = (target) => ALL.map((k) => `${target}.dispatchEvent(new PointerEvent('${k}',{bubbles:true,button:0,pointerType:'mouse'}))`).join(';');
+// Radix selects occasionally ignore a synthetic option click under load, so retry until the trigger shows a value.
 const pick = async (fieldId, label) => {
-  await ev(`(()=>{const b=document.querySelector('#${fieldId}');${fire('b')}})()`);
-  await sleep(400);
-  const r = await ev(`(()=>{const o=[...document.querySelectorAll('[role=option]')];const e=${label ? `o.find(x=>x.textContent.includes(${JSON.stringify(label)}))` : 'o[0]'};if(!e)return null;${fire('e')};return e.textContent})()`);
-  await sleep(300);
+  let r = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await ev(`(()=>{const b=document.querySelector('#${fieldId}');${fire('b')}})()`);
+    await sleep(400);
+    r = await ev(`(()=>{const o=[...document.querySelectorAll('[role=option]')];const e=${label ? `o.find(x=>x.textContent.includes(${JSON.stringify(label)}))` : 'o[0]'};if(!e)return null;${fire('e')};return e.textContent})()`);
+    await sleep(300);
+    if (r && !/^Select/.test(await ev(`document.querySelector('#${fieldId}').textContent.trim()`))) return r;
+    await ev(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))`);
+    await sleep(200);
+  }
   return r;
 };
 const setDate = (sel, v) => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,${JSON.stringify(v)});e.dispatchEvent(new Event('input',{bubbles:true}))})()`);
@@ -131,10 +138,12 @@ try {
   await typeInto('#f-residualLikelihood', '2');
   await typeInto('#f-residualImpact', '3');
   await clickButton('Log Risk');
-  await sleep(2000);
+  // Wait for navigation off the form: the first visit to the detail route compiles on demand under `next dev`.
+  for (let i = 0; i < 40 && (await path()).endsWith('/new'); i++) await sleep(500);
+  await sleep(500);
   const p = await path();
   t = await text();
-  check('save navigates to the new risk detail page (created flag is consumed from the URL)', /^\/modules\/RISK\/risks\/[^/?]+$/.test(p), p);
+  check('save navigates to the new risk detail page (created flag is consumed from the URL)', /^\/modules\/RISK\/risks\/(?!new$)[^/?]+$/.test(p), `${p} :: ${t.slice(t.indexOf('Nothing has been saved'), t.indexOf('Nothing has been saved') + 200).replace(/\s+/g, ' ')}`);
   const db = await getDb();
   const r =db.risks.find((x) => x.title === 'ZZ-TEST e2e risk');
   check('exactly one record added', db.risks.length === 21, String(db.risks.length));
