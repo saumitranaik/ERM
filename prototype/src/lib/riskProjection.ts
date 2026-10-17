@@ -74,22 +74,30 @@ export function verifyAssessmentScoring(a: Rec | undefined): Verification {
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const isIsoDate = (v: unknown): v is string => typeof v === 'string' && ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
+/** Strict calendar date: Date.parse alone rolls 2026-02-30 over to March, so the date must round-trip unchanged. */
+const isIsoDate = (v: unknown): v is string => {
+  if (typeof v !== 'string' || !ISO_DATE.test(v)) return false;
+  const t = Date.parse(v);
+  return !Number.isNaN(t) && new Date(t).toISOString().slice(0, 10) === v;
+};
+
+/** Latest acceptable assessment date: today in UTC plus one day, so a same-day assessment in any timezone passes while a far-future date cannot pre-empt every later assessment. */
+const latestAllowedDate = (now: number) => new Date(now + 86_400_000).toISOString().slice(0, 10);
 
 /** Assessment fields an approval payload must never touch: they are the verified scoring record. */
 const ASSESSMENT_PROTECTED_KEYS = /^(inherent|residual|scoringMatrix|riskId$|assessmentDate$)/;
 export function payloadTouchesAssessmentScoring(payload: Rec | undefined): boolean {
-  return !!payload && Object.keys(payload).some((k) => ASSESSMENT_PROTECTED_KEYS.test(k));
+  return !!payload && Object.getOwnPropertyNames(payload).some((k) => ASSESSMENT_PROTECTED_KEYS.test(k));
 }
 
 /** Keys that must never be assigned from a client-held approval payload onto any entity (prototype-pollution / identity tampering). */
-const UNSAFE_PAYLOAD_KEYS = new Set(['__proto__', 'constructor', 'prototype', 'id', 'code']);
+const UNSAFE_PAYLOAD_KEYS = new Set(['__proto__', 'constructor', 'prototype', 'id', 'code', 'status', 'createdBy', 'createdAt', 'updatedAt']);
 export function payloadHasUnsafeKey(payload: Rec | undefined): boolean {
   return !!payload && Object.getOwnPropertyNames(payload).some((k) => UNSAFE_PAYLOAD_KEYS.has(k));
 }
 
 /** Reason an assessment approval cannot proceed (invalid scoring or ineligible parent), else null. */
-export function assessmentApprovalBlockReason(a: Rec | undefined, risk: Rec | undefined): string | null {
+export function assessmentApprovalBlockReason(a: Rec | undefined, risk: Rec | undefined, now: number = Date.now()): string | null {
   const v = verifyAssessmentScoring(a);
   if (!v.ok) return v.reason;
   if (!risk) return 'The parent risk no longer exists; the assessment cannot be approved.';
@@ -98,6 +106,7 @@ export function assessmentApprovalBlockReason(a: Rec | undefined, risk: Rec | un
     return `The parent risk is ${String(risk.status)}; its scores cannot be changed by a new assessment.`;
   }
   if (!isIsoDate(a!.assessmentDate)) return 'The assessment date is missing or not a valid YYYY-MM-DD date, so its ordering cannot be determined.';
+  if ((a!.assessmentDate as string) > latestAllowedDate(now)) return `The assessment date ${String(a!.assessmentDate)} is in the future; a future-dated assessment would displace every later assessment, so approval is refused.`;
   for (const d of ['inherent', 'residual'] as const) {
     if (risk[`${d}Origin`] === 'APPROVED_ASSESSMENT' && !isIsoDate(risk[`${d}SourceAssessmentDate`])) {
       return `The parent risk's ${d} source date is missing or malformed; the projection order cannot be determined.`;
@@ -150,7 +159,11 @@ export function planProjection(dim: Dimension, a: Rec, risk: Rec): ProjectionPla
 
 export function planResidualProjection(a: Rec, risk: Rec): ProjectionPlan {
   const p = planProjection('residual', a, risk);
-  return p.project ? { project: true, patch: { ...p.patch, lastAssessedDate: a.assessmentDate } } : p;
+  if (!p.project) return p;
+  // lastAssessedDate never moves backwards (a direct-entry value may already be later than this assessment).
+  const prior = risk.lastAssessedDate;
+  const last = isIsoDate(prior) && prior > String(a.assessmentDate) ? prior : a.assessmentDate;
+  return { project: true, patch: { ...p.patch, lastAssessedDate: last } };
 }
 export const planInherentProjection = (a: Rec, risk: Rec): ProjectionPlan => planProjection('inherent', a, risk);
 
@@ -164,3 +177,29 @@ export function projectedConsistent(dim: Dimension, risk: Rec, a: Rec | undefine
 }
 export const projectedResidualConsistent = (risk: Rec, a: Rec | undefined) => projectedConsistent('residual', risk, a);
 export const projectedInherentConsistent = (risk: Rec, a: Rec | undefined) => projectedConsistent('inherent', risk, a);
+
+export type ApprovalGate =
+  | { ok: false; reason: string }
+  | { ok: true; inherentPlan: ProjectionPlan | null; residualPlan: ProjectionPlan | null };
+
+/**
+ * Everything that can refuse an APPROVE, evaluated before any write (the ledger calls this and returns
+ * on `ok:false` before it mutates). Reject and return are never gated here: scoring problems must not
+ * stop a checker from rejecting or returning a record.
+ */
+export function approvalGate(
+  decision: 'approve' | 'reject' | 'return',
+  collection: string,
+  payload: Rec | undefined,
+  target: Rec | undefined,
+  parentRisk: Rec | undefined,
+  now: number = Date.now(),
+): ApprovalGate {
+  if (decision !== 'approve') return { ok: true, inherentPlan: null, residualPlan: null };
+  if (payloadHasUnsafeKey(payload)) return { ok: false, reason: 'The approval payload contains a protected key; approval refused.' };
+  if (collection !== 'riskAssessments') return { ok: true, inherentPlan: null, residualPlan: null };
+  const block = assessmentApprovalBlockReason(target, parentRisk, now);
+  if (block) return { ok: false, reason: block };
+  if (payloadTouchesAssessmentScoring(payload)) return { ok: false, reason: 'The approval payload would alter the verified scoring record of the assessment; approval refused.' };
+  return { ok: true, inherentPlan: planInherentProjection(target!, parentRisk!), residualPlan: planResidualProjection(target!, parentRisk!) };
+}

@@ -9,7 +9,7 @@ import {
 import { deriveRiskScores, deriveRiskFields, residualRef, scoreRefFor } from '../../src/lib/riskScoring.ts';
 import {
   snapshotAssessment, deriveAssessmentFields, verifyAssessmentScoring, assessmentApprovalBlockReason,
-  planResidualProjection, projectedResidualConsistent,
+  planResidualProjection, projectedResidualConsistent, approvalGate,
 } from '../../src/lib/riskProjection.ts';
 
 const seed = JSON.parse(readFileSync(new URL('../../src/data/risk.json', import.meta.url), 'utf8'));
@@ -256,12 +256,55 @@ test('score references: a projected inherent uses its source version; a direct r
 });
 
 // ---- Approval-boundary hardening ----
-test('rejected / returned / pending assessments never produce a patch: only an APPROVED decision reaches planning', () => {
-  // Planning is only reachable from the approve branch of the ledger; the source guards that branch.
-  const src = readFileSync(new URL('../../src/lib/governance.ts', import.meta.url), 'utf8');
-  assert.match(src, /if \(decision === 'approve' && action\.collection === 'riskAssessments'\)/);
-  assert.equal((src.match(/planInherentProjection\(/g) ?? []).length, 1);
-  assert.equal((src.match(/planResidualProjection\(/g) ?? []).length, 1);
+test('approvalGate: reject and return are never gated by scoring, payload or parent problems; only approve is', () => {
+  const broken = assessment({ residualScore: 99, assessmentDate: 'garbage', scoringMatrixVersion: 'nope' });
+  for (const d of ['reject', 'return']) {
+    const g = approvalGate(d, 'riskAssessments', JSON.parse('{"__proto__":{"x":1},"residualScore":1}'), broken, undefined);
+    assert.deepEqual(g, { ok: true, inherentPlan: null, residualPlan: null }, d);
+  }
+  assert.equal(approvalGate('approve', 'riskAssessments', undefined, broken, risk()).ok, false);
+});
+
+test('approvalGate: approve is refused before any plan for each hazard, with a distinct reason', () => {
+  const NOW = Date.parse('2026-10-17T00:00:00Z');
+  const gate = (over, payload, r = risk()) => approvalGate('approve', 'riskAssessments', payload, assessment(over), r, NOW);
+  assert.equal(gate({}).ok, true);
+  assert.match(gate({ scoringMatrixVersion: 'unknown-9' }).reason, /unavailable or invalid/);
+  assert.match(gate({ residualScore: 25 }).reason, /does not match/);
+  assert.match(gate({}, undefined, risk({ id: 'r-other' })).reason, /does not belong/);
+  assert.match(gate({ assessmentDate: '2026-02-30' }).reason, /assessment date/);
+  assert.match(gate({}, JSON.parse('{"__proto__":{"a":1}}')).reason, /protected key/);
+  assert.match(gate({}, { status: 'APPROVED' }).reason, /protected key/);
+  assert.match(gate({}, { residualScore: 1 }).reason, /scoring record/);
+  assert.equal(approvalGate('approve', 'riskAssessments', undefined, undefined, risk(), NOW).ok, false);
+  // non-assessment collections: only the unsafe-key check applies
+  assert.equal(approvalGate('approve', 'risks', { title: 'x' }, { id: 'r' }, undefined, NOW).ok, true);
+  assert.equal(approvalGate('approve', 'risks', { createdBy: 'x' }, { id: 'r' }, undefined, NOW).ok, false);
+});
+
+test('calendar-impossible dates are malformed, not rolled over', () => {
+  for (const d of ['2026-02-30', '2026-04-31', '2026-02-29', '2026-00-10', '2026-06-00']) {
+    assert.match(assessmentApprovalBlockReason(assessment({ assessmentDate: d }), risk()), /assessment date/, d);
+  }
+  assert.equal(assessmentApprovalBlockReason(assessment({ assessmentDate: '2028-02-29' }), risk(), Date.parse('2030-01-01')), null, 'real leap day is valid');
+  const bad = risk({ residualOrigin: 'APPROVED_ASSESSMENT', residualSourceAssessmentDate: '2026-02-30' });
+  assert.match(assessmentApprovalBlockReason(assessment(), bad), /residual source date/);
+});
+
+test('future-dated assessments are refused (they would displace every later assessment); same-day passes in any timezone', () => {
+  const NOW = Date.parse('2026-10-17T12:00:00Z');
+  assert.equal(assessmentApprovalBlockReason(assessment({ assessmentDate: '2026-10-17' }), risk(), NOW), null);
+  assert.equal(assessmentApprovalBlockReason(assessment({ assessmentDate: '2026-10-18' }), risk(), NOW), null, 'one-day timezone tolerance');
+  assert.match(assessmentApprovalBlockReason(assessment({ assessmentDate: '2026-10-19' }), risk(), NOW), /in the future/);
+  assert.match(assessmentApprovalBlockReason(assessment({ assessmentDate: '2099-01-01' }), risk(), NOW), /in the future/);
+});
+
+test('lastAssessedDate never moves backwards when projecting an older-dated assessment onto a direct-entry risk', () => {
+  const later = risk({ lastAssessedDate: '2026-12-01' });
+  assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), later).patch.lastAssessedDate, '2026-12-01');
+  assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), risk({ lastAssessedDate: '2026-01-01' })).patch.lastAssessedDate, '2026-10-01');
+  assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), risk({ lastAssessedDate: 'junk' })).patch.lastAssessedDate, '2026-10-01');
+  assert.equal('lastAssessedDate' in planInherentProjection(assessment(), risk()).patch, false, 'inherent projection does not touch it');
 });
 
 test('approval is blocked for a parent that does not own the assessment, and for malformed dates', () => {
@@ -299,7 +342,19 @@ test('seed: every risk with an inherent origin matches its approved source asses
 
 test('approval payloads with protected / prototype keys are refused for any entity', () => {
   assert.equal(payloadHasUnsafeKey(JSON.parse('{"__proto__": {"isAdmin": true}}')), true);
-  for (const k of ['constructor', 'prototype', 'id', 'code']) assert.equal(payloadHasUnsafeKey({ [k]: 1 }), true, k);
+  for (const k of ['constructor', 'prototype', 'id', 'code', 'status', 'createdBy', 'createdAt', 'updatedAt']) assert.equal(payloadHasUnsafeKey({ [k]: 1 }), true, k);
   assert.equal(payloadHasUnsafeKey({ title: 'x' }), false);
   assert.equal(payloadHasUnsafeKey(undefined), false);
+});
+
+test('ledger wiring: decidePendingAction calls approvalGate before its first write, and the scoring guard sees non-enumerable keys', () => {
+  const src = readFileSync(new URL('../../src/lib/governance.ts', import.meta.url), 'utf8');
+  const decide = src.slice(src.indexOf('export function decidePendingAction'), src.indexOf('export function applyTransition'));
+  const gateAt = decide.indexOf('approvalGate(');
+  assert.ok(gateAt > 0);
+  assert.ok(gateAt < decide.indexOf('mutate('), 'gate must precede mutate');
+  assert.ok(gateAt > decide.indexOf('decisionBlockReason('), 'maker-checker / owner check still runs first');
+  assert.match(decide, /if \(!gate\.ok\) return gate\.reason;/);
+  const hidden = {}; Object.defineProperty(hidden, 'residualScore', { value: 1, enumerable: false });
+  assert.equal(payloadTouchesAssessmentScoring(hidden), true);
 });

@@ -15,7 +15,7 @@ import { getDb, mutate } from './store';
 import { newId, nowIso } from './id';
 import { getSession } from './session';
 import { decisionBlockReason } from './decisionPolicy';
-import { assessmentApprovalBlockReason, payloadHasUnsafeKey, payloadTouchesAssessmentScoring, planInherentProjection, planResidualProjection, type ProjectionPlan } from './riskProjection';
+import { approvalGate } from './riskProjection';
 
 export interface SubmitOptions {
   module: string;
@@ -135,18 +135,12 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
   // Risk assessment approval also projects the residual onto the parent Risk. Everything that can
   // fail is checked here, BEFORE any write, so the approval and the projection are applied together
   // in one mutate (a single synchronous in-memory write + one persist) or not at all.
-  let plan: ProjectionPlan | null = null;
-  let inherentPlan: ProjectionPlan | null = null;
-  let parentRisk: EntityBase | undefined;
-  if (decision === 'approve' && payloadHasUnsafeKey(action.payload)) return 'The approval payload contains a protected key; approval refused.';
-  if (decision === 'approve' && action.collection === 'riskAssessments') {
-    parentRisk = rows(db, 'risks').find((r) => r.id === (target as EntityBase | undefined)?.riskId);
-    const scoringBlock = assessmentApprovalBlockReason(target, parentRisk);
-    if (scoringBlock) return scoringBlock;
-    if (payloadTouchesAssessmentScoring(action.payload)) return 'The approval payload would alter the verified scoring record of the assessment; approval refused.';
-    plan = planResidualProjection(target as EntityBase, parentRisk as EntityBase);
-    inherentPlan = planInherentProjection(target as EntityBase, parentRisk as EntityBase);
-  }
+  const parentRisk = action.collection === 'riskAssessments'
+    ? rows(db, 'risks').find((r) => r.id === (target as EntityBase | undefined)?.riskId)
+    : undefined;
+  const gate = approvalGate(decision, action.collection, action.payload, target, parentRisk);
+  if (!gate.ok) return gate.reason;
+  const { residualPlan, inherentPlan } = gate;
 
   mutate((d) => {
     const a = d.pendingActions.find((x) => x.id === actionId);
@@ -176,12 +170,12 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
         actorId: session.persona.id,
         comment,
       });
-      if (plan && inherentPlan && parentRisk) {
+      if (residualPlan && inherentPlan && parentRisk) {
         const risk = rows(d, 'risks').find((r) => r.id === parentRisk!.id);
         if (risk) {
           // Appetite-driven escalation (spec §325) is not evaluated: no approved appetite threshold exists in the prototype.
           const noEscalation = ' Appetite escalation not evaluated (no approved appetite threshold is configured).';
-          for (const [dim, p] of [['inherent', inherentPlan], ['residual', plan]] as const) {
+          for (const [dim, p] of [['inherent', inherentPlan], ['residual', residualPlan]] as const) {
             const Dim = dim === 'inherent' ? 'Inherent' : 'Residual';
             if (p.project) {
               Object.assign(risk, p.patch);
