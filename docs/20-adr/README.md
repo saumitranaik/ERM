@@ -21,4 +21,4 @@ consequences, so future sessions don't relitigate settled questions.
 
 ## Status
 
-- [0001 — Enforcement point for the risk-owner decision restriction](0001-risk-owner-decision-restriction-enforcement.md) — PROPOSED (no decision made)
+- [0001 — Enforcement point for the risk-owner decision restriction](0001-risk-owner-decision-restriction-enforcement.md) — ACCEPTED for ERM prototype scope only (platform-wide enforcement deferred)

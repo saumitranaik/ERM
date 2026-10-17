@@ -124,13 +124,21 @@ unit tests (`tests/unit/risk-logging.test.mjs`) and the E2E run (`tests/e2e/risk
   the ledger function itself is not exercised in isolation (it depends on browser storage) — the E2E
   test confirms only UI outcomes and resulting database state.
 
-**Specification corrected (2026-10-17); enforcement decision still open.** `docs/10-risk/01-enterprise-risk-management.md`
+**Enforcement point resolved for the prototype (2026-10-17); platform-wide enforcement deferred.**
+[ADR 0001](../../docs/20-adr/0001-risk-owner-decision-restriction-enforcement.md) is ACCEPTED for the ERM prototype
+scope only: the owner restriction on Approve/Reject of the Risk record is an ERM module-level, fail-closed control
+(`decisionPolicy.ts`). It does not assert that PRSMTD enforces risk-owner independence, and the client-side/localStorage
+prototype is not a trusted production boundary. A shared platform guard, `risk_owner_user_id` validation at a trusted
+boundary, and defence-in-depth are reassessed only in a future authorised platform change. No implementation change was
+needed to the owner rule itself (uncommitted, separately tracked prototype changes add only a no-eligible-checker notice and matrix-validation hardening); PRSMTD was not modified.
+
+**Specification corrected (2026-10-17).** `docs/10-risk/01-enterprise-risk-management.md`
 (Assumption 6, FR-05, Security Considerations "Segregation of duties" and "Threat model note", the approval sequence
 diagram note) no longer says PRSMTD's `approved_by <> created_by` enforces owner ≠ decision-maker. It now separates
 (a) *submitter ≠ approver* — existing PRSMTD capability — from (b) *risk owner ≠ decision-maker* — an ERM target
-requirement, prototype-enforced only, not provided by PRSMTD. The platform-wide decide-time guard is described as a
-proposal. The choice between that guard and a justified module-level control is recorded as
-[ADR 0001](../../docs/20-adr/0001-risk-owner-decision-restriction-enforcement.md) (PROPOSED, no decision). PRSMTD was not modified.
+requirement, prototype-enforced only, not provided by PRSMTD. The platform-wide decide-time guard is a deferred
+future option; the prototype control is recorded in
+[ADR 0001](../../docs/20-adr/0001-risk-owner-decision-restriction-enforcement.md) (ACCEPTED, prototype scope). PRSMTD was not modified.
 
 **Scope of the owner restriction by action (Decision 3 — recommendation: no blanket extension).**
 
@@ -223,6 +231,21 @@ assessment, banded by the matrix version recorded on that assessment; inherent a
 and bands; matrix changes do not alter approved scores (see matrix governance above). Remaining lifecycle gap: assessment
 approval → Risk projection, matrix-version snapshot, and the rule for superseded assessments. Categories/sub-categories
 backed by `module_risk_category` reference data are likewise unchanged.
+
+## Consolidated outstanding AMC decisions (none decided or implemented)
+
+Index of items already detailed in A and B above; no policy value, checker assignment or approval authority is assumed.
+
+1. Whether owner independence applies to Return, child records and `ESCALATION_ACK` (A, scope table).
+2. Whether the AMC designates an alternate independent checker or prevents the sole checker being assigned as owner (A, checker availability).
+3. The approved scoring-matrix grid, bands and thresholds (B).
+4. The matrix-change approval authority and governance process (B, matrix governance).
+5. How existing risk scores are handled when the matrix changes (B, recalculate-vs-retain).
+6. How residual scores are derived from approved assessments and linked to matrix versions (B, investigation summary; residual is currently entered directly and unapproved in the prototype).
+
+Future platform work (separately authorised, not implemented): shared owner-independence guard; trusted-boundary validation
+of `risk_owner_user_id` and checker eligibility; whether the module-level control stays as defence in depth; cross-module
+enforcement, auditing and testing. See [ADR 0001](../../docs/20-adr/0001-risk-owner-decision-restriction-enforcement.md).
 
 ## Process note
 

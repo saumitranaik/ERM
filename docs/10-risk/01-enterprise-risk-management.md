@@ -91,10 +91,10 @@ Source: [`../reference/Risk Management System for Mutual Funds.pdf`](../referenc
    constraint on `pending_action` (system.md §3). (b) *Risk owner ≠ decision-maker* — a target
    requirement of this module: the user named in `risk_owner_user_id` must not approve or reject a
    governed action on their own Risk. The platform constraint does **not** enforce (b); it never
-   reads `risk_owner_user_id`. How (b) is enforced (a proposed platform-wide decide-time guard keyed
-   on a module-supplied subject user, or a justified module-level control) is an open architecture
-   decision — see [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md). Until
-   it is decided, the platform-wide guard is a proposal, not an existing capability.
+   reads `risk_owner_user_id`. For the ERM prototype, (b) is enforced by an ERM module-level control
+   that fails closed — [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md)
+   (ACCEPTED, prototype scope only). Platform-wide enforcement is deferred to a future, separately
+   authorised platform change and is not an existing PRSMTD capability.
 7. **Record retention period is not specified here.** The SEBI circular does not state a
    retention period for risk records; exact retention/archival rules are deferred to
    `11-compliance` once authored. This module's data is append-only/status-transitioned
@@ -413,7 +413,7 @@ sequenceDiagram
   **not** prevent this: a different person can submit a risk owned by the checker. Role-assignment
   governance (`MODULE_ROLE_ASSIGN`, `pending_action`-governed, system.md §9) reduces but does not
   remove it. The mitigation is the owner ≠ decision-maker requirement (Assumption 6), currently a
-  prototype-level control pending ADR 0001. If the sole `RISK_CHECKER` is also the owner, no eligible
+  prototype-level control per ADR 0001 (not a trusted production boundary). If the sole `RISK_CHECKER` is also the owner, no eligible
   decider exists: the system must fail closed (no decision), and the AMC must designate an alternate
   independent checker (FR-17) or approve a rule preventing the sole checker being assigned as owner.
 
@@ -628,3 +628,6 @@ Reporting/Analytics modules) are not yet specified; this spec only reserves the 
   PRSMTD, with the enforcement choice recorded as proposed
   [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md). No entity, table, or
   workflow redesigned.
+- 2026-10-17 — ADR 0001 accepted for ERM prototype scope only: owner ≠ decision-maker is enforced
+  by an ERM module-level, fail-closed control in the prototype; platform-wide enforcement deferred
+  to a future authorised platform change. No entity, table, or workflow redesigned.
