@@ -15,7 +15,7 @@ import { getDb, mutate } from './store';
 import { newId, nowIso } from './id';
 import { getSession } from './session';
 import { decisionBlockReason } from './decisionPolicy';
-import { assessmentApprovalBlockReason, planResidualProjection, type ProjectionPlan } from './riskProjection';
+import { assessmentApprovalBlockReason, payloadHasUnsafeKey, payloadTouchesAssessmentScoring, planInherentProjection, planResidualProjection, type ProjectionPlan } from './riskProjection';
 
 export interface SubmitOptions {
   module: string;
@@ -136,12 +136,16 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
   // fail is checked here, BEFORE any write, so the approval and the projection are applied together
   // in one mutate (a single synchronous in-memory write + one persist) or not at all.
   let plan: ProjectionPlan | null = null;
+  let inherentPlan: ProjectionPlan | null = null;
   let parentRisk: EntityBase | undefined;
+  if (decision === 'approve' && payloadHasUnsafeKey(action.payload)) return 'The approval payload contains a protected key; approval refused.';
   if (decision === 'approve' && action.collection === 'riskAssessments') {
     parentRisk = rows(db, 'risks').find((r) => r.id === (target as EntityBase | undefined)?.riskId);
     const scoringBlock = assessmentApprovalBlockReason(target, parentRisk);
     if (scoringBlock) return scoringBlock;
+    if (payloadTouchesAssessmentScoring(action.payload)) return 'The approval payload would alter the verified scoring record of the assessment; approval refused.';
     plan = planResidualProjection(target as EntityBase, parentRisk as EntityBase);
+    inherentPlan = planInherentProjection(target as EntityBase, parentRisk as EntityBase);
   }
 
   mutate((d) => {
@@ -172,21 +176,26 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
         actorId: session.persona.id,
         comment,
       });
-      if (plan && parentRisk) {
+      if (plan && inherentPlan && parentRisk) {
         const risk = rows(d, 'risks').find((r) => r.id === parentRisk!.id);
-        if (risk && plan.project) {
-          Object.assign(risk, plan.patch);
-          risk.updatedAt = nowIso();
-          pushHistory(d, {
-            module: a.module, collection: 'risks', entityId: risk.id, action: 'RESIDUAL_PROJECTED',
-            fromStatus: risk.status, toStatus: risk.status, actorId: session.persona.id,
-            comment: `Residual score ${String(risk.residualScore)} projected from approved assessment ${String(e.code)} (matrix ${String(e.scoringMatrixId)} v${String(e.scoringMatrixVersion)}).`,
-          });
-        } else if (risk && !plan.project) {
-          pushHistory(d, {
-            module: a.module, collection: 'risks', entityId: risk.id, action: 'RESIDUAL_NOT_PROJECTED',
-            fromStatus: risk.status, toStatus: risk.status, actorId: session.persona.id, comment: plan.reason,
-          });
+        if (risk) {
+          // Appetite-driven escalation (spec §325) is not evaluated: no approved appetite threshold exists in the prototype.
+          const noEscalation = ' Appetite escalation not evaluated (no approved appetite threshold is configured).';
+          for (const [dim, p] of [['inherent', inherentPlan], ['residual', plan]] as const) {
+            const Dim = dim === 'inherent' ? 'Inherent' : 'Residual';
+            if (p.project) {
+              Object.assign(risk, p.patch);
+              risk.updatedAt = nowIso();
+            }
+            pushHistory(d, {
+              module: a.module, collection: 'risks', entityId: risk.id,
+              action: `${dim.toUpperCase()}_${p.project ? '' : 'NOT_'}PROJECTED`,
+              fromStatus: risk.status, toStatus: risk.status, actorId: session.persona.id,
+              comment: p.project
+                ? `${Dim} score ${String(risk[`${dim}Score`])} projected from approved assessment ${String(e.code)} (matrix ${String(e.scoringMatrixId)} v${String(e.scoringMatrixVersion)}).${dim === 'residual' ? noEscalation : ''}`
+                : p.reason,
+            });
+          }
         }
       }
     }

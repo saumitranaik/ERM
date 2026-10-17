@@ -317,6 +317,9 @@ try {
   r2 = dd.risks.find((x) => x.id === okA.riskId);
   check('approved assessment projects residual 4 onto the parent with provenance',
     r2.residualScore === 4 && r2.residualLikelihood === 2 && r2.residualImpact === 2 && r2.residualOrigin === 'APPROVED_ASSESSMENT' && r2.residualSourceAssessmentId === okA.id && r2.residualSourceMatrixVersion === 'illustrative-1', JSON.stringify(r2));
+  check('approved assessment projects the inherent score with its own provenance, and rejection did not',
+    r2.inherentScore === okA.inherentScore && r2.inherentOrigin === 'APPROVED_ASSESSMENT' && r2.inherentSourceAssessmentId === okA.id && r2.inherentSourceMatrixVersion === 'illustrative-1' && r2.inherentSourceLikelihood === okA.inherentLikelihood && !(r2.inherentSourceAssessmentId === rejA?.id), JSON.stringify(r2));
+  check('inherent projection is recorded in the Risk history', dd.history.some((h) => h.entityId === r2.id && h.action === 'INHERENT_PROJECTED'));
   check('projection is recorded in the Risk history', dd.history.some((h) => h.entityId === r2.id && h.action === 'RESIDUAL_PROJECTED'));
   check('assessment is APPROVED with its action approved', dd.riskAssessments.find((x) => x.id === okA.id).status === 'APPROVED' && dd.pendingActions.find((a) => a.entityId === okA.id).status === 'approved');
   await nav(`/modules/RISK/risks/${r2.id}`);

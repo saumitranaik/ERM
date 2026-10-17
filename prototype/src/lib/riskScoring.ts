@@ -16,36 +16,46 @@ export function deriveRiskScores(v: Record<string, unknown>): Record<string, unk
 }
 
 /**
- * Risk form derivation: scores plus the matrix reference they were produced with. Once a residual
- * has been projected from an approved assessment (residualSource* present) the residual is owned by
- * that assessment, so edits to the residual inputs on the Risk form are discarded.
+ * Risk form derivation: scores plus the matrix reference they were produced with. Once inherent and/or
+ * residual has been projected from an approved assessment (`<dim>Origin`) that dimension is owned by the
+ * assessment, so edits to its inputs on the Risk form are discarded and its projected score is kept.
  */
 export function deriveRiskFields(v: Record<string, unknown>): Record<string, unknown> {
-  const projected = v.residualOrigin === 'APPROVED_ASSESSMENT';
-  const residualInputs = projected
-    ? { residualLikelihood: v.residualSourceLikelihood, residualImpact: v.residualSourceImpact }
-    : {};
-  const scores = deriveRiskScores({ ...v, ...residualInputs });
+  const inputs: Record<string, unknown> = {};
+  const kept: Record<string, unknown> = {};
+  for (const d of ['inherent', 'residual']) {
+    if (v[`${d}Origin`] === 'APPROVED_ASSESSMENT') {
+      inputs[`${d}Likelihood`] = v[`${d}SourceLikelihood`];
+      inputs[`${d}Impact`] = v[`${d}SourceImpact`];
+      kept[`${d}Score`] = v[`${d}Score`];
+    }
+  }
   return {
-    ...residualInputs,
-    ...scores,
-    // Inherent (and direct-entry residual) scores are stamped with the active matrix; a projected residual keeps its own ref.
+    ...inputs,
+    ...deriveRiskScores({ ...v, ...inputs }),
+    // Direct-entry scores are stamped with the active matrix; a projected score keeps its own source ref.
     scoringMatrixId: ACTIVE_MATRIX_REF.matrixId,
     scoringMatrixVersion: ACTIVE_MATRIX_REF.matrixVersion,
-    ...(projected ? { residualScore: v.residualScore } : {}),
+    ...kept,
   };
 }
 
-/** Matrix reference governing a Risk's inherent score (absent => legacy, see matrixForRef). */
-export function inherentRef(risk: Record<string, unknown>): Partial<MatrixRef> {
+function directRef(risk: Record<string, unknown>): Partial<MatrixRef> {
   return { matrixId: risk.scoringMatrixId as string | undefined, matrixVersion: risk.scoringMatrixVersion as string | undefined };
+}
+
+/** Matrix reference governing a Risk's inherent score: the projected source's, else the direct-entry stamp (absent => legacy, see matrixForRef). */
+export function inherentRef(risk: Record<string, unknown>): Partial<MatrixRef> {
+  return risk.inherentOrigin === 'APPROVED_ASSESSMENT'
+    ? { matrixId: risk.inherentSourceMatrixId as string | undefined, matrixVersion: risk.inherentSourceMatrixVersion as string | undefined }
+    : directRef(risk);
 }
 
 /** Matrix reference governing a Risk's residual score: the projected source's, else the direct-entry stamp. */
 export function residualRef(risk: Record<string, unknown>): Partial<MatrixRef> {
   return risk.residualOrigin === 'APPROVED_ASSESSMENT'
     ? { matrixId: risk.residualSourceMatrixId as string | undefined, matrixVersion: risk.residualSourceMatrixVersion as string | undefined }
-    : inherentRef(risk);
+    : directRef(risk);
 }
 
 export { matrixForRef };

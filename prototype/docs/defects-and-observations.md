@@ -255,7 +255,7 @@ Everything below the "Recommended" column is a recommendation, not approved poli
 | 9 | Projection timing | None | Project on APPROVED only; rejected or returned leaves Risk unchanged; newer approved supersedes older | Matches spec's projection pattern | Stale or conflicting residual values | Yes |
 | 10 | Failure handling | `resolveBand`/`resolveBandFor` return null for invalid matrix, missing or out-of-range input; UI shows neutral chip | Same; additionally block save/approval when a score cannot band | Fail closed is already the prototype posture | Unbanded scores could be approved | No — safe to defer |
 
-Spec note: `docs/10-risk` §325 says approval updates `Risk.inherent_*`/`residual_*`. Item E implements the residual part only.
+Spec note: `docs/10-risk` §325 says approval updates `Risk.inherent_*`/`residual_*`. Item E implemented the residual part; item F adds the inherent part.
 
 ### E. Scoring lifecycle implemented in the prototype (2026-10-17)
 
@@ -269,14 +269,14 @@ prototype convention, not an AMC decision.** No AMC-approved matrix exists; noth
 | Versioning | Matrix = `(matrixId, matrixVersion)`; definitions in the registry are immutable (a change is a new entry). `ACTIVE_MATRIX_REF` is the rule for new scores. `lookupMatrix` returns null for an unknown/invalid ref and nothing falls back to another version. | Mechanism only; no approved versions, effective dates or change authority |
 | Assessment snapshot | Saving an assessment records `scoringMatrixId/Version`, `inherentScore/Band`, `residualScore/Band`. Inputs (L/I) + matrix ref are authoritative; score/band are a snapshot re-verified against the **referenced** version before approval. Invalid inputs store no score. | Convention |
 | Approval gate | Approving an assessment is refused (UI disables Approve, ledger returns the reason) if the snapshot is missing/inconsistent, the matrix version is unavailable, or the parent Risk is missing, `RETIRED` or `ACCEPTED`. Reject/return are never blocked by scoring. | Convention |
-| Projection | On approval only, the assessment's **residual** L/I/score are copied to the parent Risk with provenance (`residualOrigin`, `residualSource*`) and `lastAssessedDate`. Inherent and Risk status are not projected. Rejected, returned and pending assessments change nothing. An approved assessment dated earlier than the current source is recorded (history `RESIDUAL_NOT_PROJECTED`) but does not displace it; equal dates: later approval wins. Superseded-ness is derived from `residualSourceAssessmentId`, so approved assessments are never mutated. | Convention |
+| Projection | On approval only, the assessment's **residual** L/I/score are copied to the parent Risk with provenance (`residualOrigin`, `residualSource*`) and `lastAssessedDate`. Risk status is not projected (inherent: see item F). Rejected, returned and pending assessments change nothing. An approved assessment dated earlier than the current source is recorded (history `RESIDUAL_NOT_PROJECTED`) but does not displace it; equal dates: later approval wins. Superseded-ness is derived from `residualSourceAssessmentId`, so approved assessments are never mutated. | Convention |
 | Consistency | Risk residual fields are a derived copy; `projectedResidualConsistent` is the tested check. Editing a projected Risk cannot overwrite the residual. Heat-map and Top Risks plot only risks scored on the active matrix and state how many are not plotted. | Implemented |
 | Atomicity | All checks run before any write; the assessment decision, Risk patch and history are then applied in one `mutate` (one synchronous in-memory write, one `localStorage` persist). | Prototype limit below |
 | Historical integrity | Existing scores are never recalculated. Seed assessments carry an explicit `illustrative-1` snapshot; seed risks r-001/r-003/r-007 are linked to their approved assessments (values already matched); other seed risks have no matrix ref and display as legacy `illustrative-1`. | Seed fixtures |
 
 **Prototype-only limitations.** State lives in the browser (`localStorage`); there is no transaction, rollback or tamper
 resistance, so "atomic" means check-then-single-write, not a production guarantee, and nothing client-side is a trusted
-security boundary. The spec's `inherent_*` projection, `inherent_band`/`residual_band` columns on the Risk, appetite-driven
+security boundary. The spec's (inherent projection added in item F) `inherent_band`/`residual_band` columns on the Risk, appetite-driven
 escalation (`UNDER_REVIEW → ESCALATED`) and a tenant-editable matrix UI are **not implemented**. No Liquibase migration or
 schema was created; the proposed persistence shape is the flat fields above (assessment: `scoring_matrix_id`,
 `scoring_matrix_version`, `*_score`, `*_band`; Risk: `residual_source_assessment_id` + matrix ref), to be designed under
@@ -288,7 +288,49 @@ id only, not a version).
 undecided. 6 (existing scores): implemented as retain-never-rescore; the AMC has not confirmed. 7, 9 (residual source,
 projection timing): implemented as the conventions above, unconfirmed. 10 (failure handling): implemented as fail-closed.
 
-## Consolidated outstanding AMC decisions (none decided or implemented)
+### F. Inherent projection, hardening and decision record (2026-10-17)
+
+**Status legend.** *Spec* = stated in `docs/10-risk/01-enterprise-risk-management.md`. *Prototype* = implemented convention, **not** AMC policy. *Recommendation* = proposal only. **Nothing here is an accepted AMC decision;** no AMC-approved matrix, threshold or appetite value exists.
+
+**Findings (traced before changing anything).**
+- Inherent L/I are captured on the Risk form and on every Risk Assessment. The Risk row stored `inherentLikelihood/Impact/Score` as direct entry and assessment approval never touched them. Inherent scoring is not tied to an assessment *type*: every assessment carries both pairs. Stored band columns (`inherent_band`/`residual_band`) exist **only in the spec**; the prototype stores bands on assessments (snapshot) and resolves Risk bands from the matrix at display time.
+- Spec §325 (confirmed): `RISK_ASSESSMENT_APPROVAL` updates `Risk.inherent_*`, `Risk.residual_*` and `Risk.last_assessed_date`; status advances `UNDER_REVIEW → ACTIVE`, or `ESCALATED` if the residual breaches appetite.
+- Appetite escalation: the spec defines a per-category `threshold_score` (FR-11, `module_risk_appetite`) but gives **no values**, and the prototype has no appetite entity (thresholds appear only in seed prose). Implementing escalation would mean inventing them, so it is **not implemented**. The approval history now records that appetite escalation was not evaluated.
+- Defect fixed: `residualRef` fell back to the inherent stamp; it now falls back to the direct-entry stamp, since inherent can carry its own source version (tested).
+- Hardening gaps closed: approval did not check that the assessment belongs to the parent, did not validate `assessmentDate` (string comparison on a malformed date mis-orders), and applied the action payload after verification (a payload could have overwritten scored fields).
+
+**Implemented (prototype).**
+| Area | Behaviour | Status |
+|---|---|---|
+| Inherent projection | On approval the assessment's inherent L/I/score are copied to the parent with their own provenance (`inherentOrigin`, `inherentSource*`), planned independently of residual (own supersession check). Edits to projected inherent inputs on the Risk form are discarded. Seed r-001/r-003/r-007 are linked to their approved assessments (values already matched; asserted by test). | Spec requires the update; eligibility and ordering are *Prototype* conventions applied to inherent explicitly, not inherited silently |
+| Approval hardening | Approval is refused if the assessment does not belong to the parent, `assessmentDate` is not a valid `YYYY-MM-DD`, a current projection source date is malformed, or the approval payload touches scoring/matrix/risk/date fields; any approval payload carrying `__proto__`/`constructor`/`prototype`/`id`/`code` keys is refused. All checks precede any write. Client-side only: `localStorage` can be edited directly, so these guards are not an authorization boundary. | Prototype |
+| Appetite escalation / status advance | Not implemented. | Blocked on AMC thresholds |
+| Stored band columns | Not added; bands derive from the matrix version. | Production design decision |
+
+**Persistence guarantees actually provided.** State lives in browser `localStorage`. `mutate` applies the approval, both projections and history in one synchronous in-memory update followed by one persist, after all checks pass: check-then-write within a single JS turn. There is no transaction, rollback, cross-tab isolation, durability guarantee or tamper resistance. Anyone can edit `localStorage` directly; the checks catch *inconsistent* state, not a malicious client. Duplicate approval is prevented by the pending-action status check, not by a database constraint. Nothing here is a trusted security or atomicity boundary.
+
+**Proposed production persistence (not implemented; needs separate authorisation).** Server-side enforcement of every rule above inside one PRSMTD database transaction covering approval, projection and history; constraints for one projection source per dimension; immutable assessment snapshot columns (`scoring_matrix_id`, `scoring_matrix_version`, scores, bands); `inherent_source_assessment_id`/`residual_source_assessment_id` and matrix refs on `module_risk_register`; optimistic locking on the Risk row; matrix versions as immutable rows. No Liquibase changeset was created.
+
+**Decision record (every row is an unresolved AMC decision unless noted).**
+| # | Decision | Current behaviour | Recommended option (not decided) | Rationale | If deferred | Blocks build? |
+|---|---|---|---|---|---|---|
+| 1 | Matrix grid, permitted L/I values | 5×5, 1–5, illustrative | AMC defines levels and wording | Everything derives from it | Illustrative grid stays labelled | Approved matrix: yes; prototype: no |
+| 2 | Bands and thresholds | Low 1–4, Medium 5–9, High 10–16, Critical 17–25 (invented) | AMC supplies; keep contiguity validation | Deterministic once supplied | Bands stay illustrative | Approved matrix: yes |
+| 3 | Matrix owner / change authority | None; not governed | Maker-checker, `RISK_ADMIN` maker, AMC-named checker | Reuses the ledger | Unreviewed scoring changes possible | Matrix editing: yes |
+| 4 | Version identifiers / effective dates | `illustrative-1`, no effective date | Immutable versions with effective-from dates | Explains history | No dated history | Versioned rollout: yes |
+| 5 | Existing Risks / history on matrix change | Never recalculated; unknown version resolves to no band | Retain; re-score only by explicit re-assessment | Avoids silent change | Open risks may re-band unpredictably | Rollout: yes |
+| 6 | Historical assessments immutable? | Editable only in DRAFT; snapshot re-verified against its own version on approval | Immutable from SUBMITTED; reproducible from inputs + matrix version | Reproducibility | Disputed history | No |
+| 7 | Residual projection rules | Prototype convention (E) | Confirm or amend | Spec confirms the update, not the ordering | Conventions unconfirmed | No |
+| 8 | Inherent projection rules | Prototype (F): same conventions, independent provenance | Confirm inherent follows residual rules, or define separately | Spec confirms the update only | As above | No |
+| 9 | Appetite-driven escalation | Not implemented | Board-set per-category `threshold_score`; residual above it on approval ⇒ `ESCALATED` + `Escalation` row | FR-11, §325 | No automatic escalation | **Yes** |
+| 10 | Parent statuses eligible | All except `RETIRED`/`ACCEPTED` (approval refused) | Confirm; decide whether ACCEPTED needs re-acceptance | Accepted score should not move silently | As is | No |
+| 11 | Ordering / supersession | Later `assessmentDate` wins; equal dates: later approval wins; older-dated approval recorded but not projected | Confirm, or order by approval time | Date is the assessment's business time | Late approvals may be skipped | No |
+| 12 | Approved data stored on parent? | Derived copy plus provenance fields | Keep copy + source id; band from matrix version | Fast reads, traceable | As is | No |
+| 13 | Audit / traceability | History events `INHERENT_/RESIDUAL_(NOT_)PROJECTED`; matrix id/version on every source | Add before/after values and tamper-evident ledger in production | Regulatory evidence | Prototype history is not tamper-evident | Production: yes |
+
+**Out of scope (future platform work).** Server-side validation of scores and decisions, durable transactional persistence, stored band columns, appetite entity and escalation workflow, matrix governance UI, tamper-evident audit. Each needs separate authorisation in PRSMTD.
+
+## Consolidated outstanding AMC decisions (none decided; appetite escalation not implemented; projection rules are prototype conventions)
 
 Index of items already detailed in A and B above; no policy value, checker assignment or approval authority is assumed.
 
@@ -297,7 +339,7 @@ Index of items already detailed in A and B above; no policy value, checker assig
 3. The approved scoring-matrix grid, bands and thresholds (B).
 4. The matrix-change approval authority and governance process (B, matrix governance).
 5. How existing risk scores are handled when the matrix changes (B, recalculate-vs-retain).
-6. Confirmation of the residual projection rule implemented as a prototype convention in E (residual only, eligible parent statuses, supersession by assessment date), whether inherent is also projected per spec §325, and the matrix-version snapshot/retention rules. Residual entered directly on a Risk with no approved assessment remains unreviewed.
+6. Confirmation of the projection rules implemented as prototype conventions in E and F (eligible parent statuses, supersession by assessment date, inherent projected under the same conventions with independent provenance), and the matrix-version snapshot/retention rules. Appetite thresholds and the escalation/status advance (decision 9 in F) are unimplemented pending AMC values. Residual entered directly on a Risk with no approved assessment remains unreviewed.
 
 Future platform work (separately authorised, not implemented): shared owner-independence guard; trusted-boundary validation
 of `risk_owner_user_id` and checker eligibility; whether the module-level control stays as defence in depth; cross-module

@@ -204,3 +204,102 @@ test('seed risks: scores equal L×I under the matrix they reference (or the lega
     }
   }
 });
+
+// ---- Inherent projection (spec 10-risk §325: approval updates Risk.inherent_*) ----
+import {
+  planInherentProjection, planProjection, payloadHasUnsafeKey, projectedInherentConsistent, payloadTouchesAssessmentScoring,
+} from '../../src/lib/riskProjection.ts';
+import { inherentRef, deriveRiskFields as deriveFields } from '../../src/lib/riskScoring.ts';
+
+test('inherent projection copies only inherent L/I/score with its own provenance; residual and status untouched', () => {
+  const plan = planInherentProjection(assessment(), risk({ inherentLikelihood: 1, inherentImpact: 1, inherentScore: 1 }));
+  assert.equal(plan.project, true);
+  assert.deepEqual(
+    { l: plan.patch.inherentLikelihood, i: plan.patch.inherentImpact, s: plan.patch.inherentScore, o: plan.patch.inherentOrigin, src: plan.patch.inherentSourceAssessmentId, v: plan.patch.inherentSourceMatrixVersion },
+    { l: 4, i: 5, s: 20, o: 'APPROVED_ASSESSMENT', src: 'ra-x', v: ACTIVE_MATRIX_REF.matrixVersion },
+  );
+  assert.ok(!Object.keys(plan.patch).some((k) => k.startsWith('residual') || k === 'status' || k === 'lastAssessedDate'));
+});
+
+test('inherent and residual are ordered independently: each compares against its own current source date', () => {
+  const r = risk({ inherentOrigin: 'APPROVED_ASSESSMENT', inherentSourceAssessmentDate: '2026-12-01', inherentSourceAssessmentCode: 'RAS-I' });
+  const a = assessment({ assessmentDate: '2026-10-01' });
+  assert.equal(planInherentProjection(a, r).project, false);
+  assert.match(planInherentProjection(a, r).reason, /inherent not projected/);
+  assert.equal(planResidualProjection(a, r).project, true, 'residual has no source yet, so it is not blocked by the inherent source');
+});
+
+test('inherent and residual consistency checks are separate and detect drift', () => {
+  const a = assessment({ status: 'APPROVED' });
+  const r = { ...risk(), ...planInherentProjection(a, risk()).patch, ...planResidualProjection(a, risk()).patch };
+  assert.equal(projectedInherentConsistent(r, a), true);
+  assert.equal(projectedInherentConsistent({ ...r, inherentScore: 3 }, a), false);
+  assert.equal(projectedInherentConsistent(r, { ...a, status: 'REJECTED' }), false);
+  assert.equal(projectedInherentConsistent(risk(), undefined), true);
+});
+
+test('Risk form save: projected inherent inputs/score cannot be overwritten; direct-entry residual remains editable', () => {
+  const a = assessment({ status: 'APPROVED' });
+  const projected = { ...risk(), ...planInherentProjection(a, risk()).patch };
+  const e = deriveFields({ ...projected, inherentLikelihood: 1, inherentImpact: 1, residualLikelihood: 2, residualImpact: 2 });
+  assert.equal(e.inherentLikelihood, 4);
+  assert.equal(e.inherentImpact, 5);
+  assert.equal(e.inherentScore, 20);
+  assert.equal(e.residualScore, 4, 'residual not projected: direct entry still applies');
+});
+
+test('score references: a projected inherent uses its source version; a direct residual keeps the direct stamp, not the inherent source', () => {
+  const r = { inherentOrigin: 'APPROVED_ASSESSMENT', inherentSourceMatrixId: ILLUSTRATIVE_MATRIX.id, inherentSourceMatrixVersion: 'gone', scoringMatrixId: ILLUSTRATIVE_MATRIX.id, scoringMatrixVersion: ILLUSTRATIVE_MATRIX.version };
+  assert.equal(inherentRef(r).matrixVersion, 'gone');
+  assert.equal(matrixForRef(scoreRefFor('inherentScore', r)).matrix, null);
+  assert.equal(matrixForRef(scoreRefFor('residualScore', r)).matrix, ILLUSTRATIVE_MATRIX);
+});
+
+// ---- Approval-boundary hardening ----
+test('rejected / returned / pending assessments never produce a patch: only an APPROVED decision reaches planning', () => {
+  // Planning is only reachable from the approve branch of the ledger; the source guards that branch.
+  const src = readFileSync(new URL('../../src/lib/governance.ts', import.meta.url), 'utf8');
+  assert.match(src, /if \(decision === 'approve' && action\.collection === 'riskAssessments'\)/);
+  assert.equal((src.match(/planInherentProjection\(/g) ?? []).length, 1);
+  assert.equal((src.match(/planResidualProjection\(/g) ?? []).length, 1);
+});
+
+test('approval is blocked for a parent that does not own the assessment, and for malformed dates', () => {
+  assert.match(assessmentApprovalBlockReason(assessment(), risk({ id: 'r-other' })), /does not belong/);
+  for (const d of [undefined, '', '2026-9-1', '01/10/2026', 20261001, '2026-13-45']) {
+    assert.match(assessmentApprovalBlockReason(assessment({ assessmentDate: d }), risk()), /assessment date/, String(d));
+  }
+  for (const dim of ['inherent', 'residual']) {
+    const r = risk({ [`${dim}Origin`]: 'APPROVED_ASSESSMENT', [`${dim}SourceAssessmentDate`]: 'garbage' });
+    assert.match(assessmentApprovalBlockReason(assessment(), r), new RegExp(`${dim} source date`));
+    assert.equal(planProjection(dim, assessment(), r).project, false, 'planning also fails closed');
+  }
+});
+
+test('approval payloads cannot alter the verified scoring record', () => {
+  for (const k of ['residualScore', 'inherentImpact', 'scoringMatrixVersion', 'riskId', 'assessmentDate']) {
+    assert.equal(payloadTouchesAssessmentScoring({ [k]: 1 }), true, k);
+  }
+  assert.equal(payloadTouchesAssessmentScoring(undefined), false);
+  assert.equal(payloadTouchesAssessmentScoring({ reviewedNote: 'x' }), false);
+});
+
+test('seed: every risk with an inherent origin matches its approved source assessment exactly', () => {
+  const byId = Object.fromEntries(seed.riskAssessments.map((a) => [a.id, a]));
+  const linked = seed.risks.filter((x) => x.inherentOrigin === 'APPROVED_ASSESSMENT');
+  assert.ok(linked.length >= 3);
+  for (const r of linked) {
+    const a = byId[r.inherentSourceAssessmentId];
+    assert.equal(a.riskId, r.id);
+    assert.equal(projectedInherentConsistent(r, a), true, r.id);
+    assert.equal(r.inherentSourceAssessmentDate, a.assessmentDate);
+    assert.equal(r.inherentSourceLikelihood, a.inherentLikelihood);
+  }
+});
+
+test('approval payloads with protected / prototype keys are refused for any entity', () => {
+  assert.equal(payloadHasUnsafeKey(JSON.parse('{"__proto__": {"isAdmin": true}}')), true);
+  for (const k of ['constructor', 'prototype', 'id', 'code']) assert.equal(payloadHasUnsafeKey({ [k]: 1 }), true, k);
+  assert.equal(payloadHasUnsafeKey({ title: 'x' }), false);
+  assert.equal(payloadHasUnsafeKey(undefined), false);
+});
