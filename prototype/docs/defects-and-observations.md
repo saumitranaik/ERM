@@ -124,6 +124,25 @@ unit tests (`tests/unit/risk-logging.test.mjs`) and the E2E run (`tests/e2e/risk
   the ledger function itself is not exercised in isolation (it depends on browser storage) — the E2E
   test confirms only UI outcomes and resulting database state.
 
+**Proposed specification correction — not applied; requires governance approval.** The wording in
+`docs/10-risk/01-enterprise-risk-management.md` (Assumption 6; Security Considerations "Segregation of
+duties" and "Threat model note") that owner≠checker is "enforced by"/"prevented structurally by" the
+PRSMTD `approved_by <> created_by` constraint is inaccurate: that constraint compares submitter and
+approver, not the risk owner. Proposed replacement: state owner≠checker as a requirement that the
+platform constraint does *not* satisfy, and either (a) record it as a new PRSMTD capability
+requirement (decide-time guard keyed on a module-supplied subject user) or (b) accept a module-level
+check as a justified exception to the "no bespoke SoD logic" statement. Choosing (a) or (b), and the
+scope (Approve/Reject only, or also Return, child records and `ESCALATION_ACK`), is an architecture
+decision, so the authoritative spec was left unchanged. PRSMTD was not modified.
+
+**Visual check of the owner restriction (recaptured, not committed).** Owner (CRO) view of a
+risk-owned pending submission at 1440px light, 1440px dark, 390px dark, and the 390px dark Approvals
+queue: no Approve/Reject controls; only "Return for rework" plus the message "the owner of a risk
+cannot approve or reject it. An independent checker must decide."; message legible and placed under
+the actions in the amber panel; no horizontal page overflow at 390px (scrollWidth − clientWidth = 0).
+Independent-checker behaviour (Approve and Reject shown) is covered by the E2E run, not a screenshot,
+because the seed data has no second `RISK_CHECKER` persona.
+
 ### B. `RiskScoringMatrix` bands are not specified; prototype bands are invented
 
 **What the specs establish.** `RiskScoringMatrix` is tenant-editable reference data
