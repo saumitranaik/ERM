@@ -21,6 +21,54 @@ this file, before doing new work.
 
 ## Current Status
 
+**Session 29 (2026-10-17)** reconciled this tracker with work done since Session 28 and produced the
+**ERM Summary Video (S01)**. Prototype work recorded here that earlier sessions carried only in
+`prototype/docs/defects-and-observations.md` and commit history: risk logging verified and E2E-tested,
+risk-owner decision restriction, versioned illustrative scoring matrix and assessment lifecycle, inherent
+and residual projection with provenance, and the hardened approval gate — all prototype conventions on
+illustrative values, **not** AMC-approved policy. This session added (commit `d064c00`) submit-time
+validation of risk assessments that reuses the approval gate's rule set (approval-time checks unchanged),
+an opt-in `maxDate` on date fields applied to the assessment date, and the convention that
+`lastAssessedDate` advances when *either* inherent or residual projects (never backwards; spec `10-risk`
+§325 is silent on this) — each with unit tests; 72 unit tests, type-check, build and the E2E suite pass.
+Demos: the previously uncommitted PRSMTD Architecture Explainer sources (`demos/PRSMTD_Architecture_*`,
+`demos/assets/project/`, `demos/prsmtd-architecture-grounding.md`) are now tracked as a companion (P01)
+outside the ERM series — it describes PRSMTD, not the ERM prototype; its MP4 stays Git-ignored. The video
+catalogue gained series-opening entries **S01** (ERM Summary, package `demos/video-s01-erm-summary/`,
+rendered Version 1, silent) and **S02** (Risk Logging, **not started**); Videos 01–46 keep their
+identifiers, so no existing demo file was renamed (manifest Amendment 1). No MP4 is tracked; PRSMTD and
+Liquibase were not touched. The risk-logging video is the next deliverable.
+
+**Session 28 (2026-08-07)** produced **Demonstration Video 02 — Risk Treatment Plan Approval
+(L1-02)**, the first video produced entirely under Session 27's new
+`demos/video-production-manifest.md` — selected automatically per that manifest's own §29
+automation rule (first "Not Started" row in Video Number order, dependency already satisfied),
+with no workflow named manually. Produced the full nine-document package plus 11 screenshots (2
+reused verbatim from Video 01 — `RSK-2026-0004`'s login and risk-detail states, identical
+business state — 9 newly captured live against the unmodified `prototype/`), then rendered
+`video-02-risk-treatment-plan-approval.mp4` (Version 1, Silent Demonstration: H.264, 1920×1080,
+30fps, AAC, 6:47, ~23.2MB) in the same session — unlike Video 01, which needed two sessions
+(23 and 26) to reach the same point, because this package's own `project/render_pipeline.py`
+imports Video 01's already-hardened compositing primitives directly rather than re-implementing
+them, and the portable `ffmpeg` build Video 01's Session 26 obtained was still present and
+working. A brand-new Treatment Plan (`TRT-2026-0009`, strategy Mitigate, targeting a residual
+score reduction from 8 to 6) was proposed by Arjun Mehta against the same risk Video 01 used,
+submitted for governed approval, and approved by Priya Raghunathan — the identical maker-checker
+pattern Video 01 established, now exercised against the `RISK_TREATMENT_APPROVAL` governed
+action instead of `REASSESSMENT`. Chapters 2 (RISK Module Overview) and 3 (Meet the Personas)
+use the production framework's shortened, second-appearance form; narration and total runtime
+(6:12 / 6:47) land inside the framework's 6–10 minute L1 (Simple) band without exceeding it,
+confirming the prediction the manifest itself recorded in Session 27. Updated
+`demos/video-production-manifest.md`'s status tables (§17, §23, §25 Table C, §26) to reflect
+Video 02 complete and Video 03 (Risk Acceptance, L1-03) as the new next-recommended video, and
+logged one flagged production judgment call in `observations.md` (a condensed, not full-length,
+Governance Review chapter — the framework's chapter-shortening rule explicitly covers the
+Domain/Module Overview chapter but not this one) for a future session or the manifest's own
+Amendment Log to confirm. `git status --short prototype/` was empty both before and after; no
+authoritative `docs/` specification, PRSMTD, or Video 01's own package was touched; no Liquibase
+changeset was added. Per this session's own stop condition, production stopped at exactly one
+video — Video 03 was not started. See the [Session 28](#session-28--2026-08-07) log entry below.
+
 **Session 27 (2026-08-07)** produced the **ERM Demonstration Video Production Manifest** —
 `demos/video-production-manifest.md` — the single authoritative planning artifact for which
 video is produced next, production order, dependencies, status, and output locations across the
@@ -2269,6 +2317,90 @@ log entry and Assumptions 35–36 below. No frozen spec was modified.
   video planning track; it neither actions nor supersedes Session 25's still-open recommendation
   to resume Master Execution Plan phase work (see Risks and Open Decisions below) — that
   recommendation stands, unactioned, for a ninth consecutive session outside this track.
+
+### Session 28 — 2026-08-07
+
+- **Instructed to produce the next pending demonstration video, selected automatically from
+  `demos/video-production-manifest.md`** — explicitly not a manual workflow choice. Read the
+  manifest first (per its own "How to use this document" instruction), which named **Video 02
+  (L1-02, Risk Treatment Plan Approval)** as the first "Not Started" row in Video Number order
+  with its one dependency (Video 01) already Production Package Complete and Rendered (manifest
+  §29's automation rule, applied directly, no manual judgment needed).
+- **Verified production readiness before starting** (manifest §8 checklist): re-read the L1-02
+  catalogue row in full; confirmed no `prototype/docs/user-journeys.md` entry exists for this
+  workflow (grounded instead directly against `docs/10-risk/01-enterprise-risk-management.md`'s
+  `RiskTreatmentPlan` entity, FR-06/FR-08, and the `RISK_TREATMENT_APPROVAL` governed action —
+  documented in `source-workflow.md`); confirmed `prototype/src/modules/risk.ts`'s
+  `treatment-plans` entity configuration exists and is live in the running application; confirmed
+  Arjun Mehta and Priya Raghunathan (the required maker/checker persona pair) exist in
+  `org.json`; confirmed `git status --short prototype/` was empty before starting.
+- **Selected `RSK-2026-0004`** — the identical risk record Video 01 used, per the manifest's own
+  §26 suggestion, for continuity and screenshot reuse. Confirmed live (not assumed) that it had
+  zero linked Treatment Plans in the seed data, satisfying the workflow's own trigger ("maker
+  proposes a plan") as a genuinely new record, not a status change on an existing one.
+- **Captured 11 screenshots**: reused 2 verbatim from Video 01 (`00-login-persona-picker.png`,
+  `02-risk-detail-active.png` → renumbered `00`/`01` here — identical business state, no
+  prototype change between sessions, the framework's cross-video reuse mechanism exercised for
+  the first time in the series) and captured 9 new ones live via Playwright (Chromium, headless,
+  1920×1080) driving the prototype through its own UI only: New Treatment Plan form → created
+  (`TRT-2026-0009`, Proposed) → Submit for Approval (justification dialog) → submitted (Awaiting
+  checker) → persona switch to Priya → Checker Queue → Approve (decision dialog) → confirmed
+  (Approved) → the treatment plan's own decision-history record → the originating risk's
+  Relationships tab now showing the plan linked. `git status --short prototype/` remained empty
+  throughout and after.
+- **Wrote the full nine-document package**: `source-workflow.md` (grounding every claim,
+  including the two reused screenshots' provenance); `narration-script.md` (10 chapters +
+  Introduction + Ending, chapters 2–3 using the framework's shortened second-appearance form,
+  6:12 narration computed programmatically at the framework's fixed 150 wpm rate rather than
+  hand-timed); `chapters.md` / `timeline.md` (10 chapter cards + one closing card, no card for
+  the Ending section — matching Video 01's own shape exactly, a bug in the first draft of the
+  timing script that would have given Ending its own redundant card was caught and fixed before
+  any document was written); `scene-list.md` (21 scenes, two hard cuts reserved for the two
+  actual governed-state changes, per framework §8); `subtitles.srt` (108 cues, generated
+  programmatically via the same word-count-weighted proportional method Video 01 established).
+- **Rendered `video-02-risk-treatment-plan-approval.mp4` in the same session** — re-confirmed
+  the tooling gap directly (framework §17 standing disclosure protocol) rather than assuming
+  Video 01 Session 26's finding still held: the same portable `ffmpeg` build was still present
+  and working, and Python/Pillow/numpy were already available. Wrote
+  `project/render_pipeline.py` reusing Video 01's own generic compositing primitives (fonts,
+  gradients, callouts, cursor spotlight, zoom/pan, pulse rings, chapter-card and concept-plate
+  renderers, subtitle burn-in) via a direct Python import of Video 01's own
+  `project/render_pipeline.py` — read-only reuse, no modification to that immutable, already-
+  complete package; only this video's own screenshots, anchor coordinates (read directly off
+  its own screenshots), scene functions, and timeline are new. Validated incrementally with five
+  `--preview` slices covering every chapter, both hard cuts, and the closing card before
+  committing to the full render — all five rendered without error on the first attempt (no
+  rendering-pipeline defects surfaced, unlike Video 01's own Session 26, most plausibly because
+  the reused primitives were already hardened by that session's two fixes). Full render: 12,210
+  frames (6:47 at 30fps). Verified via `ffprobe`: H.264/yuv420p/1920×1080/30fps video,
+  AAC/48kHz/stereo (silent) audio, duration 407.00s exactly matching `timeline.md`, ~23.2MB.
+  Sampled additional frames from the full render (beyond the preview slices) across all
+  chapters, the Ending, and the closing card — all correct.
+- **Wrote `observations.md`, `recording-log.md`, `asset-inventory.md`**: zero prototype defects
+  or specification inconsistencies found (reconfirming FR-06/FR-08/`RISK_TREATMENT_APPROVAL`
+  behave exactly as specified); logged three tooling/script corrections made during capture
+  (table-row navigation is not an anchor tag; an ambiguous button-text locator inside a modal;
+  the in-page Approvals tab and header Approvals nav link sharing text) as capture-process notes,
+  not prototype defects; flagged one deliberate, disclosed production judgment call for the
+  manifest's own validation-pass note (§21) to confirm or correct — the Governance Review chapter
+  was condensed rather than full-length, since the framework's chapter-shortening rule (§13 item
+  2) explicitly covers the Domain/Module Overview chapter but is silent on whether Governance
+  Review should also shorten for a returning audience.
+- **Updated `demos/video-production-manifest.md`**: §17 Production Metrics (2 videos Production
+  Package Complete/Rendered, 44 Not Started), §23 Current Status (added Video 02's full four-axis
+  status table), §25 Table C row 02 (Production Package Complete / Rendered / QA Complete / Not
+  Started), a new Notes entry for row 02, and §26 "Next Recommended Video" — now naming **Video
+  03 (L1-03, Risk Acceptance)** as the next pending video per the same automation rule, with
+  Video 02 itself recorded as produced. No Amendment Log entry was needed — this is ordinary
+  status progress, not a manifest-level rule correction (manifest §3's own distinction).
+- **Did not** author or modify any authoritative `docs/NN-*/` specification, add or imply any
+  Liquibase changeset, modify `../prototype/` or PRSMTD, modify or regenerate Video 01's own
+  production package or its rendered `.mp4`, or begin any production work on Demonstration Video
+  03 or any other video — per this session's own explicit stop condition (produce exactly one
+  video, then stop). This session's own instruction was scoped entirely to producing Video 02; it
+  neither actions nor supersedes Session 25's still-open recommendation to resume Master
+  Execution Plan phase work (see Risks and Open Decisions below) — that recommendation stands,
+  unactioned, for a tenth consecutive session outside this track.
 
 ## Next Milestone
 

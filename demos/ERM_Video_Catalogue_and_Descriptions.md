@@ -1,14 +1,28 @@
 # ERM Video Catalogue and Descriptions
 
-This catalogue explains, in plain English, what each ERM demonstration video will show once it is generated. It covers one new, not-yet-generated overview video, followed by the 46 videos in the established production sequence tracked in the [Video Production Manifest](video-production-manifest.md), which remains the authoritative source for order, identifiers and status. Titles and numbers are copied from the manifest and the [Demonstration Workflow Catalogue](../docs/19-roadmap/01-demonstration-workflow-catalogue.md). The videos show a reference prototype built on a fictional company, “Meridian Asset Management Ltd.”, and ERM’s specifications; they do not show a finished production system. A video marked “Not Started” has no production package yet. Even where a rendered file exists, it has not been approved or published.
+This catalogue explains, in plain English, what each ERM demonstration video shows or will show. It lists two series-opening videos (the ERM Summary Video and the Risk Logging video), followed by the 46 videos in the established production sequence tracked in the [Video Production Manifest](video-production-manifest.md), which remains the authoritative source for the identifiers, order and status of Videos 01–46. Titles and numbers for those 46 are copied from the manifest and the [Demonstration Workflow Catalogue](../docs/19-roadmap/01-demonstration-workflow-catalogue.md). The videos show a reference prototype built on a fictional company, “Meridian Asset Management Ltd.”, and ERM’s specifications; they do not show a finished production system. A video marked “Not Started” has no production package yet. Even where a rendered file exists, it has not been approved or published. Generated MP4 files are Git-ignored and exist only on the machine that rendered them.
+
+## Series Order and Identifiers
+
+**Series order** is the order in which the videos are meant to be watched and produced. **Identifier** is a stable name that never changes once issued. Videos 01–46 keep the identifiers already cited throughout the manifest, framework, roadmap history and package folders; the two series-opening videos take identifiers `S01` and `S02` so that nothing already issued has to be renumbered. Their package folders follow the same pattern (`video-s01-…`, `video-s02-…`).
+
+| Series order | Identifier | Title | Package folder | Status |
+|---|---|---|---|---|
+| 1 | S01 | [ERM Summary Video](#erm-summary-video) | `video-s01-erm-summary/` | **Immediate deliverable** — see its entry |
+| 2 | S02 | [Risk Logging](#video-s02) | `video-s02-risk-logging/` (not yet created) | Not started — next after S01 is accepted |
+| 3–48 | 01–46 | [Videos 01–46](#established-sequence) (series order = identifier + 2) | `video-NN-<slug>/` (unchanged) | per manifest §23/§25 |
+| — | P01 | [PRSMTD Architecture Explainer](#video-p01) (companion, outside the ERM series) | files at the root of `demos/` | Rendered locally; not part of the ERM sequence |
+
+No existing demo folder or file needed renaming: every Video 01–46 name already matches its identifier, and the PRSMTD companion's files are self-referencing (renaming would break its generator's paths without changing its order).
 
 ## Table of Contents
 
-**New overview video (not part of the numbered sequence)**
+**Series-opening videos**
 
-- [ERM Summary Video (New — Not Yet Generated)](#erm-summary-video)
+- [S01 — ERM Summary Video](#erm-summary-video) (series order 1 — immediate deliverable)
+- [S02 — Risk Logging](#video-s02) (series order 2 — not started)
 
-**Established sequence (Videos 01–46, in manifest order)**
+**Established sequence (Videos 01–46, in manifest order; series order 3–48)**
 
 1. [Video 01 — Risk Assessment Approval](#video-01) (L1-01)
 2. [Video 02 — Risk Treatment Plan Approval](#video-02) (L1-02)
@@ -57,21 +71,33 @@ This catalogue explains, in plain English, what each ERM demonstration video wil
 45. [Video 45 — Third-Party & Business Continuity Resilience Journey](#video-45) (L3-04)
 46. [Video 46 — Complete Governance Approval Journey](#video-46) (L4-01)
 
+**Companion (outside the ERM series)**
+
+- [P01 — PRSMTD Architecture Explainer](#video-p01)
+
 ---
 
-## New Overview Video
+## Series-Opening Videos
 
 <a id="erm-summary-video"></a>
-### ERM Summary Video (New — Not Yet Generated)
+### S01 — ERM Summary Video
 
-- **Identifier**: None assigned. It is deliberately outside the numbered sequence, and no sequence number is used or changed.
-- **Status**: New — not yet generated. No production package, script or render exists.
-- **Source note**: The repository defines no scope for this video, so the description below draws only on the repository’s README, CLAUDE.md and workflow catalogue.
+- **Identifier**: S01 (series order 1). Not a catalogue workflow, so it has no `L#-##` id.
+- **Status**: **Immediate deliverable.** Production package complete; rendered as Version 1 (silent demonstration, captions only, no spoken narration or music); validated by frame review and `ffprobe` (see its `asset-inventory.md`); not approved; not published.
+- **Source / package**: [`video-s01-erm-summary/`](video-s01-erm-summary/) (grounding in its [`source-workflow.md`](video-s01-erm-summary/source-workflow.md)). Local output (Git-ignored): `video-s01-erm-summary/video-s01-erm-summary.mp4`.
 
-Think of an organisation as a ship. Enterprise Risk Management (ERM) is the system that keeps a lookout, a logbook and a chain of command. This video will give a plain-English overview of what ERM is for: helping a regulated organisation, first a SEBI-regulated mutual fund management company in India, identify what could go wrong, judge how serious each risk is, decide what to do about it, and keep watching. It will show how that connects to everyday work through safeguards (controls) that are tested, named owners who are accountable, and approvals that need a second person. It will explain how rules from regulators, internal policies and audits are tracked in the same place, so leaders can make informed decisions with consistent processes and evidence behind them. It will be honest about maturity: the repository today contains detailed specifications and a demonstration prototype built on a sample company, not a finished production system.
+Think of an organisation as a ship. Enterprise Risk Management (ERM) is the lookout, the logbook and the chain of command. This video gives a short, plain-English tour of the ERM prototype, using real screens from it: the risk dashboard and heat map, the risk register, how a risk’s scores trace back to an assessment and a scoring-matrix version, and the two-person approval queue where a second person decides what the first proposed. It then shows the other modules (controls, compliance, audit, incidents, analytics) as one shared pattern. It is explicit about maturity: this is a reference prototype on sample data for a fictional company, its scoring matrix is illustrative and not approved by any AMC, and its approval rules run in the browser rather than on a server. It is not a production system.
 
----
+<a id="video-s02"></a>
+### S02 — Risk Logging
 
+- **Identifier**: S02 (series order 2). Not a catalogue workflow; it covers the prototype’s “Log Risk” journey, which precedes Video 01 in a real-world flow.
+- **Status**: Not started. No package, script or render exists. Generation begins only after S01 is accepted.
+- **Source readiness**: the journey is implemented and tested — [`../prototype/docs/user-journeys.md`](../prototype/docs/user-journeys.md), [`../prototype/tests/e2e/risk-logging.e2e.mjs`](../prototype/tests/e2e/risk-logging.e2e.mjs) and the “Log Risk” items in [`../prototype/docs/defects-and-observations.md`](../prototype/docs/defects-and-observations.md).
+
+Before a risk can be assessed or treated, someone has to write it down. This video will show a risk manager logging a new risk as a draft: choosing a category, an owner and a department, and giving first likelihood and impact scores that the system turns into inherent and residual scores. Viewers will see that logging is not approval: the record stays an editable draft, with a clear banner, until it is submitted for a second person’s decision, which is where Video 01 picks up.
+
+<a id="established-sequence"></a>
 ## Established Sequence
 
 Statuses below are taken from manifest §23 and §25. Videos 01–02 are Level 1 workflows; the manifest’s order is preserved exactly.
@@ -444,3 +470,15 @@ What if a key supplier failed? This video will connect a vendor flagged as a cri
 
 This is the capstone, and the repository describes it as a compilation, not a standalone story. It will run the platform’s approval patterns back-to-back across all eleven business areas, switching between the sixteen sample people and ending on the board summary. Viewers will see the whole system as one: how risk, controls, compliance, audit, security, policy, incidents, suppliers, continuity, reporting and analytics fit together. It is meant for audiences who have already seen earlier videos.
 
+---
+
+## Companion (Outside the ERM Series)
+
+<a id="video-p01"></a>
+### P01 — PRSMTD Architecture Explainer
+
+- **Identifier**: P01 (companion; not part of the ERM series order).
+- **Status**: Source complete; rendered locally as a silent documentary with captions as narration (`PRSMTD_Architecture_Design_Security_Explainer.mp4`, Git-ignored); not approved; not published.
+- **Source**: [script](PRSMTD_Architecture_Design_Security_Explainer_script.md), [storyboard](PRSMTD_Architecture_Design_Security_Explainer_storyboard.md), [scene list](PRSMTD_Architecture_Design_Security_Explainer_scene_list.md), [captions](PRSMTD_Architecture_Design_Security_Explainer.srt), [grounding](prsmtd-architecture-grounding.md), generator and renderer in [`assets/project/`](assets/project/).
+
+This video explains the platform ERM is designed to run on: PRSMTD, a multi-tenant governance platform with maker-checker approvals, tenant isolation and an audit trail. It is aimed at architects, security reviewers and regulators, and it is built from diagrams rather than screenshots. It describes PRSMTD, not the ERM prototype, so it sits beside the ERM series rather than inside it.

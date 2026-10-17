@@ -26,10 +26,12 @@ re-derived from scratch each time.
 | Deliverable | Type | Workflow | Status |
 |---|---|---|---|
 | [`deck-01-risk-assessment-approval/`](deck-01-risk-assessment-approval/) | Static slide deck (`.pptx`) | L1-01, Risk Assessment Approval | Complete |
+| [`video-s01-erm-summary/`](video-s01-erm-summary/) | Overview video production package | S01, ERM Summary Video (series order 1) | Production package complete; rendered as Version 1 (silent, captions only); not approved or published (see `ERM_Video_Catalogue_and_Descriptions.md`) |
+| [`PRSMTD_Architecture_Design_Security_Explainer_*`](ERM_Video_Catalogue_and_Descriptions.md#video-p01) (+ `assets/project/`, `prsmtd-architecture-grounding.md`) | Companion silent documentary sources | P01, PRSMTD Architecture Explainer (outside the ERM series) | Sources complete; MP4 rendered locally, Git-ignored |
 | [`video-01-risk-assessment-approval/`](video-01-risk-assessment-approval/) | Narrated video production package | L1-01, Risk Assessment Approval | Production package complete; rendered as Version 1 (Silent Demonstration) — no spoken narration or music yet (see its own `asset-inventory.md`); not yet approved or published (see `video-production-manifest.md` §23) |
 | [`video-02-risk-treatment-plan-approval/`](video-02-risk-treatment-plan-approval/) | Narrated video production package | L1-02, Risk Treatment Plan Approval | Production package complete; rendered as Version 1 (Silent Demonstration) — no spoken narration or music yet (see its own `asset-inventory.md`); not yet approved or published (see `video-production-manifest.md` §23) |
 
-Full status for all 46 planned videos (2 with production activity, 44 Not Started) is tracked in
+Series order (S01, S02, then Videos 01–46) and the S01/S02/P01 entries are in [`ERM_Video_Catalogue_and_Descriptions.md`](ERM_Video_Catalogue_and_Descriptions.md). Full status for all 46 planned videos (2 with production activity, 44 Not Started) is tracked in
 [`video-production-manifest.md`](video-production-manifest.md), not here — this table is a
 directory-contents summary, not the status source of truth.
 

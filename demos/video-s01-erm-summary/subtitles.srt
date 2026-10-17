@@ -1,0 +1,115 @@
+1
+00:00:09,800 --> 00:00:16,618
+ERM is a prototype of an Enterprise Risk Management and governance, risk and compliance platform.
+
+2
+00:00:17,118 --> 00:00:28,027
+It is designed first for a SEBI-regulated mutual fund management company in India. Here it runs on a fictional company: Meridian Asset Management Ltd.
+
+3
+00:00:28,527 --> 00:00:38,073
+Everything you will see is sample data held in a web browser. This is a demonstration prototype, not a production system.
+
+4
+00:00:39,773 --> 00:00:45,682
+You sign in by choosing a sample person. There is no real authentication.
+
+5
+00:00:46,182 --> 00:00:55,727
+Each person has a role, such as Risk Manager or Chief Risk Officer, and that role decides what they can do.
+
+6
+00:01:00,427 --> 00:01:08,609
+Risk Management is the core module. Its dashboard shows open risks, escalations, indicators in red and overdue reviews.
+
+7
+00:01:09,109 --> 00:01:13,655
+The heat map places each risk by likelihood and impact.
+
+8
+00:01:14,155 --> 00:01:22,336
+The scoring matrix is illustrative. The screen itself states that no AMC-approved matrix is configured in this prototype.
+
+9
+00:01:24,036 --> 00:01:31,764
+The register lists every risk with its category, owner, inherent and residual scores, review date and status.
+
+10
+00:01:33,464 --> 00:01:41,191
+Each risk has a named owner, an inherent score before controls, and a residual score after controls.
+
+11
+00:01:41,691 --> 00:01:51,691
+When a score comes from an approved assessment, the risk shows which assessment, and which version of the scoring matrix, produced it.
+
+12
+00:01:53,391 --> 00:02:02,936
+An assessment is a dated scoring event. It keeps a snapshot of the scores and the matrix version that produced them.
+
+13
+00:02:04,636 --> 00:02:11,909
+New risks are logged as drafts through a form. Logging a risk does not approve it.
+
+14
+00:02:12,409 --> 00:02:19,682
+Approval is a separate step, and later videos in this series cover each workflow in detail.
+
+15
+00:02:24,382 --> 00:02:31,200
+Significant changes, such as re-assessment, risk acceptance or retirement, are proposed rather than applied directly.
+
+16
+00:02:32,900 --> 00:02:40,173
+A second person, here the Chief Risk Officer, sees each pending request with the submitter's justification.
+
+17
+00:02:40,673 --> 00:02:45,673
+They can approve it, reject it, or return it for rework.
+
+18
+00:02:46,173 --> 00:02:58,900
+The person who submitted a request cannot decide it, and a risk's owner cannot approve or reject changes to that risk. Decisions are recorded in the record's history.
+
+19
+00:02:59,400 --> 00:03:08,036
+In this prototype those rules run in the browser only. A production platform would enforce them on a server.
+
+20
+00:03:12,736 --> 00:03:23,191
+Risk is one of eleven modules: risk, controls, compliance, audit, security, policy, incidents and corrective actions, third-party risk, business continuity, reporting and analytics.
+
+21
+00:03:24,891 --> 00:03:30,800
+Controls tracks the library of safeguards, how well they operate, and open exceptions.
+
+22
+00:03:32,500 --> 00:03:37,955
+Compliance tracks obligations, a compliance calendar, and the pipeline of regulatory changes.
+
+23
+00:03:39,655 --> 00:03:43,255
+Audit follows engagements and open findings.
+
+24
+00:03:44,955 --> 00:03:49,955
+Incident management records incidents by severity, alongside issues and corrective actions.
+
+25
+00:03:51,655 --> 00:03:55,745
+Analytics brings key indicators together, with thresholds and trends.
+
+26
+00:03:56,245 --> 00:04:03,064
+Every module follows the same pattern: dashboards, registers, record pages and the shared approval queue.
+
+27
+00:04:07,764 --> 00:04:14,582
+To be clear about maturity: this is a reference prototype for checking specifications and screens.
+
+28
+00:04:15,082 --> 00:04:25,991
+Its data is fictional and kept in the browser, its scoring matrix is illustrative, and its approval rules are not enforced by a server.
+
+29
+00:04:26,491 --> 00:04:34,673
+It is not a production system, and no scoring rule shown here has been approved by any AMC.

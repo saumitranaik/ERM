@@ -780,3 +780,5 @@ this manifest is deliberately structured so that instruction alone is sufficient
 *(Empty at v1.0 — authored in full for the first time this session. Future revisions to any rule
 or status value in this document are recorded here as dated, numbered entries, mirroring
 `video-production-framework.md`'s own Amendment Log discipline, §21 of this document.)*
+
+**Amendment 1 — 2026-10-17.** Two series-opening videos were added **outside** the 46-row table: `S01` ERM Summary Video and `S02` Risk Logging, each with its own package folder (`video-s01-…`, `video-s02-…`). Videos 01–46 keep their identifiers, folders and Table C rows unchanged; the series order places S01 and S02 before Video 01. Status and descriptions for S01/S02 live in [`ERM_Video_Catalogue_and_Descriptions.md`](ERM_Video_Catalogue_and_Descriptions.md), not in Table C, so the 46-row validator contract is untouched. This is an additive rule change, recorded here per §21.
