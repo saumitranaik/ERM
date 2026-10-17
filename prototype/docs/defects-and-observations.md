@@ -124,16 +124,34 @@ unit tests (`tests/unit/risk-logging.test.mjs`) and the E2E run (`tests/e2e/risk
   the ledger function itself is not exercised in isolation (it depends on browser storage) — the E2E
   test confirms only UI outcomes and resulting database state.
 
-**Proposed specification correction — not applied; requires governance approval.** The wording in
-`docs/10-risk/01-enterprise-risk-management.md` (Assumption 6; Security Considerations "Segregation of
-duties" and "Threat model note") that owner≠checker is "enforced by"/"prevented structurally by" the
-PRSMTD `approved_by <> created_by` constraint is inaccurate: that constraint compares submitter and
-approver, not the risk owner. Proposed replacement: state owner≠checker as a requirement that the
-platform constraint does *not* satisfy, and either (a) record it as a new PRSMTD capability
-requirement (decide-time guard keyed on a module-supplied subject user) or (b) accept a module-level
-check as a justified exception to the "no bespoke SoD logic" statement. Choosing (a) or (b), and the
-scope (Approve/Reject only, or also Return, child records and `ESCALATION_ACK`), is an architecture
-decision, so the authoritative spec was left unchanged. PRSMTD was not modified.
+**Specification corrected (2026-10-17); enforcement decision still open.** `docs/10-risk/01-enterprise-risk-management.md`
+(Assumption 6, FR-05, Security Considerations "Segregation of duties" and "Threat model note", the approval sequence
+diagram note) no longer says PRSMTD's `approved_by <> created_by` enforces owner ≠ decision-maker. It now separates
+(a) *submitter ≠ approver* — existing PRSMTD capability — from (b) *risk owner ≠ decision-maker* — an ERM target
+requirement, prototype-enforced only, not provided by PRSMTD. The platform-wide decide-time guard is described as a
+proposal. The choice between that guard and a justified module-level control is recorded as
+[ADR 0001](../../docs/20-adr/0001-risk-owner-decision-restriction-enforcement.md) (PROPOSED, no decision). PRSMTD was not modified.
+
+**Scope of the owner restriction by action (Decision 3 — recommendation: no blanket extension).**
+
+| Action | Status | Basis |
+|---|---|---|
+| Approve / Reject of a governed action on the Risk record | **Covered** (prototype-implemented; unit-tested) | Accountable-owner decision recorded above. |
+| Return for rework on the Risk record | Governed by maker-checker + `RISK_CHECKER`; owner restriction **awaiting AMC decision** | Return is not a final decision; no authority extends the restriction. Prototype leaves it unrestricted (tested). |
+| Governed actions on child records (assessments, treatment plans, acceptances) | **Awaiting AMC decision** | Decision authority differs per record (e.g. acceptance is an accountability transfer). Not implemented. |
+| `ESCALATION_ACK` (direct, non-governed) | **Awaiting AMC decision** | Acknowledgement is by the escalation recipient (`RISK_CHECKER`); barring the owner could block a legitimate escalation path. Not implemented. |
+
+AMC question: *"For which risk-related actions, beyond approve/reject of the risk record, must the risk owner be excluded
+as decision-maker?"* Recommendation: decide per action after defining its decision authority; do not extend by analogy.
+
+**Checker availability (Decision 4) — implemented fail-closed behaviour + AMC decision pending.** When the only
+`RISK_CHECKER` (the CRO) owns the risk, `decisionBlockReason` blocks them and no other persona is eligible, so the
+action stays pending; nothing is permitted silently. No second checker was seeded and no role was granted. Unit tests
+(isolated fixtures, seed data unchanged) show the owner is denied, nobody is eligible when the sole checker owns the risk,
+and an independent checker can decide. **Blocked on AMC decision:** recommended sustainable control — the AMC designates
+an alternate independent checker (FR-17 permits a Compliance Officer, Risk Management Committee member or external agency
+user) **or** formally approves a rule preventing the sole eligible checker from being assigned as owner. Neither is
+implemented. A pending action stranded this way has no escalation or reassignment path in the prototype.
 
 **Visual check of the owner restriction (recaptured, not committed).** Owner (CRO) view of a
 risk-owned pending submission at 1440px light, 1440px dark, 390px dark, and the 390px dark Approvals
@@ -176,24 +194,39 @@ risk form accepts residual L×I directly, unapproved. Mitigation made in this pa
 legend now states that the bands are illustrative and that no approved matrix is configured; no
 threshold or label was changed.
 
-**Not implemented.** Decision needed: the tenant's default matrix (levels and band
-thresholds/labels for the SEBI_AMC profile), ideally supplied by the AMC's risk function.
-Next step once decided: seed one `RiskScoringMatrix` record and drive `ScoreChip`, the
-heat-map and the legend from it, and make form range validation read its level counts.
+**Prototype improvements made (2026-10-17, illustrative values unchanged).** `prototype/src/lib/riskMatrix.ts` now models the
+matrix explicitly (`status: 'ILLUSTRATIVE'`, version `illustrative-1`, grid size, bands) with `validateMatrix`
+(bands start at 1, contiguous, non-overlapping, cover 1..L×I, unique non-empty labels) and `resolveBand` (fails closed — null for
+an invalid matrix or an out-of-range score). `ScoreChip`, the heat-map cell tones and the legend are driven from it, so the bands
+live in one place. Band names, thresholds and the 5×5 grid remain illustrative, not approved policy or a regulatory requirement.
+Tests: consistency, every score 1..25 and every L×I product resolves, invalid/missing configuration, 4×4 grid.
+
+**Matrix governance — required, unspecified (not invented).** The spec does not say who proposes or approves matrix changes,
+nor that changes are governed. Recommended default: matrix changes are a governed (maker-checker) `pending_action` with a
+`RISK_ADMIN` maker and an AMC-designated checker (the authority is **not established** and is an AMC decision); each approved
+change creates a new immutable matrix **version** with an effective date; approved assessments snapshot
+`(matrix_id, matrix_version)` and keep the score and band they were approved with (historical traceability — they are not
+silently recalculated); a re-score against a new version is an explicit re-assessment. None of this exists in the spec or
+prototype. **AMC decisions required:** the matrix values (grid, bands, thresholds), the matrix approver, and the
+recalculate-vs-retain policy for existing risks.
 
 ### C. Related gaps deliberately left out of the risk-logging scope
 
-Residual score from an approved assessment (spec: assessments are `module_risk_assessment`
-rows with maker-checker approval; the prototype still takes residual L×I on the risk form),
-reference-data-backed categories/sub-categories (`module_risk_category`; the prototype uses a
-fixed `RISK_CATEGORIES` list and free-text sub-category) and the full assessment,
-assignment and review lifecycle. Each depends on the scoring-matrix decision (B) or on
-reference-data modelling, and none was changed.
+**Residual-score derivation (Decision 6) — assessed, not implemented.** The spec models `module_risk_assessment` with
+`residual_likelihood`/`residual_impact`, maker-checker approval and `RISK_ASSESSMENT_APPROVAL` updating `Risk.residual_*`.
+The prototype has no such projection: approving a `riskAssessments` record does not update the Risk, assessments carry no
+matrix id/version, and the Risk form still accepts residual likelihood × impact directly (unapproved). Deriving the residual
+score from approved assessments would therefore require inventing the projection, recalculation and version-snapshot rules,
+so it was **not** done. The current direct-entry behaviour is retained for existing flows and is a labelled prototype
+limitation. Target design (recommendation): residual score = approved residual likelihood × impact from the latest APPROVED
+assessment, banded by the matrix version recorded on that assessment; inherent and residual remain separate inputs, scores
+and bands; matrix changes do not alter approved scores (see matrix governance above). Remaining lifecycle gap: assessment
+approval → Risk projection, matrix-version snapshot, and the rule for superseded assessments. Categories/sub-categories
+backed by `module_risk_category` reference data are likewise unchanged.
 
 ## Process note
 
 No authoritative specification's business rules, entity definitions,
-workflows, or traceability blocks were altered. The only edits made to files
-outside `prototype/` are the `docs/README.md` index correction above and the
-`docs/roadmap.md` update recording this phase's progress (see that file's
-latest session entry).
+workflows, or traceability blocks were altered. Outside `prototype/`, the edits are the `docs/README.md` index correction
+above, the `docs/roadmap.md` update recording the earlier phase, and (2026-10-17) the
+correction to `docs/10-risk/01-enterprise-risk-management.md` and new ADR 0001 described in item A.

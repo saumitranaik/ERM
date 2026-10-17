@@ -86,10 +86,15 @@ Source: [`../reference/Risk Management System for Mutual Funds.pdf`](../referenc
    control is stored as an opaque UUID with no foreign key and no join — see
    [Data Model](#data-model) note on `module_risk_treatment_control_link`. The link is inert
    until `12-controls` is specified and a Controls module ships.
-6. **Risk Owner and Checker are always distinct individuals.** Segregation of duties is
-   enforced by PRSMTD's platform-level `approved_by <> created_by` constraint on
-   `pending_action` (system.md §3) — this spec does not need to invent a separate SoD
-   mechanism.
+6. **Two distinct segregation-of-duties rules apply; PRSMTD enforces only the first.**
+   (a) *Submitter ≠ approver* — enforced by PRSMTD's platform-level `approved_by <> created_by`
+   constraint on `pending_action` (system.md §3). (b) *Risk owner ≠ decision-maker* — a target
+   requirement of this module: the user named in `risk_owner_user_id` must not approve or reject a
+   governed action on their own Risk. The platform constraint does **not** enforce (b); it never
+   reads `risk_owner_user_id`. How (b) is enforced (a proposed platform-wide decide-time guard keyed
+   on a module-supplied subject user, or a justified module-level control) is an open architecture
+   decision — see [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md). Until
+   it is decided, the platform-wide guard is a proposal, not an existing capability.
 7. **Record retention period is not specified here.** The SEBI circular does not state a
    retention period for risk records; exact retention/archival rules are deferred to
    `11-compliance` once authored. This module's data is append-only/status-transitioned
@@ -215,7 +220,7 @@ authored):
 | FR-02 | `RISK_MAKER` users shall create and edit risk register entries while in `DRAFT` status. | — |
 | FR-03 | The system shall score both inherent and residual risk using a configurable likelihood × impact matrix, producing a numeric score and a band label (e.g., Low/Medium/High/Critical). | §III Fund Management, Risk Management Measures |
 | FR-04 | A risk assessment shall require `RISK_CHECKER` approval via the PRSMTD governance ledger before the Risk's status advances past `SUBMITTED`. | Independent risk management function (Appendix A Part 1 §1) |
-| FR-05 | The assessor and the approver of any governed action on a Risk shall never be the same individual (enforced by the platform's `approved_by <> created_by` constraint). | Independent risk management function |
+| FR-05 | The assessor and the approver of any governed action on a Risk shall never be the same individual (submitter ≠ approver; enforced by the platform's `approved_by <> created_by` constraint). The risk owner shall likewise not approve or reject a governed action on their own Risk (target requirement, not platform-enforced — Assumption 6). | Independent risk management function |
 | FR-06 | The system shall support a risk treatment plan with strategy `ACCEPT`, `MITIGATE`, `TRANSFER`, or `AVOID`, subject to governed approval. | §III–§VII, Risk Management Measures per area |
 | FR-07 | The system shall support formal, governed risk acceptance with a mandatory `review_due_date`. | — |
 | FR-08 | A treatment plan may link to zero or more Controls-module control references via an opaque, non-FK cross-module reference. | — |
@@ -356,7 +361,7 @@ sequenceDiagram
     App->>Ledger: INSERT pending_action(action_type=RISK_ASSESSMENT_APPROVAL, status=PENDING)
     Note over Ledger: GOV-07 dedup on risk_assessment_id
     CRO->>App: Review pending assessment
-    CRO->>Ledger: Decide APPROVED (approved_by != created_by enforced)
+    CRO->>Ledger: Decide APPROVED (approved_by != created_by enforced; owner != decider NOT platform-enforced)
     Ledger->>Trig: status -> APPROVED
     Trig->>App: Project: update module_risk_assessment, module_risk_register
     App-->>Owner: Risk status now ACTIVE or ESCALATED
@@ -393,13 +398,24 @@ sequenceDiagram
   vulnerabilities; access is restricted to holders of a `RISK` module role. No PII is
   expected in this module's core entities (risk owners/assessors are referenced by
   `user_id`, not by name/email, resolved at presentation time via the identity system).
-- **Segregation of duties**: enforced entirely by the platform's `approved_by <> created_by`
-  constraint on `pending_action` (system.md §3) — this module defines no bespoke SoD logic.
+- **Segregation of duties**: the *submitter ≠ approver* rule is enforced by the platform's
+  `approved_by <> created_by` constraint on `pending_action` (system.md §3). The *risk owner ≠
+  decision-maker* rule is **not** covered by that constraint and is not yet enforced by any PRSMTD
+  capability (Assumption 6; [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md)).
+  Scope by action — **Approve/Reject of a governed action on the Risk record**: covered by the owner
+  restriction (target requirement; prototype-enforced only). **Return for rework**, **child records**
+  (assessments, treatment plans, acceptances) and **`ESCALATION_ACK`**: each governed by its own
+  maker-checker / `RISK_CHECKER` rule; whether the owner restriction also applies is awaiting an
+  explicit AMC decision and is not assumed.
 - **Threat model note**: the primary module-specific threat is unauthorized escalation
   suppression (a `RISK_CHECKER` account being the same person as the risk owner, defeating
-  the independent-function mandate). This is prevented structurally by the platform
-  constraint above plus the role-assignment governance already in place for
-  `MODULE_ROLE_ASSIGN` (also `pending_action`-governed, per system.md §9).
+  the independent-function mandate). The platform's `approved_by <> created_by` constraint does
+  **not** prevent this: a different person can submit a risk owned by the checker. Role-assignment
+  governance (`MODULE_ROLE_ASSIGN`, `pending_action`-governed, system.md §9) reduces but does not
+  remove it. The mitigation is the owner ≠ decision-maker requirement (Assumption 6), currently a
+  prototype-level control pending ADR 0001. If the sole `RISK_CHECKER` is also the owner, no eligible
+  decider exists: the system must fail closed (no decision), and the AMC must designate an alternate
+  independent checker (FR-17) or approve a rule preventing the sole checker being assigned as owner.
 
 ## Authorization
 
@@ -606,3 +622,9 @@ Reporting/Analytics modules) are not yet specified; this spec only reserves the 
   exists yet" row to Activated (`24-incident-issue-capa` was authored Session 11 but this row
   was never revisited); added Third-Party Risk, Business Continuity, and Reporting rows. No
   entity, table, or workflow redesigned.
+- 2026-10-17 — Corrected the segregation-of-duties wording (Assumption 6, FR-05, Security
+  Considerations, approval sequence note): PRSMTD's `approved_by <> created_by` enforces
+  submitter ≠ approver only; risk owner ≠ decision-maker is a target requirement not enforced by
+  PRSMTD, with the enforcement choice recorded as proposed
+  [ADR 0001](../20-adr/0001-risk-owner-decision-restriction-enforcement.md). No entity, table, or
+  workflow redesigned.

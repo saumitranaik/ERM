@@ -21,4 +21,4 @@ consequences, so future sessions don't relitigate settled questions.
 
 ## Status
 
-No ADRs recorded yet.
+- [0001 — Enforcement point for the risk-owner decision restriction](0001-risk-owner-decision-restriction-enforcement.md) — PROPOSED (no decision made)
