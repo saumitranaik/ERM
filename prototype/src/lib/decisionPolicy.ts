@@ -35,3 +35,24 @@ export function decisionBlockReason(ctx: DecisionContext, decision: DecisionKind
   }
   return null;
 }
+
+export interface DeciderCandidate {
+  personaId: string;
+  userId: string;
+  hasApprovePermission: boolean;
+}
+
+/**
+ * True if at least one candidate may approve or reject the action. Used only to *explain* a stalled
+ * action; it never grants anything — `decisionBlockReason` remains the sole gate. An empty candidate
+ * list yields false (no eligible decider can be shown to exist).
+ */
+export function hasEligibleDecider(
+  action: DecisionContext['action'],
+  entity: Record<string, unknown> | undefined,
+  candidates: DeciderCandidate[],
+): boolean {
+  return candidates.some((c) =>
+    (['approve', 'reject'] as const).some((d) => decisionBlockReason({ action, entity, ...c }, d) === null),
+  );
+}

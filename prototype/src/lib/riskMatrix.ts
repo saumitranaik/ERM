@@ -27,6 +27,8 @@ export interface ScoringMatrix {
   bands: ScoreBand[];
 }
 
+const BAND_TONES: BandTone[] = ['green', 'yellow', 'orange', 'red'];
+
 export const ILLUSTRATIVE_MATRIX: ScoringMatrix = {
   id: 'matrix-illustrative-5x5',
   name: 'Illustrative 5×5 (not approved)',
@@ -44,18 +46,21 @@ export const ILLUSTRATIVE_MATRIX: ScoringMatrix = {
 
 /** Returns consistency errors; an empty list means every score 1..(L×I) resolves to exactly one labelled band. */
 export function validateMatrix(m: ScoringMatrix): string[] {
+  if (!m || typeof m !== 'object') return ['Matrix configuration is missing or malformed.'];
   const errs: string[] = [];
   const isLevel = (n: unknown) => Number.isInteger(n) && (n as number) >= 1;
   if (!isLevel(m.likelihoodLevels) || !isLevel(m.impactLevels)) {
     return ['Likelihood and impact levels must be whole numbers of at least 1.'];
   }
   const maxScore = m.likelihoodLevels * m.impactLevels;
-  if (!m.bands?.length) return ['At least one band is required.'];
+  if (!Array.isArray(m.bands) || !m.bands.length) return ['At least one band is required.'];
+  if (m.bands.some((b) => !b || typeof b !== 'object')) return ['Every band must be an object.'];
   const labels = new Set<string>();
   for (const b of m.bands) {
-    if (!b.label || !b.label.trim()) errs.push('Every band requires a label.');
+    if (typeof b.label !== 'string' || !b.label.trim()) errs.push('Every band requires a label.');
     else if (labels.has(b.label.trim().toLowerCase())) errs.push(`Duplicate band label "${b.label}".`);
     else labels.add(b.label.trim().toLowerCase());
+    if (!BAND_TONES.includes(b.tone)) errs.push(`Band "${b.label}" has an unknown tone.`);
     if (!Number.isInteger(b.min) || !Number.isInteger(b.max) || b.min > b.max) {
       errs.push(`Band "${b.label}" has an invalid range ${b.min}–${b.max}.`);
     }
@@ -79,8 +84,16 @@ export function validateMatrix(m: ScoringMatrix): string[] {
  * 1..(L×I) rather than guessing a band.
  */
 export function resolveBand(score: unknown, m: ScoringMatrix = ILLUSTRATIVE_MATRIX): ScoreBand | null {
+  if (validateMatrix(m).length) return null;
   if (typeof score !== 'number' || !Number.isInteger(score)) return null;
   if (score < 1 || score > m.likelihoodLevels * m.impactLevels) return null;
-  if (validateMatrix(m).length) return null;
   return m.bands.find((b) => score >= b.min && score <= b.max) ?? null;
+}
+
+/** Band for a likelihood/impact pair: both must be whole numbers within the matrix grid, else null (fail closed). */
+export function resolveBandFor(likelihood: unknown, impact: unknown, m: ScoringMatrix = ILLUSTRATIVE_MATRIX): ScoreBand | null {
+  const inRange = (n: unknown, max: number) => typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= max;
+  if (validateMatrix(m).length) return null;
+  if (!inRange(likelihood, m.likelihoodLevels) || !inRange(impact, m.impactLevels)) return null;
+  return resolveBand((likelihood as number) * (impact as number), m);
 }

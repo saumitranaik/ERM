@@ -178,3 +178,44 @@ test('grid size is a matrix property: a 4×4 matrix needs coverage to 16', () =>
   assert.equal(resolveBand(17, m4), null);
   assert.equal(resolveBand(16, m4).label, 'High');
 });
+
+import { resolveBandFor } from '../../src/lib/riskMatrix.ts';
+import { hasEligibleDecider } from '../../src/lib/decisionPolicy.ts';
+
+test('malformed matrix configuration is rejected and fails closed (no throw)', () => {
+  for (const bad of [null, 'x', {}, { ...ILLUSTRATIVE_MATRIX, bands: 'nope' }, { ...ILLUSTRATIVE_MATRIX, bands: [null] },
+    { ...ILLUSTRATIVE_MATRIX, bands: [{ label: 7, min: 1, max: 25, tone: 'red' }] },
+    { ...ILLUSTRATIVE_MATRIX, bands: [{ label: 'All', min: '1', max: 25, tone: 'red' }] },
+    { ...ILLUSTRATIVE_MATRIX, bands: [{ label: 'All', min: 1, max: 25, tone: 'purple' }] }]) {
+    assert.ok(validateMatrix(bad).length > 0, JSON.stringify(bad));
+    assert.equal(resolveBand(5, bad), null);
+  }
+});
+
+test('resolveBandFor resolves L×I within the grid and rejects out-of-range or non-integer inputs', () => {
+  assert.equal(resolveBandFor(5, 5).label, 'Critical');
+  assert.equal(resolveBandFor(1, 1).label, 'Low');
+  assert.equal(resolveBandFor(3, 3).label, 'Medium');
+  for (const [l, i] of [[0, 3], [6, 1], [1, 6], [2.5, 2], ['3', 3], [null, 3], [3, undefined]]) assert.equal(resolveBandFor(l, i), null);
+});
+
+test('hasEligibleDecider: false when only checker owns the risk or list is empty; true with an independent checker', () => {
+  const entity = { id: 'r-x', ownerId: 'u-priya' };
+  const cro = { personaId: 'p-cro', userId: 'u-priya', hasApprovePermission: true };
+  const alt = { personaId: 'p-alt', userId: 'u-alt', hasApprovePermission: true };
+  assert.equal(hasEligibleDecider(riskAction, entity, [cro]), false);
+  assert.equal(hasEligibleDecider(riskAction, entity, []), false);
+  assert.equal(hasEligibleDecider(riskAction, entity, [cro, alt]), true);
+  assert.equal(hasEligibleDecider(riskAction, entity, [{ ...alt, hasApprovePermission: false }]), false);
+});
+
+test('real seed data: a CRO-owned risk has no eligible decider; a non-CRO-owned risk does (seed unchanged)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const org = JSON.parse(readFileSync(new URL('../../src/data/org.json', import.meta.url), 'utf8'));
+  const checkers = org.personas.filter((p) => p.roles.includes('RISK_CHECKER'));
+  assert.deepEqual(checkers.map((p) => p.id), ['p-cro']);
+  const cands = org.personas.map((p) => ({ personaId: p.id, userId: p.userId, hasApprovePermission: p.roles.includes('RISK_CHECKER') }));
+  const cro = org.personas.find((p) => p.id === 'p-cro');
+  assert.equal(hasEligibleDecider(riskAction, { ownerId: cro.userId }, cands), false);
+  assert.equal(hasEligibleDecider(riskAction, { ownerId: 'u-someone-else' }, cands), true);
+});

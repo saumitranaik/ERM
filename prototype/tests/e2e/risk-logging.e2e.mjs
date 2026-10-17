@@ -236,6 +236,7 @@ try {
   t = await text();
   check('risk owner (authorised checker, not submitter): no Approve/Reject controls, reason shown',
     !/\bApprove\b/.test(t) && !/\bReject\b/.test(t) && t.includes('Owner restriction'), t.slice(0, 0));
+  check('no-independent-checker notice shown when the sole checker owns the risk', t.includes('independent checker is required and none is currently available'));
   await nav('/protected/approvals');
   const rowText = await ev(`(()=>{const a=document.querySelector('a[href$="/risks/${owned.id}"]');const c=a&&a.closest('.space-y-3 > *');return c?c.innerText:'<card not found>'})()`);
   check('approvals queue also withholds Approve/Reject from the owner', !/\bApprove\b/.test(rowText) && !/\bReject\b/.test(rowText) && rowText.includes('Owner restriction'), rowText.slice(0, 200));

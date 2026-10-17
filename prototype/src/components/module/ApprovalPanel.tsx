@@ -7,7 +7,8 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { decidePendingAction, type Decision } from '../../lib/governance';
-import { decisionBlockReason } from '../../lib/decisionPolicy';
+import { decisionBlockReason, hasEligibleDecider } from '../../lib/decisionPolicy';
+import { permissionsForRoles } from '../../lib/moduleCatalog';
 import { useDb } from '../../lib/store';
 import { useSession } from '../../lib/session';
 import { formatDateTime, humanize } from '../../lib/format';
@@ -53,6 +54,16 @@ export function ApprovalDecision({
   const blockApprove = decisionBlockReason(ctx, 'approve');
   const blockReject = decisionBlockReason(ctx, 'reject');
   const blockReturn = decisionBlockReason(ctx, 'return');
+  // Explains a stalled action (e.g. the only checker owns the risk). Informational; decisionBlockReason stays the gate.
+  const noEligibleDecider = !hasEligibleDecider(
+    action,
+    entity,
+    (db.personas as unknown as Persona[]).map((p) => ({
+      personaId: p.id,
+      userId: p.userId,
+      hasApprovePermission: permissionsForRoles(p.roles).has(`${action.module}_APPROVE`),
+    })),
+  );
   const canDecide = !blockApprove || !blockReject || !blockReturn;
 
   const confirm = () => {
@@ -115,6 +126,14 @@ export function ApprovalDecision({
           {action.createdBy === session.persona.id
             ? 'You submitted this action — separation of duties requires a different checker to decide it. Switch persona to demo the decision.'
             : blockApprove}
+        </p>
+      )}
+
+      {noEligibleDecider && (
+        <p role="status" className="flex items-start gap-2 text-xs mt-2 text-amber-800 dark:text-amber-300">
+          <ShieldAlert className="w-4 h-4 shrink-0" />
+          An independent checker is required and none is currently available. This action remains pending until one is
+          designated.
         </p>
       )}
 
