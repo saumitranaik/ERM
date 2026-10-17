@@ -236,3 +236,31 @@ test('seed risks: stored scores equal L×I and every scored value resolves to a 
     for (const k of ['inherent', 'residual']) assert.ok(resolveBandFor(a[`${k}Likelihood`], a[`${k}Impact`]), `${a.id} ${k} resolves`);
   }
 });
+
+// ---- Date field maximum (UX aid; the decision logic remains the authoritative future-date check) ----
+import { readFileSync } from 'node:fs';
+import { resolveMaxDate } from '../../src/lib/validation.ts';
+
+const dateField = { key: 'assessmentDate', label: 'Assessment Date', type: 'date', required: true, maxDate: 'TODAY' };
+const localNoon = new Date(2026, 9, 17, 12, 0, 0); // 17 Oct 2026, browser-local
+
+test('maxDate TODAY resolves to the local calendar day; an explicit ISO date passes through; absent means unbounded', () => {
+  assert.equal(resolveMaxDate(dateField, localNoon), '2026-10-17');
+  assert.equal(resolveMaxDate({ maxDate: '2026-01-31' }, localNoon), '2026-01-31');
+  assert.equal(resolveMaxDate({}, localNoon), undefined);
+});
+
+test('a date field with maxDate rejects later dates and accepts today and earlier; fields without maxDate are unchanged', () => {
+  assert.deepEqual(validateFields([dateField], { assessmentDate: '2026-10-17' }, localNoon), {});
+  assert.deepEqual(validateFields([dateField], { assessmentDate: '2026-01-01' }, localNoon), {});
+  assert.match(validateFields([dateField], { assessmentDate: '2026-10-18' }, localNoon).assessmentDate, /cannot be after 2026-10-17/);
+  assert.deepEqual(validateFields([{ ...dateField, maxDate: undefined }], { assessmentDate: '2030-01-01' }, localNoon), {});
+});
+
+test('only the assessment date opts in to the maximum; the shared FormScreen applies it to the input and stays backward-compatible', () => {
+  const risk = readFileSync(new URL('../../src/modules/risk.ts', import.meta.url), 'utf8');
+  assert.equal([...risk.matchAll(/maxDate: 'TODAY'/g)].length, 1);
+  assert.match(risk, /key: 'assessmentDate'[^\n]*maxDate: 'TODAY'/);
+  const form = readFileSync(new URL('../../src/screens/FormScreen.tsx', import.meta.url), 'utf8');
+  assert.match(form, /type="date"\s+max=\{resolveMaxDate\(field\)\}/);
+});

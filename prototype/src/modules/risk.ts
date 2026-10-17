@@ -176,7 +176,7 @@ export const riskEntities: EntityConfig[] = [
     formFields: [
       { key: 'title', label: 'Title', type: 'text', required: true, full: true },
       { key: 'riskId', label: 'Risk', type: 'reference', refCollection: 'risks', refModule: 'RISK', refEntity: 'risks', required: true },
-      { key: 'assessmentDate', label: 'Assessment Date', type: 'date', required: true },
+      { key: 'assessmentDate', label: 'Assessment Date', type: 'date', required: true, maxDate: 'TODAY' },
       { key: 'assessorId', label: 'Assessor', type: 'user', required: true },
       { key: 'inherentLikelihood', label: `Inherent Likelihood (1–${L_MAX})`, type: 'number', min: 1, max: L_MAX, required: true },
       { key: 'inherentImpact', label: `Inherent Impact (1–${I_MAX})`, type: 'number', min: 1, max: I_MAX, required: true },

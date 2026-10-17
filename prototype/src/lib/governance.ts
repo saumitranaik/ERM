@@ -15,7 +15,7 @@ import { getDb, mutate } from './store';
 import { newId, nowIso } from './id';
 import { getSession } from './session';
 import { decisionBlockReason } from './decisionPolicy';
-import { approvalGate } from './riskProjection';
+import { approvalGate, assessmentSubmitBlockReason } from './riskProjection';
 
 export interface SubmitOptions {
   module: string;
@@ -63,6 +63,11 @@ export function submitForApproval(opts: SubmitOptions): string | null {
   }
   const entity = rows(db, opts.collection).find((e) => e.id === opts.entityId);
   if (!entity) return 'Record not found';
+  // Submit-time validation reuses the approval gate's rules so the two cannot silently diverge; the gate still re-checks at decision time.
+  if (opts.collection === 'riskAssessments') {
+    const blocked = assessmentSubmitBlockReason(entity, rows(db, 'risks').find((r) => r.id === entity.riskId));
+    if (blocked) return blocked;
+  }
   const fromStatus = entity.status;
 
   mutate((d) => {

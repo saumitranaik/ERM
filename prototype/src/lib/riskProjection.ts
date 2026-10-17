@@ -16,6 +16,8 @@
  *  - the parent must exist and not be RETIRED or ACCEPTED (an accepted residual is not changed silently);
  *  - it projects only if its assessmentDate is not earlier than the current source's (an older
  *    assessment approved late is recorded but does not displace a newer one; equal dates: later approval wins).
+ * lastAssessedDate advances when either dimension projects (never backwards). Submit-time validation shares
+ * the approval gate's rules (assessmentSubmitBlockReason); the gate still re-checks at decision time.
  * These rules are prototype conventions, not AMC-approved policy.
  */
 import {
@@ -96,23 +98,54 @@ export function payloadHasUnsafeKey(payload: Rec | undefined): boolean {
   return !!payload && Object.getOwnPropertyNames(payload).some((k) => UNSAFE_PAYLOAD_KEYS.has(k));
 }
 
-/** Reason an assessment approval cannot proceed (invalid scoring or ineligible parent), else null. */
-export function assessmentApprovalBlockReason(a: Rec | undefined, risk: Rec | undefined, now: number = Date.now()): string | null {
+/** Reason an assessment date is unusable (missing, malformed, impossible, or future-dated), else null. Shared by submit and approval. */
+function assessmentDateProblem(date: unknown, now: number): string | null {
+  if (!isIsoDate(date)) return 'The assessment date is missing or not a valid YYYY-MM-DD calendar date, so its ordering cannot be determined.';
+  if (date > latestAllowedDate(now)) return `The assessment date ${date} is in the future; a future-dated assessment would displace every later assessment.`;
+  return null;
+}
+
+type Stage = 'submitted' | 'approved';
+
+/** One rule set for both stages; only the wording of the outcome differs. */
+function assessmentBlockReason(a: Rec | undefined, risk: Rec | undefined, now: number, stage: Stage): string | null {
   const v = verifyAssessmentScoring(a);
   if (!v.ok) return v.reason;
-  if (!risk) return 'The parent risk no longer exists; the assessment cannot be approved.';
+  if (!risk) return `The parent risk no longer exists; the assessment cannot be ${stage}.`;
   if (a!.riskId !== risk.id) return 'The assessment does not belong to the parent risk it is being applied to.';
   if (NON_PROJECTABLE_RISK_STATUSES.includes(String(risk.status))) {
     return `The parent risk is ${String(risk.status)}; its scores cannot be changed by a new assessment.`;
   }
-  if (!isIsoDate(a!.assessmentDate)) return 'The assessment date is missing or not a valid YYYY-MM-DD date, so its ordering cannot be determined.';
-  if ((a!.assessmentDate as string) > latestAllowedDate(now)) return `The assessment date ${String(a!.assessmentDate)} is in the future; a future-dated assessment would displace every later assessment, so approval is refused.`;
+  const dateProblem = assessmentDateProblem(a!.assessmentDate, now);
+  if (dateProblem) return stage === 'approved' ? `${dateProblem} Approval is refused.` : dateProblem;
   for (const d of ['inherent', 'residual'] as const) {
     if (risk[`${d}Origin`] === 'APPROVED_ASSESSMENT' && !isIsoDate(risk[`${d}SourceAssessmentDate`])) {
       return `The parent risk's ${d} source date is missing or malformed; the projection order cannot be determined.`;
     }
   }
   return null;
+}
+
+/** Reason an assessment approval cannot proceed (invalid scoring or ineligible parent), else null. */
+export function assessmentApprovalBlockReason(a: Rec | undefined, risk: Rec | undefined, now: number = Date.now()): string | null {
+  return assessmentBlockReason(a, risk, now, 'approved');
+}
+
+const REQUIRED_ASSESSMENT_FIELDS: Array<[string, string]> = [
+  ['title', 'Title'], ['riskId', 'Risk'], ['assessorId', 'Assessor'], ['rationale', 'Rationale'],
+];
+
+/**
+ * Reason an assessment cannot be SUBMITTED for approval, else null. Runs the same scoring verification, parent
+ * eligibility and date rules as the approval gate (so the two cannot silently diverge) plus required-field
+ * presence. It never replaces the approval gate, which re-evaluates everything at decision time.
+ * Prototype-only: client-side, not a trusted boundary.
+ */
+export function assessmentSubmitBlockReason(a: Rec | undefined, risk: Rec | undefined, now: number = Date.now()): string | null {
+  if (!a) return 'Assessment not found.';
+  const missing = REQUIRED_ASSESSMENT_FIELDS.filter(([k]) => typeof a[k] !== 'string' || !(a[k] as string).trim()).map(([, l]) => l);
+  if (missing.length) return `Complete the required fields before submitting: ${missing.join(', ')}.`;
+  return assessmentBlockReason(a, risk, now, 'submitted');
 }
 
 export type ProjectionPlan =
@@ -157,15 +190,19 @@ export function planProjection(dim: Dimension, a: Rec, risk: Rec): ProjectionPla
   };
 }
 
-export function planResidualProjection(a: Rec, risk: Rec): ProjectionPlan {
-  const p = planProjection('residual', a, risk);
+/**
+ * Prototype convention (spec 10-risk §325 says approval updates `last_assessed_date` but is silent on a dimension
+ * projecting alone): `lastAssessedDate` records the latest approved assessment that updated *either* dimension, and
+ * never moves backwards. An assessment that projects neither dimension leaves it unchanged. Not an AMC policy.
+ */
+function withLastAssessed(p: ProjectionPlan, a: Rec, risk: Rec): ProjectionPlan {
   if (!p.project) return p;
-  // lastAssessedDate never moves backwards (a direct-entry value may already be later than this assessment).
   const prior = risk.lastAssessedDate;
   const last = isIsoDate(prior) && prior > String(a.assessmentDate) ? prior : a.assessmentDate;
   return { project: true, patch: { ...p.patch, lastAssessedDate: last } };
 }
-export const planInherentProjection = (a: Rec, risk: Rec): ProjectionPlan => planProjection('inherent', a, risk);
+export const planResidualProjection = (a: Rec, risk: Rec): ProjectionPlan => withLastAssessed(planProjection('residual', a, risk), a, risk);
+export const planInherentProjection = (a: Rec, risk: Rec): ProjectionPlan => withLastAssessed(planProjection('inherent', a, risk), a, risk);
 
 /** Consistency check: a projected score must equal its source assessment's. Direct entry (no origin) has no source to check. */
 export function projectedConsistent(dim: Dimension, risk: Rec, a: Rec | undefined): boolean {

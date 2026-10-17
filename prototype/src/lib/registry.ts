@@ -26,6 +26,8 @@ export interface FieldDef {
   help?: string;
   min?: number;
   max?: number;
+  /** date fields: latest selectable date — 'TODAY' (browser-local) or an ISO YYYY-MM-DD. A UX aid only; decision logic remains authoritative. */
+  maxDate?: 'TODAY' | string;
 }
 
 export type CellType = 'code' | 'text' | 'status' | 'severity' | 'score' | 'user' | 'department' | 'date' | 'datetime' | 'number' | 'badge';

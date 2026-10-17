@@ -17,7 +17,7 @@ import { createRecord, updateRecord } from '../lib/governance';
 import { moduleByCode } from '../lib/moduleCatalog';
 import { entityHref, rowsFor, entityTitle, type EntityConfig, type FieldDef } from '../lib/registry';
 import { newId, nextCode } from '../lib/id';
-import { validateFields } from '../lib/validation';
+import { validateFields, resolveMaxDate } from '../lib/validation';
 import { humanize } from '../lib/format';
 import type { EntityBase } from '../types/core';
 
@@ -52,6 +52,7 @@ function FieldInput({
         <Input
           id={`f-${field.key}`}
           type="date"
+          max={resolveMaxDate(field)}
           value={strVal ? strVal.slice(0, 10) : ''}
           onChange={(e) => onChange(e.target.value || undefined)}
         />

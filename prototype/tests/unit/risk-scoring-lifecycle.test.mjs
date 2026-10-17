@@ -207,7 +207,7 @@ test('seed risks: scores equal L×I under the matrix they reference (or the lega
 
 // ---- Inherent projection (spec 10-risk §325: approval updates Risk.inherent_*) ----
 import {
-  planInherentProjection, planProjection, payloadHasUnsafeKey, projectedInherentConsistent, payloadTouchesAssessmentScoring,
+  assessmentSubmitBlockReason, planInherentProjection, planProjection, payloadHasUnsafeKey, projectedInherentConsistent, payloadTouchesAssessmentScoring,
 } from '../../src/lib/riskProjection.ts';
 import { inherentRef, deriveRiskFields as deriveFields } from '../../src/lib/riskScoring.ts';
 
@@ -218,7 +218,7 @@ test('inherent projection copies only inherent L/I/score with its own provenance
     { l: plan.patch.inherentLikelihood, i: plan.patch.inherentImpact, s: plan.patch.inherentScore, o: plan.patch.inherentOrigin, src: plan.patch.inherentSourceAssessmentId, v: plan.patch.inherentSourceMatrixVersion },
     { l: 4, i: 5, s: 20, o: 'APPROVED_ASSESSMENT', src: 'ra-x', v: ACTIVE_MATRIX_REF.matrixVersion },
   );
-  assert.ok(!Object.keys(plan.patch).some((k) => k.startsWith('residual') || k === 'status' || k === 'lastAssessedDate'));
+  assert.ok(!Object.keys(plan.patch).some((k) => k.startsWith('residual') || k === 'status'));
 });
 
 test('inherent and residual are ordered independently: each compares against its own current source date', () => {
@@ -304,7 +304,7 @@ test('lastAssessedDate never moves backwards when projecting an older-dated asse
   assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), later).patch.lastAssessedDate, '2026-12-01');
   assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), risk({ lastAssessedDate: '2026-01-01' })).patch.lastAssessedDate, '2026-10-01');
   assert.equal(planResidualProjection(assessment({ assessmentDate: '2026-10-01' }), risk({ lastAssessedDate: 'junk' })).patch.lastAssessedDate, '2026-10-01');
-  assert.equal('lastAssessedDate' in planInherentProjection(assessment(), risk()).patch, false, 'inherent projection does not touch it');
+  assert.equal(planInherentProjection(assessment({ assessmentDate: '2026-10-01' }), risk({ lastAssessedDate: '2026-01-01' })).patch.lastAssessedDate, '2026-10-01', 'inherent projection advances it too (prototype convention)');
 });
 
 test('approval is blocked for a parent that does not own the assessment, and for malformed dates', () => {
@@ -357,4 +357,79 @@ test('ledger wiring: decidePendingAction calls approvalGate before its first wri
   assert.match(decide, /if \(!gate\.ok\) return gate\.reason;/);
   const hidden = {}; Object.defineProperty(hidden, 'residualScore', { value: 1, enumerable: false });
   assert.equal(payloadTouchesAssessmentScoring(hidden), true);
+});
+
+// ---- Inherent-only projection and lastAssessedDate (prototype convention; spec 10-risk §325 is silent) ----
+test('inherent-only projection (residual source is newer) advances lastAssessedDate but leaves residual untouched', () => {
+  const r = risk({ lastAssessedDate: '2026-05-01', residualOrigin: 'APPROVED_ASSESSMENT', residualSourceAssessmentDate: '2026-12-01', residualSourceAssessmentCode: 'RAS-R' });
+  const a = assessment({ assessmentDate: '2026-10-01' });
+  const inh = planInherentProjection(a, r);
+  assert.equal(planResidualProjection(a, r).project, false);
+  assert.equal(inh.project, true);
+  assert.equal(inh.patch.lastAssessedDate, '2026-10-01');
+  assert.ok(!Object.keys(inh.patch).some((k) => k.startsWith('residual')), 'residual source tracking stays distinct');
+});
+
+test('lastAssessedDate never moves backwards via inherent projection, and is untouched when nothing projects', () => {
+  const later = risk({ lastAssessedDate: '2026-12-01' });
+  assert.equal(planInherentProjection(assessment({ assessmentDate: '2026-10-01' }), later).patch.lastAssessedDate, '2026-12-01');
+  const both = risk({ inherentOrigin: 'APPROVED_ASSESSMENT', inherentSourceAssessmentDate: '2026-12-01', residualOrigin: 'APPROVED_ASSESSMENT', residualSourceAssessmentDate: '2026-12-01' });
+  const a = assessment({ assessmentDate: '2026-10-01' });
+  assert.equal(planInherentProjection(a, both).project, false);
+  assert.equal(planResidualProjection(a, both).project, false);
+});
+
+// ---- Submit-time validation: same rules as the approval gate, which still refuses independently ----
+const NOW = Date.parse('2026-10-17T12:00:00Z');
+// A fully completed draft: the base fixture lacks the free-text fields submission requires.
+const full = (over = {}) => assessment({ title: 'Q3 reassessment', assessorId: 'u-1', rationale: 'Controls operated.', assessmentDate: '2026-10-17', ...over });
+test('submit accepts a valid, scored, past-dated assessment on an eligible parent', () => {
+  assert.equal(assessmentSubmitBlockReason(full(), risk(), NOW), null);
+});
+
+test('submit rejects impossible, malformed, missing and future assessment dates with a clear reason', () => {
+  for (const d of ['2026-02-30', '2026-13-01', '17/10/2026', '', undefined, null, '2027-01-01']) {
+    const reason = assessmentSubmitBlockReason(full({ assessmentDate: d }), risk(), NOW);
+    assert.match(reason ?? '', /assessment date/i, String(d));
+    assert.doesNotMatch(reason, /Approval is refused/, 'submit wording, not approval wording');
+  }
+});
+
+test('submit rejects missing required fields, unscorable inputs, tampered scores and ineligible parents', () => {
+  assert.match(assessmentSubmitBlockReason(full({ rationale: ' ' }), risk(), NOW), /Rationale/);
+  assert.match(assessmentSubmitBlockReason(full({ title: undefined, assessorId: '' }), risk(), NOW), /Title, Assessor/);
+  assert.ok(assessmentSubmitBlockReason(full({ inherentLikelihood: 9 }), risk(), NOW));
+  assert.ok(assessmentSubmitBlockReason(full({ inherentScore: 1 }), risk(), NOW), 'snapshot mismatch');
+  assert.match(assessmentSubmitBlockReason(full(), undefined, NOW), /parent risk/);
+  assert.match(assessmentSubmitBlockReason(full(), risk({ status: 'RETIRED' }), NOW), /RETIRED/);
+  assert.match(assessmentSubmitBlockReason(full({ riskId: 'other' }), risk(), NOW), /does not belong/);
+});
+
+test('submit and approval agree on every case above; the approval gate still refuses tampered data on its own', () => {
+  const cases = [
+    [full({ assessmentDate: '2026-02-30' }), risk()],
+    [full({ assessmentDate: '2027-01-01' }), risk()],
+    [full({ residualScore: 1 }), risk()],
+    [full(), risk({ status: 'ACCEPTED' })],
+    [full(), risk()],
+  ];
+  for (const [a, r] of cases) {
+    assert.equal(!!assessmentSubmitBlockReason(a, r, NOW), !!assessmentApprovalBlockReason(a, r, NOW));
+  }
+  // Data edited after a clean submission is still stopped at approval.
+  const submitted = full();
+  assert.equal(assessmentSubmitBlockReason(submitted, risk(), NOW), null);
+  const tampered = { ...submitted, assessmentDate: '2099-01-01', inherentScore: 1 };
+  assert.equal(approvalGate('approve', 'riskAssessments', undefined, tampered, risk(), NOW).ok, false);
+  assert.equal(approvalGate('reject', 'riskAssessments', undefined, tampered, risk(), NOW).ok, true, 'reject/return are never gated');
+});
+
+test('ledger wiring: submitForApproval runs the assessment submit check after GOV-07 and before its first write; the approval gate is still in place', () => {
+  const src = readFileSync(new URL('../../src/lib/governance.ts', import.meta.url), 'utf8');
+  const submit = src.slice(src.indexOf('export function submitForApproval'), src.indexOf('export type Decision'));
+  const at = submit.indexOf('assessmentSubmitBlockReason(');
+  assert.ok(at > submit.indexOf('GOV-07'), 'duplicate-pending check still first');
+  assert.ok(at < submit.indexOf('mutate('), 'validation precedes any write');
+  assert.match(submit, /if \(blocked\) return blocked;/);
+  assert.match(src, /approvalGate\(decision, action\.collection/, 'approval-time checks retained');
 });

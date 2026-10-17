@@ -305,6 +305,23 @@ try {
     await sleep(1200);
     return getDb();
   };
+  // Assessment date field: future dates are discouraged by the input maximum and refused on save.
+  await setPersona('p-riskmgr');
+  await nav('/modules/RISK/assessments/new');
+  const todayLocal = await ev(`(()=>{const d=new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())})()`);
+  check('assessment date input carries max = today', (await ev(`document.querySelector('#f-assessmentDate').max`)) === todayLocal, todayLocal);
+  check('other date inputs are unaffected (treatment plan due date has no max)', await (async () => {
+    await nav('/modules/RISK/treatment-plans/new');
+    return (await ev(`document.querySelector('#f-dueDate').max`)) === '';
+  })());
+  await nav('/modules/RISK/assessments/new');
+  await setDate('#f-assessmentDate', '2099-01-01');
+  const assessmentsBefore = (await getDb()).riskAssessments.length;
+  await clickButton('Create Risk Assessment');
+  await sleep(500);
+  t = await text();
+  check('a future assessment date is refused on save and nothing is persisted', /cannot be after/.test(t) && (await path()).endsWith('/new') && (await getDb()).riskAssessments.length === assessmentsBefore, t.replace(/\s+/g, ' ').slice(0, 200));
+
   const before = (await getDb()).risks.find((x) => x.id === 'r-001');
   const rejA = await logAssessment('ZZ-TEST e2e assessment reject', 'NAV', '1', '1');
   check('assessment saved with a matrix snapshot (inherent 16 High, residual 1 Low)',
