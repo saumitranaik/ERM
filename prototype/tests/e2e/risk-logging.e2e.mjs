@@ -269,6 +269,60 @@ try {
   t = await text();
   check('persona without RISK_CHECKER cannot decide (no controls, role message)', !/\bApprove\b/.test(t) && !/\bReject\b/.test(t) && t.includes('RISK_CHECKER'));
 
+
+  // Assessment scoring lifecycle: approve projects the residual onto the parent; reject does not.
+  const logAssessment = async (title, riskLabel, rl, ri) => {
+    await setPersona('p-riskmgr');
+    await nav('/modules/RISK/assessments/new');
+    await typeInto('#f-title', title);
+    await pick('f-riskId', riskLabel);
+    await setDate('#f-assessmentDate', '2026-10-05');
+    await pick('f-assessorId', 'Arjun');
+    await typeInto('#f-inherentLikelihood', '4');
+    await typeInto('#f-inherentImpact', '4');
+    await typeInto('#f-residualLikelihood', rl);
+    await typeInto('#f-residualImpact', ri);
+    await typeInto('#f-rationale', 'e2e rationale');
+    await clickButton('Create Risk Assessment');
+    for (let i = 0; i < 40 && (await path()).endsWith('/new'); i++) await sleep(500);
+    await sleep(500);
+    await clickButton('Submit for Approval');
+    await sleep(800);
+    await ev(`(()=>{const e=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(e,'e2e');e.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+    await sleep(200);
+    await ev(`[...document.querySelectorAll('[role=dialog] button')].find(b=>b.textContent.trim()==='Submit for approval').click()`);
+    await sleep(1500);
+    return (await getDb()).riskAssessments.find((x) => x.title === title);
+  };
+  const decide = async (a, label, comment) => {
+    await setPersona('p-cro');
+    await nav(`/modules/RISK/assessments/${a.id}`);
+    await clickButton(label);
+    await sleep(500);
+    if (comment) await ev(`(()=>{const e=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(e,${JSON.stringify(comment)});e.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+    await sleep(200);
+    await ev(`[...document.querySelectorAll('[role=dialog] button')].find(b=>b.textContent.trim()==='Confirm ${label.toLowerCase()}').click()`);
+    await sleep(1200);
+    return getDb();
+  };
+  const before = (await getDb()).risks.find((x) => x.id === 'r-001');
+  const rejA = await logAssessment('ZZ-TEST e2e assessment reject', 'NAV', '1', '1');
+  check('assessment saved with a matrix snapshot (inherent 16 High, residual 1 Low)',
+    rejA?.scoringMatrixVersion === 'illustrative-1' && rejA.inherentScore === 16 && rejA.inherentBand === 'High' && rejA.residualScore === 1 && rejA.residualBand === 'Low', JSON.stringify(rejA));
+  let dd = await decide(rejA, 'Reject', 'e2e reject');
+  let r2 = dd.risks.find((x) => x.id === 'r-001');
+  check('rejected assessment leaves the parent residual unchanged', r2.residualScore === before.residualScore && r2.residualOrigin === before.residualOrigin, `${r2.residualScore}`);
+  const okA = await logAssessment('ZZ-TEST e2e assessment approve', 'NAV', '2', '2');
+  dd = await decide(okA, 'Approve');
+  r2 = dd.risks.find((x) => x.id === okA.riskId);
+  check('approved assessment projects residual 4 onto the parent with provenance',
+    r2.residualScore === 4 && r2.residualLikelihood === 2 && r2.residualImpact === 2 && r2.residualOrigin === 'APPROVED_ASSESSMENT' && r2.residualSourceAssessmentId === okA.id && r2.residualSourceMatrixVersion === 'illustrative-1', JSON.stringify(r2));
+  check('projection is recorded in the Risk history', dd.history.some((h) => h.entityId === r2.id && h.action === 'RESIDUAL_PROJECTED'));
+  check('assessment is APPROVED with its action approved', dd.riskAssessments.find((x) => x.id === okA.id).status === 'APPROVED' && dd.pendingActions.find((a) => a.entityId === okA.id).status === 'approved');
+  await nav(`/modules/RISK/risks/${r2.id}`);
+  t = await text();
+  check('Risk detail shows the residual origin and source assessment', t.includes(okA.code) && /Approved Assessment/i.test(t), t.replace(/\s+/g, ' ').slice(0, 300));
+
   // Permissions: every persona without RISK_MAKER
   const noCreate = db.personas.filter((x) => !x.roles.includes('RISK_MAKER')).map((x) => x.id);
   const leaks = [];

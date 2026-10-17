@@ -13,6 +13,8 @@ import { Button } from '../../components/ui/button';
 import { useDb } from '../../lib/store';
 import { useSession } from '../../lib/session';
 import { humanize, formatDate } from '../../lib/format';
+import { ACTIVE_MATRIX_REF, activeMatrix, matrixForRef } from '../../lib/riskMatrix';
+import { residualRef } from '../../lib/riskScoring';
 import type { EntityBase } from '../../types/core';
 
 export function RiskDashboard() {
@@ -29,10 +31,19 @@ export function RiskDashboard() {
   const now = new Date().toISOString().slice(0, 10);
   const overdue = open.filter((r) => typeof r.nextReviewDate === 'string' && (r.nextReviewDate as string) < now);
 
+  // Scores from different matrix versions are not comparable, so the heat map and Top Risks only
+  // plot risks whose residual was scored with the active matrix; the rest are counted, not mis-plotted.
+  const matrix = activeMatrix();
+  const onActive = (r: EntityBase) => {
+    const { matrix: m } = matrixForRef(residualRef(r)); // legacy (unreferenced) records read as the matrix that then existed
+    return !!matrix && !!m && m.id === ACTIVE_MATRIX_REF.matrixId && m.version === ACTIVE_MATRIX_REF.matrixVersion;
+  };
+  const plottable = open.filter(onActive);
+  const notPlotted = open.filter((r) => typeof r.residualScore === 'number').length - plottable.filter((r) => typeof r.residualScore === 'number').length;
   const cells: HeatmapCellDatum[] = [];
-  for (let l = 1; l <= 5; l++) {
-    for (let i = 1; i <= 5; i++) {
-      const count = open.filter((r) => r.residualLikelihood === l && r.residualImpact === i).length;
+  for (let l = 1; l <= (matrix?.likelihoodLevels ?? 0); l++) {
+    for (let i = 1; i <= (matrix?.impactLevels ?? 0); i++) {
+      const count = plottable.filter((r) => r.residualLikelihood === l && r.residualImpact === i).length;
       cells.push({ likelihood: l, impact: i, count, href: '/modules/RISK/risks' });
     }
   }
@@ -44,7 +55,7 @@ export function RiskDashboard() {
     href: '/modules/RISK/risks',
   }));
 
-  const topRisks = [...open]
+  const topRisks = [...plottable]
     .filter((r) => typeof r.residualScore === 'number')
     .sort((a, b) => (b.residualScore as number) - (a.residualScore as number))
     .slice(0, 5);
@@ -85,7 +96,14 @@ export function RiskDashboard() {
         <Card>
           <CardHeader><CardTitle>Residual Risk Heat Map (Likelihood × Impact)</CardTitle></CardHeader>
           <CardContent>
-            <RiskHeatmap cells={cells} ariaLabel="Residual risk heat map, 5 by 5 likelihood versus impact grid" />
+            <RiskHeatmap
+              cells={cells}
+              matrix={matrix}
+              ariaLabel={`Residual risk heat map, ${matrix?.likelihoodLevels ?? 0} by ${matrix?.impactLevels ?? 0} likelihood versus impact grid`}
+            />
+            {notPlotted > 0 && (
+              <p className="text-[11px] text-muted-foreground mt-2">{notPlotted} open risk(s) were scored with a different matrix version and are not plotted here.</p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -106,7 +124,7 @@ export function RiskDashboard() {
                 href={`/modules/RISK/risks/${r.id}`}
                 className="flex items-center gap-3 p-2 -mx-2 rounded hover:bg-accent transition-colors"
               >
-                <ScoreChip score={Number(r.residualScore)} />
+                <ScoreChip score={Number(r.residualScore)} matrixRef={residualRef(r)} />
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm truncate">{String(r.title)}</span>
                   <span className="block text-xs text-muted-foreground">{String(r.code)} · {humanize(String(r.category))}</span>

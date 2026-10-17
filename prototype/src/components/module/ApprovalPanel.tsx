@@ -8,6 +8,7 @@ import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { decidePendingAction, type Decision } from '../../lib/governance';
 import { decisionBlockReason, hasEligibleDecider } from '../../lib/decisionPolicy';
+import { assessmentApprovalBlockReason } from '../../lib/riskProjection';
 import { permissionsForRoles } from '../../lib/moduleCatalog';
 import { useDb } from '../../lib/store';
 import { useSession } from '../../lib/session';
@@ -51,7 +52,13 @@ export function ApprovalDecision({
     hasApprovePermission: session.has(`${action.module}_APPROVE`),
   };
   // Approve/Reject share one rule set; Return is gated separately (owner restriction does not apply to it).
-  const blockApprove = decisionBlockReason(ctx, 'approve');
+  // An assessment can only be approved if its score verifies against its recorded matrix version and
+  // its parent Risk can take the projection; rejecting or returning it is never blocked by scoring.
+  const parentRisk = action.collection === 'riskAssessments'
+    ? (db.risks as Record<string, unknown>[]).find((r) => r.id === entity?.riskId)
+    : undefined;
+  const scoringBlock = action.collection === 'riskAssessments' ? assessmentApprovalBlockReason(entity, parentRisk) : null;
+  const blockApprove = decisionBlockReason(ctx, 'approve') ?? scoringBlock;
   const blockReject = decisionBlockReason(ctx, 'reject');
   const blockReturn = decisionBlockReason(ctx, 'return');
   // Explains a stalled action (e.g. the only checker owns the risk). Informational; decisionBlockReason stays the gate.

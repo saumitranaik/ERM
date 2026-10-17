@@ -15,6 +15,7 @@ import { getDb, mutate } from './store';
 import { newId, nowIso } from './id';
 import { getSession } from './session';
 import { decisionBlockReason } from './decisionPolicy';
+import { assessmentApprovalBlockReason, planResidualProjection, type ProjectionPlan } from './riskProjection';
 
 export interface SubmitOptions {
   module: string;
@@ -131,6 +132,18 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
   );
   if (blocked) return blocked;
 
+  // Risk assessment approval also projects the residual onto the parent Risk. Everything that can
+  // fail is checked here, BEFORE any write, so the approval and the projection are applied together
+  // in one mutate (a single synchronous in-memory write + one persist) or not at all.
+  let plan: ProjectionPlan | null = null;
+  let parentRisk: EntityBase | undefined;
+  if (decision === 'approve' && action.collection === 'riskAssessments') {
+    parentRisk = rows(db, 'risks').find((r) => r.id === (target as EntityBase | undefined)?.riskId);
+    const scoringBlock = assessmentApprovalBlockReason(target, parentRisk);
+    if (scoringBlock) return scoringBlock;
+    plan = planResidualProjection(target as EntityBase, parentRisk as EntityBase);
+  }
+
   mutate((d) => {
     const a = d.pendingActions.find((x) => x.id === actionId);
     if (!a) return;
@@ -159,6 +172,23 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
         actorId: session.persona.id,
         comment,
       });
+      if (plan && parentRisk) {
+        const risk = rows(d, 'risks').find((r) => r.id === parentRisk!.id);
+        if (risk && plan.project) {
+          Object.assign(risk, plan.patch);
+          risk.updatedAt = nowIso();
+          pushHistory(d, {
+            module: a.module, collection: 'risks', entityId: risk.id, action: 'RESIDUAL_PROJECTED',
+            fromStatus: risk.status, toStatus: risk.status, actorId: session.persona.id,
+            comment: `Residual score ${String(risk.residualScore)} projected from approved assessment ${String(e.code)} (matrix ${String(e.scoringMatrixId)} v${String(e.scoringMatrixVersion)}).`,
+          });
+        } else if (risk && !plan.project) {
+          pushHistory(d, {
+            module: a.module, collection: 'risks', entityId: risk.id, action: 'RESIDUAL_NOT_PROJECTED',
+            fromStatus: risk.status, toStatus: risk.status, actorId: session.persona.id, comment: plan.reason,
+          });
+        }
+      }
     }
     pushNotification(d, {
       recipientPersonaId: a.createdBy,

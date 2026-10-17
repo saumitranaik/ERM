@@ -1,0 +1,206 @@
+// Run: npm test. Scoring lifecycle: matrix registry/versioning, assessment snapshot, approval gating and
+// the approved-assessment -> parent Risk residual projection. All matrix values are ILLUSTRATIVE.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import {
+  ILLUSTRATIVE_MATRIX, ACTIVE_MATRIX_REF, MATRIX_REGISTRY, lookupMatrix, activeMatrix, matrixForRef, scoreFor, validateMatrix, resolveBand,
+} from '../../src/lib/riskMatrix.ts';
+import { deriveRiskScores, deriveRiskFields, residualRef, scoreRefFor } from '../../src/lib/riskScoring.ts';
+import {
+  snapshotAssessment, deriveAssessmentFields, verifyAssessmentScoring, assessmentApprovalBlockReason,
+  planResidualProjection, projectedResidualConsistent,
+} from '../../src/lib/riskProjection.ts';
+
+const seed = JSON.parse(readFileSync(new URL('../../src/data/risk.json', import.meta.url), 'utf8'));
+const inputs = { inherentLikelihood: 4, inherentImpact: 5, residualLikelihood: 2, residualImpact: 4 };
+const assessment = (over = {}) => ({
+  id: 'ra-x', code: 'RAS-X', riskId: 'r-x', assessmentDate: '2026-10-01', status: 'SUBMITTED', ...inputs, ...snapshotAssessment(inputs), ...over,
+});
+const risk = (over = {}) => ({ id: 'r-x', status: 'ACTIVE', residualLikelihood: 3, residualImpact: 3, residualScore: 9, ...over });
+
+// ---- Matrix definition is the single source ----
+test('registry: the active reference resolves to the illustrative matrix, which is not approved', () => {
+  assert.equal(activeMatrix(), ILLUSTRATIVE_MATRIX);
+  assert.equal(ILLUSTRATIVE_MATRIX.status, 'ILLUSTRATIVE');
+  assert.ok(MATRIX_REGISTRY.every((m) => validateMatrix(m).length === 0));
+  assert.ok(!MATRIX_REGISTRY.some((m) => m.status === 'APPROVED'), 'no AMC-approved matrix has been supplied');
+});
+
+test('lookup fails closed for unknown id, unknown version, partial or malformed references', () => {
+  for (const bad of [null, undefined, {}, { matrixId: 'x', matrixVersion: 'illustrative-1' }, { matrixId: ILLUSTRATIVE_MATRIX.id, matrixVersion: 'illustrative-2' }, { matrixId: ILLUSTRATIVE_MATRIX.id }, 'str', 5]) {
+    assert.equal(lookupMatrix(bad), null, JSON.stringify(bad));
+  }
+  assert.equal(lookupMatrix(ACTIVE_MATRIX_REF), ILLUSTRATIVE_MATRIX);
+});
+
+test('an unreferenced record reads as legacy; a referenced-but-unknown version never falls back to another matrix', () => {
+  assert.deepEqual(matrixForRef(undefined), { matrix: ILLUSTRATIVE_MATRIX, legacy: true });
+  assert.deepEqual(matrixForRef({}), { matrix: ILLUSTRATIVE_MATRIX, legacy: true });
+  assert.deepEqual(matrixForRef({ matrixId: ILLUSTRATIVE_MATRIX.id, matrixVersion: 'illustrative-9' }), { matrix: null, legacy: false });
+});
+
+test('matrix labels are validated: count must equal levels and be non-empty', () => {
+  assert.match(validateMatrix({ ...ILLUSTRATIVE_MATRIX, likelihoodLabels: ['a'] }).join(), /label per level/);
+  assert.match(validateMatrix({ ...ILLUSTRATIVE_MATRIX, impactLabels: ['a', 'b', 'c', 'd', ' '] }).join(), /label per level/);
+  assert.match(validateMatrix(null).join(), /missing or malformed/);
+  assert.match(validateMatrix({}).join(), /levels/);
+});
+
+test('scoreFor: every grid cell scores L×I; every boundary and bad value fails closed', () => {
+  for (let l = 1; l <= 5; l++) for (let i = 1; i <= 5; i++) assert.equal(scoreFor(l, i, ILLUSTRATIVE_MATRIX), l * i);
+  for (const bad of [0, 6, -1, 1.5, NaN, Infinity, '3', null, undefined]) {
+    assert.equal(scoreFor(bad, 3, ILLUSTRATIVE_MATRIX), null, `L=${bad}`);
+    assert.equal(scoreFor(3, bad, ILLUSTRATIVE_MATRIX), null, `I=${bad}`);
+  }
+  assert.equal(scoreFor(3, 3, null), null);
+  assert.equal(scoreFor(3, 3, { ...ILLUSTRATIVE_MATRIX, bands: [] }), null);
+});
+
+test('matrix drives dimensions: a 3×3 matrix accepts 3 and rejects 4; deriveRiskScores uses the active grid', () => {
+  const m3 = { ...ILLUSTRATIVE_MATRIX, likelihoodLevels: 3, impactLevels: 3, likelihoodLabels: ['a', 'b', 'c'], impactLabels: ['a', 'b', 'c'], bands: [{ label: 'Low', min: 1, max: 4, tone: 'green' }, { label: 'High', min: 5, max: 9, tone: 'red' }] };
+  assert.deepEqual(validateMatrix(m3), []);
+  assert.equal(scoreFor(3, 3, m3), 9);
+  assert.equal(scoreFor(4, 1, m3), null);
+  assert.equal(deriveRiskScores({ inherentLikelihood: 6, inherentImpact: 2, residualLikelihood: 5, residualImpact: 5 }).inherentScore, undefined);
+  assert.equal(deriveRiskScores({ inherentLikelihood: 5, inherentImpact: 5 }).inherentScore, 25);
+});
+
+// ---- Assessment snapshot and verification ----
+test('assessment snapshot records matrix id/version, scores and band labels', () => {
+  const s = snapshotAssessment(inputs);
+  assert.deepEqual(s, {
+    scoringMatrixId: ACTIVE_MATRIX_REF.matrixId, scoringMatrixVersion: ACTIVE_MATRIX_REF.matrixVersion,
+    inherentScore: 20, inherentBand: 'Critical', residualScore: 8, residualBand: 'Medium',
+  });
+  assert.deepEqual(deriveAssessmentFields(inputs), s);
+});
+
+test('invalid assessment inputs give no scores (unscored, unapprovable), never a partial or guessed score', () => {
+  const f = deriveAssessmentFields({ ...inputs, inherentLikelihood: 9 });
+  assert.equal(f.inherentScore, undefined);
+  assert.equal(f.residualScore, undefined);
+  assert.equal(f.residualBand, undefined);
+  assert.match(verifyAssessmentScoring({ ...assessment(), ...f, inherentLikelihood: 9 }).reason, /outside the scoring matrix|does not match/);
+  assert.equal(snapshotAssessment({ ...inputs, residualImpact: undefined }), null);
+});
+
+test('verification passes for a consistent snapshot and fails closed for every inconsistency', () => {
+  assert.equal(verifyAssessmentScoring(assessment()).ok, true);
+  assert.match(verifyAssessmentScoring(undefined).reason, /not found/);
+  assert.match(verifyAssessmentScoring(assessment({ scoringMatrixId: undefined })).reason, /no recorded scoring matrix version/);
+  assert.match(verifyAssessmentScoring(assessment({ scoringMatrixVersion: 'illustrative-9' })).reason, /unavailable or invalid/);
+  assert.match(verifyAssessmentScoring(assessment({ residualScore: 99 })).reason, /residualScore/);
+  assert.match(verifyAssessmentScoring(assessment({ residualBand: 'Critical' })).reason, /residualBand/);
+  assert.match(verifyAssessmentScoring(assessment({ residualImpact: 0 })).reason, /outside the scoring matrix/);
+});
+
+test('historical integrity: an assessment keeps its score under its own version when the active version changes', () => {
+  const old = assessment();
+  // Simulate a later active version by pointing new work elsewhere: the old record still verifies against its own ref.
+  assert.equal(lookupMatrix({ matrixId: old.scoringMatrixId, matrixVersion: old.scoringMatrixVersion }), ILLUSTRATIVE_MATRIX);
+  assert.equal(verifyAssessmentScoring(old).ok, true);
+  assert.equal(old.residualScore, 8);
+});
+
+// ---- Approval gating ----
+test('approval is blocked when scoring is invalid or the parent is missing / RETIRED / ACCEPTED; allowed otherwise', () => {
+  assert.equal(assessmentApprovalBlockReason(assessment(), risk()), null);
+  for (const status of ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'ACTIVE', 'ESCALATED']) assert.equal(assessmentApprovalBlockReason(assessment(), risk({ status })), null, status);
+  assert.match(assessmentApprovalBlockReason(assessment(), risk({ status: 'RETIRED' })), /RETIRED/);
+  assert.match(assessmentApprovalBlockReason(assessment(), risk({ status: 'ACCEPTED' })), /ACCEPTED/);
+  assert.match(assessmentApprovalBlockReason(assessment(), undefined), /no longer exists/);
+  assert.match(assessmentApprovalBlockReason(assessment({ scoringMatrixVersion: 'nope' }), risk()), /unavailable/);
+  assert.match(assessmentApprovalBlockReason(assessment({ inherentScore: 1 }), risk()), /inherentScore/);
+});
+
+// ---- Projection ----
+test('projection copies the residual (only) from the approved assessment and records its provenance', () => {
+  const plan = planResidualProjection(assessment(), risk({ inherentLikelihood: 1, inherentImpact: 1, inherentScore: 1 }));
+  assert.equal(plan.project, true);
+  assert.deepEqual(
+    { l: plan.patch.residualLikelihood, i: plan.patch.residualImpact, s: plan.patch.residualScore, o: plan.patch.residualOrigin, src: plan.patch.residualSourceAssessmentId, v: plan.patch.residualSourceMatrixVersion, d: plan.patch.lastAssessedDate },
+    { l: 2, i: 4, s: 8, o: 'APPROVED_ASSESSMENT', src: 'ra-x', v: ACTIVE_MATRIX_REF.matrixVersion, d: '2026-10-01' },
+  );
+  assert.ok(!Object.keys(plan.patch).some((k) => k.startsWith('inherent') || k === 'status'), 'inherent and status are not projected');
+});
+
+test('projection is deterministic and idempotent for the same inputs', () => {
+  const a = assessment(), r = risk();
+  assert.deepEqual(planResidualProjection(a, r), planResidualProjection(a, r));
+  const applied = { ...r, ...planResidualProjection(a, r).patch };
+  assert.deepEqual(planResidualProjection(a, applied).patch, planResidualProjection(a, r).patch);
+});
+
+test('supersession: a newer approved assessment replaces the source; an older-dated one is recorded but not projected', () => {
+  const first = assessment({ id: 'ra-1', code: 'RAS-1', assessmentDate: '2026-08-01' });
+  const afterFirst = { ...risk(), ...planResidualProjection(first, risk()).patch };
+  const newer = assessment({ id: 'ra-2', code: 'RAS-2', assessmentDate: '2026-09-01', ...snapshotAssessment({ ...inputs, residualLikelihood: 1, residualImpact: 1 }), residualLikelihood: 1, residualImpact: 1 });
+  const afterNewer = { ...afterFirst, ...planResidualProjection(newer, afterFirst).patch };
+  assert.equal(afterNewer.residualSourceAssessmentId, 'ra-2');
+  assert.equal(afterNewer.residualScore, 1);
+  const older = assessment({ id: 'ra-0', code: 'RAS-0', assessmentDate: '2026-07-01' });
+  const plan = planResidualProjection(older, afterNewer);
+  assert.equal(plan.project, false);
+  assert.match(plan.reason, /not projected/);
+  const sameDay = assessment({ id: 'ra-3', code: 'RAS-3', assessmentDate: '2026-09-01' });
+  assert.equal(planResidualProjection(sameDay, afterNewer).project, true, 'equal date: later approval wins');
+});
+
+test('projection refuses an unverifiable assessment even if called directly', () => {
+  assert.equal(planResidualProjection(assessment({ scoringMatrixVersion: 'nope' }), risk()).project, false);
+});
+
+test('consistency: a projected Risk residual equals its source assessment; any drift is detected', () => {
+  const a = assessment({ status: 'APPROVED' });
+  const r = { ...risk(), ...planResidualProjection(a, risk()).patch };
+  assert.equal(projectedResidualConsistent(r, a), true);
+  assert.equal(projectedResidualConsistent({ ...r, residualScore: 10 }, a), false);
+  assert.equal(projectedResidualConsistent(r, { ...a, status: 'REJECTED' }), false);
+  assert.equal(projectedResidualConsistent(r, undefined), false);
+  assert.equal(projectedResidualConsistent(risk(), undefined), true, 'direct-entry residual has no source to check');
+});
+
+test('Risk form save: a projected residual cannot be overwritten by edited residual inputs', () => {
+  const a = assessment({ status: 'APPROVED' });
+  const projected = { ...risk({ inherentLikelihood: 3, inherentImpact: 3 }), ...planResidualProjection(a, risk()).patch };
+  const edited = deriveRiskFields({ ...projected, residualLikelihood: 5, residualImpact: 5, inherentLikelihood: 2, inherentImpact: 2 });
+  assert.equal(edited.residualLikelihood, 2);
+  assert.equal(edited.residualImpact, 4);
+  assert.equal(edited.residualScore, 8);
+  assert.equal(edited.inherentScore, 4);
+  const direct = deriveRiskFields({ inherentLikelihood: 2, inherentImpact: 2, residualLikelihood: 3, residualImpact: 3 });
+  assert.equal(direct.residualScore, 9);
+  assert.equal(direct.scoringMatrixVersion, ACTIVE_MATRIX_REF.matrixVersion);
+});
+
+test('score references: residual of a projected Risk uses the source version; unknown version resolves to no band', () => {
+  const r = { ...risk(), residualOrigin: 'APPROVED_ASSESSMENT', residualSourceMatrixId: ILLUSTRATIVE_MATRIX.id, residualSourceMatrixVersion: 'gone', scoringMatrixId: ILLUSTRATIVE_MATRIX.id, scoringMatrixVersion: ILLUSTRATIVE_MATRIX.version };
+  assert.equal(residualRef(r).matrixVersion, 'gone');
+  assert.equal(matrixForRef(scoreRefFor('residualScore', r)).matrix, null);
+  assert.equal(matrixForRef(scoreRefFor('inherentScore', r)).matrix, ILLUSTRATIVE_MATRIX);
+});
+
+// ---- Seed integrity ----
+test('seed assessments carry a verifiable matrix snapshot; approved ones that source a Risk match it exactly', () => {
+  const byId = Object.fromEntries(seed.riskAssessments.map((a) => [a.id, a]));
+  for (const a of seed.riskAssessments) assert.equal(verifyAssessmentScoring(a).ok, true, a.id);
+  for (const r of seed.risks.filter((x) => x.residualOrigin === 'APPROVED_ASSESSMENT')) {
+    const a = byId[r.residualSourceAssessmentId];
+    assert.equal(a.riskId, r.id, `${r.id} source belongs to it`);
+    assert.equal(projectedResidualConsistent(r, a), true, r.id);
+    assert.equal(r.residualSourceAssessmentDate, a.assessmentDate);
+  }
+});
+
+test('seed risks: scores equal L×I under the matrix they reference (or the legacy matrix) and resolve to a band', () => {
+  for (const r of seed.risks) {
+    for (const k of ['inherent', 'residual']) {
+      const l = r[`${k}Likelihood`], i = r[`${k}Impact`];
+      if (l == null && i == null) { assert.ok(r[`${k}Score`] == null, `${r.id} ${k}`); continue; }
+      const { matrix } = matrixForRef(scoreRefFor(`${k}Score`, r));
+      assert.equal(r[`${k}Score`], scoreFor(l, i, matrix), `${r.id} ${k}`);
+      assert.ok(resolveBand(r[`${k}Score`], matrix), `${r.id} ${k} band`);
+    }
+  }
+});

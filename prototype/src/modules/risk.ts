@@ -4,7 +4,16 @@
  * taxonomy, governed action types, permissions).
  */
 import type { EntityConfig } from '../lib/registry';
-import { deriveRiskScores } from '../lib/riskScoring';
+import { deriveRiskFields } from '../lib/riskScoring';
+import { deriveAssessmentFields } from '../lib/riskProjection';
+import { ILLUSTRATIVE_MATRIX, activeMatrix } from '../lib/riskMatrix';
+
+// Form ranges come from the active matrix definition (single source); falls back to the illustrative
+// grid only so the config module can load — scoring itself fails closed if the matrix is invalid.
+const M = activeMatrix() ?? ILLUSTRATIVE_MATRIX;
+const L_MAX = M.likelihoodLevels;
+const I_MAX = M.impactLevels;
+const MAX_SCORE = L_MAX * I_MAX;
 
 export const RISK_CATEGORIES = [
   'FUND_MANAGEMENT', 'OPERATIONS', 'CUSTOMER_SERVICE', 'MARKETING_DISTRIBUTION', 'OTHER_BUSINESS',
@@ -32,7 +41,7 @@ export const riskEntities: EntityConfig[] = [
     titleField: 'title',
     description: 'Identified sources of uncertainty to the AMC’s objectives, with inherent and residual scoring against the SEBI_AMC taxonomy.',
     createLabel: 'Log Risk',
-    deriveFields: deriveRiskScores,
+    deriveFields: deriveRiskFields,
     initialStatus: 'DRAFT',
     editableStatuses: ['DRAFT'],
     columns: riskColumns,
@@ -50,10 +59,10 @@ export const riskEntities: EntityConfig[] = [
       { key: 'departmentId', label: 'Department', type: 'department', required: true },
       { key: 'source', label: 'Source', type: 'select', required: true, options: ['MANUAL', 'AUDIT_FINDING', 'INCIDENT', 'CONTROL_TEST', 'KRI_BREACH', 'COMPLIANCE_OBLIGATION', 'SECURITY_FINDING', 'THIRD_PARTY', 'BUSINESS_CONTINUITY'] },
       { key: 'identifiedDate', label: 'Identified Date', type: 'date', required: true },
-      { key: 'inherentLikelihood', label: 'Inherent Likelihood (1–5)', type: 'number', min: 1, max: 5, required: true },
-      { key: 'inherentImpact', label: 'Inherent Impact (1–5)', type: 'number', min: 1, max: 5, required: true },
-      { key: 'residualLikelihood', label: 'Residual Likelihood (1–5)', type: 'number', min: 1, max: 5 },
-      { key: 'residualImpact', label: 'Residual Impact (1–5)', type: 'number', min: 1, max: 5 },
+      { key: 'inherentLikelihood', label: `Inherent Likelihood (1–${L_MAX})`, type: 'number', min: 1, max: L_MAX, required: true },
+      { key: 'inherentImpact', label: `Inherent Impact (1–${I_MAX})`, type: 'number', min: 1, max: I_MAX, required: true },
+      { key: 'residualLikelihood', label: `Residual Likelihood (1–${L_MAX})`, type: 'number', min: 1, max: L_MAX },
+      { key: 'residualImpact', label: `Residual Impact (1–${I_MAX})`, type: 'number', min: 1, max: I_MAX },
       { key: 'nextReviewDate', label: 'Next Review Date', type: 'date' },
     ],
     detailSections: [
@@ -72,6 +81,10 @@ export const riskEntities: EntityConfig[] = [
         fields: [
           { key: 'inherentScore', label: 'Inherent Score', cell: 'score' },
           { key: 'residualScore', label: 'Residual Score', cell: 'score' },
+          { key: 'scoringMatrixVersion', label: 'Scoring Matrix Version' },
+          { key: 'residualOrigin', label: 'Residual Origin', cell: 'badge' },
+          { key: 'residualSourceAssessmentCode', label: 'Residual Source Assessment' },
+          { key: 'residualSourceMatrixVersion', label: 'Residual Matrix Version' },
           { key: 'identifiedDate', label: 'Identified', cell: 'date' },
           { key: 'lastAssessedDate', label: 'Last Assessed', cell: 'date' },
           { key: 'nextReviewDate', label: 'Next Review Due', cell: 'date' },
@@ -91,7 +104,10 @@ export const riskEntities: EntityConfig[] = [
         label: 'Assessment History', collection: 'riskAssessments', module: 'RISK', entitySlug: 'assessments', foreignKey: 'riskId',
         columns: [
           { key: 'code', label: 'Code', cell: 'code' }, { key: 'assessmentDate', label: 'Date', cell: 'date' },
-          { key: 'assessorId', label: 'Assessor', cell: 'user' }, { key: 'status', label: 'Status', cell: 'status' },
+          { key: 'assessorId', label: 'Assessor', cell: 'user' },
+          { key: 'residualScore', label: 'Residual', cell: 'score' },
+          { key: 'scoringMatrixVersion', label: 'Matrix' },
+          { key: 'status', label: 'Status', cell: 'status' },
         ],
       },
       {
@@ -142,7 +158,8 @@ export const riskEntities: EntityConfig[] = [
     collection: 'riskAssessments',
     codePrefix: 'RAS',
     titleField: 'title',
-    description: 'Point-in-time inherent/residual scoring events, append-only once approved.',
+    description: 'Point-in-time inherent/residual scoring events, append-only once approved. Each records the scoring matrix version it was scored with.',
+    deriveFields: deriveAssessmentFields,
     initialStatus: 'DRAFT',
     editableStatuses: ['DRAFT'],
     columns: [
@@ -158,10 +175,10 @@ export const riskEntities: EntityConfig[] = [
       { key: 'riskId', label: 'Risk', type: 'reference', refCollection: 'risks', refModule: 'RISK', refEntity: 'risks', required: true },
       { key: 'assessmentDate', label: 'Assessment Date', type: 'date', required: true },
       { key: 'assessorId', label: 'Assessor', type: 'user', required: true },
-      { key: 'inherentLikelihood', label: 'Inherent Likelihood (1–5)', type: 'number', min: 1, max: 5, required: true },
-      { key: 'inherentImpact', label: 'Inherent Impact (1–5)', type: 'number', min: 1, max: 5, required: true },
-      { key: 'residualLikelihood', label: 'Residual Likelihood (1–5)', type: 'number', min: 1, max: 5, required: true },
-      { key: 'residualImpact', label: 'Residual Impact (1–5)', type: 'number', min: 1, max: 5, required: true },
+      { key: 'inherentLikelihood', label: `Inherent Likelihood (1–${L_MAX})`, type: 'number', min: 1, max: L_MAX, required: true },
+      { key: 'inherentImpact', label: `Inherent Impact (1–${I_MAX})`, type: 'number', min: 1, max: I_MAX, required: true },
+      { key: 'residualLikelihood', label: `Residual Likelihood (1–${L_MAX})`, type: 'number', min: 1, max: L_MAX, required: true },
+      { key: 'residualImpact', label: `Residual Impact (1–${I_MAX})`, type: 'number', min: 1, max: I_MAX, required: true },
       { key: 'rationale', label: 'Rationale', type: 'textarea', required: true, full: true },
     ],
     detailSections: [
@@ -175,6 +192,17 @@ export const riskEntities: EntityConfig[] = [
           { key: 'residualLikelihood', label: 'Residual Likelihood' },
           { key: 'residualImpact', label: 'Residual Impact' },
           { key: 'rationale', label: 'Rationale' },
+        ],
+      },
+      {
+        title: 'Scoring Snapshot',
+        fields: [
+          { key: 'scoringMatrixId', label: 'Scoring Matrix' },
+          { key: 'scoringMatrixVersion', label: 'Matrix Version' },
+          { key: 'inherentScore', label: 'Inherent Score', cell: 'score' },
+          { key: 'inherentBand', label: 'Inherent Band' },
+          { key: 'residualScore', label: 'Residual Score', cell: 'score' },
+          { key: 'residualBand', label: 'Residual Band' },
         ],
       },
     ],
@@ -212,7 +240,7 @@ export const riskEntities: EntityConfig[] = [
       { key: 'riskId', label: 'Risk', type: 'reference', refCollection: 'risks', refModule: 'RISK', refEntity: 'risks', required: true },
       { key: 'strategy', label: 'Strategy', type: 'select', required: true, options: ['ACCEPT', 'MITIGATE', 'TRANSFER', 'AVOID'] },
       { key: 'ownerId', label: 'Owner', type: 'user', required: true },
-      { key: 'targetResidualScore', label: 'Target Residual Score', type: 'number', min: 1, max: 25 },
+      { key: 'targetResidualScore', label: 'Target Residual Score', type: 'number', min: 1, max: MAX_SCORE },
       { key: 'dueDate', label: 'Due Date', type: 'date', required: true },
       { key: 'description', label: 'Description', type: 'textarea', required: true, full: true },
     ],

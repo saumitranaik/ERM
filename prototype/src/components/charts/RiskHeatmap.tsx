@@ -1,20 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ILLUSTRATIVE_MATRIX, resolveBand } from '../../lib/riskMatrix';
+import { resolveBand, validateMatrix, type ScoringMatrix } from '../../lib/riskMatrix';
 import { cn } from '../ui/utils';
 
 export interface HeatmapCellDatum {
-  likelihood: number; // 1–5
-  impact: number;     // 1–5
+  likelihood: number; // 1..matrix.likelihoodLevels
+  impact: number;     // 1..matrix.impactLevels
   count: number;
   href?: string;
 }
 
 /**
- * 5×5 likelihood × impact risk heat-map — native HTML/CSS grid (no chart
- * library, per the chart abstraction decision). Cell tone follows the
- * severity banding convention: score = likelihood × impact.
+ * Likelihood × impact risk heat-map — native HTML/CSS grid (no chart library, per the chart
+ * abstraction decision). Dimensions, axis labels, bands and legend all come from the supplied
+ * matrix; score = likelihood × impact. An invalid matrix renders an explanation, not a grid.
  */
 const CELL_TONE = {
   red: 'bg-red-500/85 text-white',
@@ -22,16 +22,19 @@ const CELL_TONE = {
   yellow: 'bg-yellow-300/85 text-yellow-950',
   green: 'bg-green-400/80 text-green-950',
 } as const;
-function cellTone(score: number): string {
-  const band = resolveBand(score);
+function cellTone(score: number, matrix: ScoringMatrix): string {
+  const band = resolveBand(score, matrix);
   return band ? CELL_TONE[band.tone] : 'bg-muted text-muted-foreground';
 }
 
-const LIKELIHOOD_LABELS = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
-const IMPACT_LABELS = ['Insignificant', 'Minor', 'Moderate', 'Major', 'Severe'];
-
-export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; ariaLabel: string }) {
+export function RiskHeatmap({ cells, ariaLabel, matrix }: { cells: HeatmapCellDatum[]; ariaLabel: string; matrix: ScoringMatrix | null }) {
   const router = useRouter();
+  if (!matrix || validateMatrix(matrix).length) {
+    return <p role="alert" className="text-sm text-muted-foreground">The scoring matrix is unavailable or invalid, so the heat map cannot be shown.</p>;
+  }
+  const lRange = Array.from({ length: matrix.likelihoodLevels }, (_, i) => matrix.likelihoodLevels - i);
+  const iRange = Array.from({ length: matrix.impactLevels }, (_, i) => i + 1);
+  const gridStyle = { gridTemplateColumns: `90px repeat(${matrix.impactLevels}, 1fr)` };
   const byKey = new Map(cells.map((c) => [`${c.likelihood}-${c.impact}`, c]));
 
   return (
@@ -45,14 +48,14 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
             </span>
           </div>
           <div className="flex-1">
-            {[5, 4, 3, 2, 1].map((likelihood) => (
-              <div key={likelihood} className="grid grid-cols-[90px_repeat(5,1fr)] gap-1 mb-1">
+            {lRange.map((likelihood) => (
+              <div key={likelihood} className="grid gap-1 mb-1" style={gridStyle}>
                 <div className="flex items-center justify-end pr-2">
                   <span className="text-[10px] text-muted-foreground text-right leading-tight">
-                    {likelihood}. {LIKELIHOOD_LABELS[likelihood - 1]}
+                    {likelihood}. {matrix.likelihoodLabels[likelihood - 1]}
                   </span>
                 </div>
-                {[1, 2, 3, 4, 5].map((impact) => {
+                {iRange.map((impact) => {
                   const cell = byKey.get(`${likelihood}-${impact}`);
                   const score = likelihood * impact;
                   const clickable = !!cell?.href && (cell?.count ?? 0) > 0;
@@ -65,7 +68,7 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
                       title={`Likelihood ${likelihood} × Impact ${impact} (score ${score}): ${cell?.count ?? 0} risk(s)`}
                       className={cn(
                         'h-11 rounded flex items-center justify-center text-sm font-medium transition-transform',
-                        cellTone(score),
+                        cellTone(score, matrix),
                         clickable ? 'cursor-pointer hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring' : 'cursor-default',
                         (cell?.count ?? 0) === 0 && 'opacity-40',
                       )}
@@ -76,9 +79,9 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
                 })}
               </div>
             ))}
-            <div className="grid grid-cols-[90px_repeat(5,1fr)] gap-1 mt-1">
+            <div className="grid gap-1 mt-1" style={gridStyle}>
               <div />
-              {IMPACT_LABELS.map((label, i) => (
+              {matrix.impactLabels.map((label, i) => (
                 <div key={label} className="text-center">
                   <span className="text-[10px] text-muted-foreground leading-tight block">{i + 1}. {label}</span>
                 </div>
@@ -88,7 +91,7 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
           </div>
         </div>
         <div className="flex items-center gap-4 mt-3 pl-6">
-          {ILLUSTRATIVE_MATRIX.bands.map((b) => [CELL_TONE[b.tone].split(' ')[0], `${b.label} (${b.min}–${b.max})`])
+          {matrix.bands.map((b) => [CELL_TONE[b.tone].split(' ')[0], `${b.label} (${b.min}–${b.max})`])
           .map(([tone, label]) => (
             <span key={label} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <span className={cn('w-3 h-3 rounded-sm', tone)} /> {label}
@@ -96,7 +99,9 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
           ))}
         </div>
         <p className="text-[10px] text-muted-foreground mt-1.5 pl-6">
-          Illustrative bands — no approved risk scoring matrix is configured in this prototype.
+          {matrix.status === 'ILLUSTRATIVE'
+            ? `Illustrative matrix ${matrix.id} v${matrix.version} — no AMC-approved risk scoring matrix is configured in this prototype.`
+            : `Scoring matrix ${matrix.id} v${matrix.version}.`}
         </p>
       </div>
     </div>

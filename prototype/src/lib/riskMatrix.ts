@@ -24,7 +24,16 @@ export interface ScoringMatrix {
   status: 'ILLUSTRATIVE' | 'APPROVED';
   likelihoodLevels: number;
   impactLevels: number;
+  /** One label per level, lowest first; length must equal the level count. */
+  likelihoodLabels: string[];
+  impactLabels: string[];
   bands: ScoreBand[];
+}
+
+/** Immutable reference to the exact matrix definition a score was produced with. */
+export interface MatrixRef {
+  matrixId: string;
+  matrixVersion: string;
 }
 
 const BAND_TONES: BandTone[] = ['green', 'yellow', 'orange', 'red'];
@@ -36,6 +45,8 @@ export const ILLUSTRATIVE_MATRIX: ScoringMatrix = {
   status: 'ILLUSTRATIVE',
   likelihoodLevels: 5,
   impactLevels: 5,
+  likelihoodLabels: ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'],
+  impactLabels: ['Insignificant', 'Minor', 'Moderate', 'Major', 'Severe'],
   bands: [
     { label: 'Low', min: 1, max: 4, tone: 'green' },
     { label: 'Medium', min: 5, max: 9, tone: 'yellow' },
@@ -53,6 +64,10 @@ export function validateMatrix(m: ScoringMatrix): string[] {
     return ['Likelihood and impact levels must be whole numbers of at least 1.'];
   }
   const maxScore = m.likelihoodLevels * m.impactLevels;
+  const okLabels = (l: unknown, n: number) => Array.isArray(l) && l.length === n && l.every((x) => typeof x === 'string' && x.trim());
+  if (!okLabels(m.likelihoodLabels, m.likelihoodLevels) || !okLabels(m.impactLabels, m.impactLevels)) {
+    return ['Likelihood and impact need exactly one non-empty label per level.'];
+  }
   if (!Array.isArray(m.bands) || !m.bands.length) return ['At least one band is required.'];
   if (m.bands.some((b) => !b || typeof b !== 'object')) return ['Every band must be an object.'];
   const labels = new Set<string>();
@@ -96,4 +111,52 @@ export function resolveBandFor(likelihood: unknown, impact: unknown, m: ScoringM
   if (validateMatrix(m).length) return null;
   if (!inRange(likelihood, m.likelihoodLevels) || !inRange(impact, m.impactLevels)) return null;
   return resolveBand((likelihood as number) * (impact as number), m);
+}
+
+/**
+ * Registry of every matrix definition a stored score may reference. Definitions are immutable once
+ * listed: a change is a NEW version entry, never an edit, so historical scores stay reproducible.
+ * Only the illustrative prototype matrix exists; no AMC-approved version has been supplied.
+ */
+export const MATRIX_REGISTRY: ScoringMatrix[] = [ILLUSTRATIVE_MATRIX];
+
+/** Rule for new scores: they use this version. Changing it never rescores existing records. */
+export const ACTIVE_MATRIX_REF: MatrixRef = { matrixId: ILLUSTRATIVE_MATRIX.id, matrixVersion: ILLUSTRATIVE_MATRIX.version };
+
+export function refOf(m: ScoringMatrix): MatrixRef {
+  return { matrixId: m.id, matrixVersion: m.version };
+}
+
+/** Exact lookup. Null (fail closed) when the id/version is unknown or the definition is malformed. */
+export function lookupMatrix(ref: unknown): ScoringMatrix | null {
+  const r = ref as Partial<MatrixRef> | null | undefined;
+  if (!r || typeof r.matrixId !== 'string' || typeof r.matrixVersion !== 'string') return null;
+  const m = MATRIX_REGISTRY.find((x) => x.id === r.matrixId && x.version === r.matrixVersion);
+  return m && validateMatrix(m).length === 0 ? m : null;
+}
+
+export function activeMatrix(): ScoringMatrix | null {
+  return lookupMatrix(ACTIVE_MATRIX_REF);
+}
+
+/** Whole-number level check against the matrix grid. */
+export function isLevel(n: unknown, max: number): n is number {
+  return typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= max;
+}
+
+/** likelihood × impact, bounds-checked against the matrix; null for any invalid input or matrix. */
+export function scoreFor(likelihood: unknown, impact: unknown, m: ScoringMatrix | null): number | null {
+  if (!m || validateMatrix(m).length) return null;
+  if (!isLevel(likelihood, m.likelihoodLevels) || !isLevel(impact, m.impactLevels)) return null;
+  return likelihood * impact;
+}
+
+/**
+ * Matrix a stored score is displayed against. A record carrying no reference predates matrix
+ * versioning (prototype seed data and records saved before this change); it is read against the one
+ * matrix that then existed, and is reported as legacy so the UI can say so.
+ */
+export function matrixForRef(ref: Partial<MatrixRef> | null | undefined): { matrix: ScoringMatrix | null; legacy: boolean } {
+  if (!ref || (ref.matrixId == null && ref.matrixVersion == null)) return { matrix: ILLUSTRATIVE_MATRIX, legacy: true };
+  return { matrix: lookupMatrix(ref), legacy: false };
 }

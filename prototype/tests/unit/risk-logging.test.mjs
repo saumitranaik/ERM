@@ -173,7 +173,7 @@ test('an invalid matrix fails closed: no band is resolved', () => {
 });
 
 test('grid size is a matrix property: a 4×4 matrix needs coverage to 16', () => {
-  const m4 = { ...ILLUSTRATIVE_MATRIX, likelihoodLevels: 4, impactLevels: 4, bands: [{ label: 'Low', min: 1, max: 6, tone: 'green' }, { label: 'High', min: 7, max: 16, tone: 'red' }] };
+  const m4 = { ...ILLUSTRATIVE_MATRIX, likelihoodLevels: 4, impactLevels: 4, likelihoodLabels: ['a', 'b', 'c', 'd'], impactLabels: ['a', 'b', 'c', 'd'], bands: [{ label: 'Low', min: 1, max: 6, tone: 'green' }, { label: 'High', min: 7, max: 16, tone: 'red' }] };
   assert.deepEqual(validateMatrix(m4), []);
   assert.equal(resolveBand(17, m4), null);
   assert.equal(resolveBand(16, m4).label, 'High');
@@ -218,4 +218,21 @@ test('real seed data: a CRO-owned risk has no eligible decider; a non-CRO-owned 
   const cro = org.personas.find((p) => p.id === 'p-cro');
   assert.equal(hasEligibleDecider(riskAction, { ownerId: cro.userId }, cands), false);
   assert.equal(hasEligibleDecider(riskAction, { ownerId: 'u-someone-else' }, cands), true);
+});
+
+test('seed risks: stored scores equal L×I and every scored value resolves to a band (data integrity; no policy implied)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { risks, riskAssessments } = JSON.parse(readFileSync(new URL('../../src/data/risk.json', import.meta.url), 'utf8'));
+  for (const r of risks) {
+    for (const k of ['inherent', 'residual']) {
+      const l = r[`${k}Likelihood`], i = r[`${k}Impact`], s = r[`${k}Score`];
+      if (l == null && i == null) { assert.ok(s == null, `${r.id} ${k} score without inputs`); continue; }
+      assert.equal(s, l * i, `${r.id} ${k}Score`);
+      assert.equal(resolveBandFor(l, i)?.label, resolveBand(s)?.label, `${r.id} ${k} band`);
+      assert.ok(resolveBand(s), `${r.id} ${k} band resolves`);
+    }
+  }
+  for (const a of riskAssessments) {
+    for (const k of ['inherent', 'residual']) assert.ok(resolveBandFor(a[`${k}Likelihood`], a[`${k}Impact`]), `${a.id} ${k} resolves`);
+  }
 });

@@ -139,7 +139,7 @@ export function DetailScreen({ cfg, id }: { cfg: EntityConfig; id: string }) {
                       <div key={f.key} className="min-w-0">
                         <dt className="text-xs text-muted-foreground">{f.label}</dt>
                         <dd className="text-sm mt-0.5 break-words">
-                          <CellValue cell={f.cell} value={entity[f.key]} />
+                          <CellValue cell={f.cell} value={entity[f.key]} row={entity} fieldKey={f.key} />
                         </dd>
                       </div>
                     ))}

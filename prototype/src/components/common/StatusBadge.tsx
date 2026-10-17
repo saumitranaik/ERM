@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, type BadgeTone } from '../ui/badge';
-import { resolveBand } from '../../lib/riskMatrix';
+import { matrixForRef, resolveBand, type MatrixRef } from '../../lib/riskMatrix';
 import { humanize } from '../../lib/format';
 
 /**
@@ -44,12 +44,23 @@ const SCORE_TONE = {
   green: 'bg-green-400 text-green-950',
 } as const;
 
-/** Numeric risk score chip; band from the (illustrative) scoring matrix, neutral if a score does not resolve. */
-export function ScoreChip({ score }: { score: number }) {
-  const band = resolveBand(score);
+/**
+ * Numeric risk score chip. The band comes from the matrix version that produced the score; if that
+ * version is unavailable or the score does not resolve, a neutral chip with an explanation is shown
+ * (never a band from a different matrix).
+ */
+export function ScoreChip({ score, matrixRef }: { score: number; matrixRef?: Partial<MatrixRef> }) {
+  const { matrix, legacy } = matrixForRef(matrixRef);
+  const band = matrix ? resolveBand(score, matrix) : null;
   const cls = band ? SCORE_TONE[band.tone] : 'bg-muted text-muted-foreground';
+  const basis = matrix
+    ? `${matrix.id} v${matrix.version}${legacy ? ', legacy record without a recorded version' : ''}${matrix.status === 'ILLUSTRATIVE' ? ' — illustrative, not AMC-approved' : ''}`
+    : '';
+  const title = !matrix
+    ? `Scoring matrix ${matrixRef?.matrixId ?? '?'} v${matrixRef?.matrixVersion ?? '?'} is unavailable; band cannot be shown`
+    : band ? `${band.label} (${basis})` : `No band resolved (${basis})`;
   return (
-    <span title={band ? `${band.label} (illustrative band)` : 'No band resolved'} className={`inline-flex items-center justify-center min-w-[28px] px-1.5 py-0.5 rounded text-xs font-medium tabular-nums ${cls}`}>
+    <span title={title} className={`inline-flex items-center justify-center min-w-[28px] px-1.5 py-0.5 rounded text-xs font-medium tabular-nums ${cls}`}>
       {score}
     </span>
   );

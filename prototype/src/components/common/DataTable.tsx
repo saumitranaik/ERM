@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
 import { StatusBadge, SeverityBadge, ScoreChip } from './StatusBadge';
+import { scoreRefFor } from '../../lib/riskScoring';
 import { EmptyState } from './EmptyState';
 import { Badge, type BadgeTone } from '../ui/badge';
 import { formatDate, formatDateTime, humanize } from '../../lib/format';
@@ -21,10 +22,15 @@ export function CellValue({
   cell,
   value,
   tone,
+  row,
+  fieldKey,
 }: {
   cell?: CellType;
   value: unknown;
   tone?: BadgeTone;
+  /** Owning record + column key: lets score cells resolve against the matrix version that produced them. */
+  row?: Record<string, unknown>;
+  fieldKey?: string;
 }) {
   const db = useDb();
   if (value === null || value === undefined || value === '') return <span className="text-muted-foreground">—</span>;
@@ -34,7 +40,7 @@ export function CellValue({
     case 'severity':
       return <SeverityBadge value={String(value)} />;
     case 'score':
-      return <ScoreChip score={Number(value)} />;
+      return <ScoreChip score={Number(value)} matrixRef={fieldKey ? scoreRefFor(fieldKey, row) : undefined} />;
     case 'badge':
       return <Badge variant={tone ?? 'secondary'}>{humanize(String(value))}</Badge>;
     case 'user': {
@@ -207,7 +213,7 @@ export function DataTable({
               >
                 {columns.map((c) => (
                   <TableCell key={c.key}>
-                    <CellValue cell={c.cell} value={r[c.key]} tone={c.tone} />
+                    <CellValue cell={c.cell} value={r[c.key]} tone={c.tone} row={r} fieldKey={c.key} />
                   </TableCell>
                 ))}
               </TableRow>
