@@ -300,21 +300,21 @@ already operate under) and is never inferred from an earlier, unrelated approval
 | Metric | Value |
 |---|---|
 | Total videos in series | 46 (matches catalogue's 46 cataloged workflows exactly; §25) |
-| Videos with a Production Package Complete or later status | 1 (Video 01) |
-| Videos Rendered | 1 (Video 01, Version 1 — Silent Demonstration) |
+| Videos with a Production Package Complete or later status | 2 (Videos 01–02) |
+| Videos Rendered | 2 (Videos 01–02, both Version 1 — Silent Demonstration) |
 | Videos Narrated | 0 |
 | Videos Approved | 0 |
 | Videos Published | 0 |
-| Videos Not Started | 45 |
+| Videos Not Started | 44 |
 
 **No validated per-video effort or runtime model exists yet for the video medium specifically.**
 The catalogue's own §8–§9 effort estimates (~25–28 person-days) are for the **deck** medium, a
 materially lighter production (screenshots + slides only, no script/timeline/scene-list/subtitle
-production). Video 01 is the only video-medium data point, and it does not cleanly decompose
-into a reusable per-video effort figure: Session 23 produced its full Stage 1–7/9 package,
+production). Videos 01 and 02 are the only video-medium data points; Video 01 does not cleanly decompose
+into a reusable per-video effort figure (Video 02 reused its tooling and two screenshots, so it is not an independent estimate either): Session 23 produced its full Stage 1–7/9 package,
 Session 26 separately produced Stage 8 rendering only, and both sessions carried first-of-series
 setup cost (framework authorship itself happened in Session 24, between them) that will not
-recur for Videos 02–46. Treat per-video effort as unestimated until at least 2–3 more videos are
+recur for Videos 03–46. Treat per-video effort as unestimated until at least 2–3 more videos are
 produced under stable tooling — tracked as a Known Constraint (§23), not fabricated here.
 
 ## 18. Future Narration Strategy
@@ -325,7 +325,7 @@ drafting, forced-alignment subtitle re-timing, and TTS once an engine meets the 
 all documented-only, none adopted). This manifest's addition: track narration strategy as a
 **series-wide** decision, not a per-video one — once a real voice-over pipeline (human talent or
 qualifying TTS) is confirmed for one video, it should be applied as Version 2 to Video 01 first
-(the only video with a durable Version 1 silent baseline to upgrade) before being used for a new
+(Videos 01 and 02 both have a durable Version 1 silent baseline to upgrade; Video 01 is the first in series order) before being used for a new
 video's first version, preserving one consistent narrator profile across the whole series
 (framework §14).
 
@@ -384,8 +384,8 @@ re-discovering:
 - **L1-29 and L1-31 have no documented dependency** in catalogue §5 (§15) — this manifest
   supplies a recommended default, not an authoritative one.
 - **No per-video effort/runtime model exists yet** (§17) beyond framework §4's tier bands and
-  Video 01's own single data point.
-- **45 of 46 video package directories do not yet exist** — this manifest assigns numbers and
+  the two data points of Videos 01–02.
+- **44 of 46 video package directories do not yet exist** — this manifest assigns numbers and
   slugs to all of them as a planning act (§4–§6) but creates none; each is created only when its
   own Stage 1–2 production work actually begins.
 - **This manifest itself has not been reviewed against a second, independently-produced video**
@@ -413,7 +413,7 @@ re-discovering:
 
 ## 23. Current Status
 
-**Video 01 — Risk Assessment Approval (L1-01)** is the only video with any production activity:
+**Video 01 — Risk Assessment Approval (L1-01)**:
 
 | Axis | Status | Detail |
 |---|---|---|
@@ -422,8 +422,17 @@ re-discovering:
 | QA Status | **QA Complete — Version 1 scope only** | Framework §16 checklist run against the silent render (frame sampling across all chapters, transition/callout/subtitle-sync verification per `recording-log.md`'s Rendering Pass section). Narration-sync QA does not apply until a Version 2 exists. |
 | Approval Status | **Not Started** | No explicit stakeholder/user sign-off decision has been recorded for this package as a distinct governance act, separate from the QA pass itself. |
 
-All other 45 videos: **Not Started** on every axis — no package directory exists, no artifact
-has been produced, per this session's explicit "do not produce Video 02" instruction.
+**Video 02 — Risk Treatment Plan Approval (L1-02)** (this session):
+
+| Axis | Status | Detail |
+|---|---|---|
+| Production Package Status | **Production Package Complete** | All nine documents plus 11 screenshots (2 reused verbatim from Video 01, 9 newly captured) produced and QA-checked. |
+| Rendering Status | **Rendered — Version 1 (Silent Demonstration)** | `.mp4` produced this session: H.264, 1920×1080, 30fps, AAC (silent), 6:47. No spoken narration, no background music (same standing tooling gap as Video 01); burned-in subtitles carry narration content. |
+| QA Status | **QA Complete — Version 1 scope only** | Framework §16 checklist run against the silent render (incremental preview validation across all chapters/hard cuts before the full render, then full-render frame sampling — see `recording-log.md`). Narration-sync QA does not apply until a Version 2 exists. |
+| Approval Status | **Not Started** | No explicit stakeholder/user sign-off decision has been recorded for this package as a distinct governance act, separate from the QA pass itself. |
+
+All other 44 videos: **Not Started** on every axis — no package directory exists, no artifact
+has been produced, per this session's own stop condition (produce exactly one video, then stop).
 
 ---
 
@@ -589,7 +598,7 @@ the Checker Queue.
 | # | Production Package | Rendering | QA | Approval | Repository Folder | Output MP4 | Related Deck | Related Catalogue Entry |
 |---|---|---|---|---|---|---|---|---|
 | 01 | Production Package Complete | Rendered (Version 1 — Silent) | QA Complete (Version 1 scope) | Not Started | `demos/video-01-risk-assessment-approval/` | `video-01-risk-assessment-approval.mp4` | `deck-01-risk-assessment-approval/` | Catalogue §4.1, row L1-01 |
-| 02 | Not Started | Not Started | Not Started | Not Started | `demos/video-02-risk-treatment-plan-approval/` | `video-02-risk-treatment-plan-approval.mp4` | Not produced | Catalogue §4.1, row L1-02 |
+| 02 | Production Package Complete | Rendered (Version 1 — Silent) | QA Complete (Version 1 scope) | Not Started | `demos/video-02-risk-treatment-plan-approval/` | `video-02-risk-treatment-plan-approval.mp4` | Not produced | Catalogue §4.1, row L1-02 |
 | 03 | Not Started | Not Started | Not Started | Not Started | `demos/video-03-risk-acceptance/` | `video-03-risk-acceptance.mp4` | Not produced | Catalogue §4.1, row L1-03 |
 | 04 | Not Started | Not Started | Not Started | Not Started | `demos/video-04-kri-breach-escalation-acknowledgement/` | `video-04-kri-breach-escalation-acknowledgement.mp4` | Not produced | Catalogue §4.1, row L1-04 |
 | 05 | Not Started | Not Started | Not Started | Not Started | `demos/video-05-control-test-execution-result-capture/` | `video-05-control-test-execution-result-capture.mp4` | Not produced | Catalogue §4.1, row L1-05 |
@@ -640,6 +649,15 @@ the Checker Queue.
 - **#01**: See §23 Current Status for full detail. Version 1 is silent by explicit user
   instruction (Session 26), not a tooling failure — the rendering pipeline is narration-ready for
   a future Version 2 (`asset-inventory.md` Future Work).
+- **#02**: See §23 Current Status for full detail. Reuses two screenshots verbatim from Video 01
+  (`00-login-persona-picker.png`, `01-risk-detail-active.png` — same `RSK-2026-0004` record,
+  identical business state) and its own `project/render_pipeline.py` imports Video 01's generic
+  compositing primitives directly rather than re-implementing them. Chapters 2 (RISK Module
+  Overview) and 3 (Meet the Personas) are the framework's shortened, second-appearance form;
+  narration/video runtime (6:12 / 6:47) lands inside the framework's 6–10 minute L1 (Simple)
+  band, confirming the manifest's own §26 prediction for a second video in an already-introduced
+  module family. Version 1 is silent for the same standing reason as Video 01 (`asset-inventory.md`
+  Future Work).
 - **#18**: See §15's flagged ordering tension (informal CAPA-concept dependency on V21, produced
   later) and the recommended mitigation (self-contained CAPA explanation within this video's own
   script).
@@ -668,28 +686,29 @@ the Checker Queue.
 
 ## 26. Next Recommended Video
 
-**Video 02 — Risk Treatment Plan Approval (L1-02).**
+**Video 02 (L1-02, Risk Treatment Plan Approval) was produced this session** — see §23 Current
+Status, `demos/video-02-risk-treatment-plan-approval/`, and the Amendment Log. This section now
+names the next pending video per the same automation rule (§29), for a future session.
+
+**Video 03 — Risk Acceptance (L1-03).**
 
 - **Why it is next**: it is the first Not Started row in Video Number order (§25 Table C) whose
   Dependencies are already satisfied — §29's automation rule, applied directly.
 - **Dependencies satisfied**: V01 (Risk Assessment Approval) is Production Package Complete and
-  Rendered — the only prerequisite catalogue §5 names for L1-02.
-- **Expected effort**: Simple tier, 6–10 min framework band (§25 Table B) — and, unlike Video 01,
-  this is the *second* video in the RISK module family, so its Domain/Module Overview chapter
-  (framework §13 item 2) should be the shortened variant, not Video 01's full-length one,
-  plausibly bringing its actual runtime closer to the nominal band than Video 01's own 16:55.
+  Rendered — the only prerequisite catalogue §5 names for L1-03.
+- **Expected effort**: Simple tier, 6–10 min framework band (§25 Table B) — the *third* video in
+  the RISK module family, so its Domain/Module Overview and Meet the Personas chapters should
+  again use the framework's shortened variant, per Video 02's own precedent.
 - **Personas involved**: Arjun Mehta (Risk Manager, maker) and Priya Raghunathan (CRO, checker) —
-  the identical maker/checker pair as Video 01, so their persona cards (framework §12) and the
-  tenant-context beat (Meridian AMC framing) are directly reusable in shortened form (framework
-  §25 Persona Introduction template).
-- **Expected deliverables**: the full nine-document package (`source-workflow.md` through
-  `asset-inventory.md`) plus a `screenshots/` capture of RSK-2026-0004 or an equivalent
-  `ACTIVE` risk's treatment-plan submission/approval flow (catalogue's Start → End Screen:
-  Risk Detail → Treatment Plan Detail), following the same live-capture, zero-modification
-  discipline Video 01 established. Rendering (Stage 8) requires re-confirming current tooling
-  availability first (§8, §10) rather than assuming Session 26's findings still hold, and an
-  explicit decision — the same three-option pattern framework §17 already fixes — on whether this
-  video ships as another Version 1 Silent Demonstration or attempts real narration.
+  the identical maker/checker pair as Videos 01–02.
+- **Expected deliverables**: the full nine-document package plus a `screenshots/` capture of an
+  `ACTIVE`/`ESCALATED` risk's formal acceptance flow (catalogue's Start → End Screen: Risk Detail
+  → Acceptance record (Approved/Expired)), following the same live-capture, zero-modification
+  discipline Videos 01–02 established, reusing prior screenshots where the underlying business
+  state is identical (framework §20, §26; Video 02's own `source-workflow.md` "Precedent and
+  continuity" section is the worked example to follow). Rendering (Stage 8) requires
+  re-confirming current tooling availability first (§8, §10) rather than assuming this session's
+  findings still hold.
 
 ---
 

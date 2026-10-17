@@ -27,8 +27,9 @@ re-derived from scratch each time.
 |---|---|---|---|
 | [`deck-01-risk-assessment-approval/`](deck-01-risk-assessment-approval/) | Static slide deck (`.pptx`) | L1-01, Risk Assessment Approval | Complete |
 | [`video-01-risk-assessment-approval/`](video-01-risk-assessment-approval/) | Narrated video production package | L1-01, Risk Assessment Approval | Production package complete; rendered as Version 1 (Silent Demonstration) — no spoken narration or music yet (see its own `asset-inventory.md`); not yet approved or published (see `video-production-manifest.md` §23) |
+| [`video-02-risk-treatment-plan-approval/`](video-02-risk-treatment-plan-approval/) | Narrated video production package | L1-02, Risk Treatment Plan Approval | Production package complete; rendered as Version 1 (Silent Demonstration) — no spoken narration or music yet (see its own `asset-inventory.md`); not yet approved or published (see `video-production-manifest.md` §23) |
 
-Full status for all 46 planned videos (1 with production activity, 45 Not Started) is tracked in
+Full status for all 46 planned videos (2 with production activity, 44 Not Started) is tracked in
 [`video-production-manifest.md`](video-production-manifest.md), not here — this table is a
 directory-contents summary, not the status source of truth.
 
