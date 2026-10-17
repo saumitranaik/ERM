@@ -102,3 +102,79 @@ test('owner restriction is not extended to other collections or to "return"', ()
   const other = ctx({ action: { module: 'CONTROLS', collection: 'controls', createdBy: 'p-controlowner' }, entity: { ownerId: 'u-priya' } });
   assert.equal(decisionBlockReason(other, 'approve'), null);
 });
+
+// ---- Checker availability: sole checker is the owner -> fail closed; independent checker can decide ----
+// Isolated fixtures only; the seed data (a single RISK_CHECKER persona, the CRO) is not altered.
+const eligibleDeciders = (personas, entity, decision = 'approve') =>
+  personas.filter((p) => decisionBlockReason(ctx({ personaId: p.id, userId: p.userId, hasApprovePermission: p.checker, entity }), decision) === null);
+
+test('sole RISK_CHECKER who owns the risk: nobody is eligible (fail closed, no silent permit)', () => {
+  const personas = [
+    { id: 'p-cro', userId: 'u-priya', checker: true },
+    { id: 'p-riskmgr', userId: 'u-arjun', checker: false },
+  ];
+  const entity = { id: 'r-x', ownerId: 'u-priya' };
+  assert.deepEqual(eligibleDeciders(personas, entity, 'approve'), []);
+  assert.deepEqual(eligibleDeciders(personas, entity, 'reject'), []);
+});
+
+test('with an independent checker (fixture), the owner is denied and the independent checker can decide', () => {
+  const personas = [
+    { id: 'p-cro', userId: 'u-priya', checker: true },
+    { id: 'p-alt', userId: 'u-alt', checker: true },
+  ];
+  const entity = { id: 'r-x', ownerId: 'u-priya' };
+  assert.deepEqual(eligibleDeciders(personas, entity).map((p) => p.id), ['p-alt']);
+});
+
+// ---- Scoring matrix: consistency, band resolution, invalid configuration (illustrative values) ----
+import { ILLUSTRATIVE_MATRIX, validateMatrix, resolveBand } from '../../src/lib/riskMatrix.ts';
+
+test('illustrative matrix is internally consistent and labelled illustrative', () => {
+  assert.deepEqual(validateMatrix(ILLUSTRATIVE_MATRIX), []);
+  assert.equal(ILLUSTRATIVE_MATRIX.status, 'ILLUSTRATIVE');
+});
+
+test('every achievable score 1..25 resolves to exactly one band label', () => {
+  for (let s = 1; s <= 25; s++) {
+    const b = resolveBand(s);
+    assert.ok(b && b.label, `score ${s}`);
+    assert.equal(ILLUSTRATIVE_MATRIX.bands.filter((x) => s >= x.min && s <= x.max).length, 1);
+  }
+  assert.equal(resolveBand(4).label, 'Low');
+  assert.equal(resolveBand(5).label, 'Medium');
+  assert.equal(resolveBand(16).label, 'High');
+  assert.equal(resolveBand(25).label, 'Critical');
+});
+
+test('every likelihood × impact product resolves to a band', () => {
+  for (let l = 1; l <= 5; l++) for (let i = 1; i <= 5; i++) assert.ok(resolveBand(l * i), `${l}x${i}`);
+});
+
+test('out-of-range or non-integer scores do not resolve', () => {
+  for (const bad of [0, 26, -3, 4.5, NaN, undefined, null, '8']) assert.equal(resolveBand(bad), null, String(bad));
+});
+
+test('invalid matrices are rejected: gap, overlap, short coverage, overrun, duplicate/missing label, bad levels', () => {
+  const m = (bands, extra = {}) => ({ ...ILLUSTRATIVE_MATRIX, bands, ...extra });
+  const B = ILLUSTRATIVE_MATRIX.bands;
+  assert.match(validateMatrix(m([B[0], { ...B[1], min: 6 }, B[2], B[3]])).join(), /resolve to no band/);
+  assert.match(validateMatrix(m([B[0], { ...B[1], min: 4 }, B[2], B[3]])).join(), /overlap/);
+  assert.match(validateMatrix(m(B.slice(0, 3))).join(), /17–25 resolve to no band/);
+  assert.match(validateMatrix(m([...B.slice(0, 3), { ...B[3], max: 30 }])).join(), /past the maximum/);
+  assert.match(validateMatrix(m([B[0], { ...B[1], label: 'low' }, B[2], B[3]])).join(), /Duplicate/);
+  assert.match(validateMatrix(m([{ ...B[0], label: ' ' }, ...B.slice(1)])).join(), /label/);
+  assert.match(validateMatrix(m([])).join(), /At least one band/);
+  assert.match(validateMatrix(m(B, { likelihoodLevels: 0 })).join(), /levels/);
+});
+
+test('an invalid matrix fails closed: no band is resolved', () => {
+  assert.equal(resolveBand(8, { ...ILLUSTRATIVE_MATRIX, bands: ILLUSTRATIVE_MATRIX.bands.slice(0, 2) }), null);
+});
+
+test('grid size is a matrix property: a 4×4 matrix needs coverage to 16', () => {
+  const m4 = { ...ILLUSTRATIVE_MATRIX, likelihoodLevels: 4, impactLevels: 4, bands: [{ label: 'Low', min: 1, max: 6, tone: 'green' }, { label: 'High', min: 7, max: 16, tone: 'red' }] };
+  assert.deepEqual(validateMatrix(m4), []);
+  assert.equal(resolveBand(17, m4), null);
+  assert.equal(resolveBand(16, m4).label, 'High');
+});

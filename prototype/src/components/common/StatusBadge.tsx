@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge, type BadgeTone } from '../ui/badge';
+import { resolveBand } from '../../lib/riskMatrix';
 import { humanize } from '../../lib/format';
 
 /**
@@ -36,15 +37,19 @@ export function SeverityBadge({ value }: { value: string }) {
   return <Badge variant={tone}>{humanize(value)}</Badge>;
 }
 
-/** Numeric risk score chip banded by the 5×5 scoring convention. */
+const SCORE_TONE = {
+  red: 'bg-red-500 text-white',
+  orange: 'bg-orange-400 text-white',
+  yellow: 'bg-yellow-300 text-yellow-950',
+  green: 'bg-green-400 text-green-950',
+} as const;
+
+/** Numeric risk score chip; band from the (illustrative) scoring matrix, neutral if a score does not resolve. */
 export function ScoreChip({ score }: { score: number }) {
-  const cls =
-    score >= 17 ? 'bg-red-500 text-white' :
-    score >= 10 ? 'bg-orange-400 text-white' :
-    score >= 5 ? 'bg-yellow-300 text-yellow-950' :
-    'bg-green-400 text-green-950';
+  const band = resolveBand(score);
+  const cls = band ? SCORE_TONE[band.tone] : 'bg-muted text-muted-foreground';
   return (
-    <span className={`inline-flex items-center justify-center min-w-[28px] px-1.5 py-0.5 rounded text-xs font-medium tabular-nums ${cls}`}>
+    <span title={band ? `${band.label} (illustrative band)` : 'No band resolved'} className={`inline-flex items-center justify-center min-w-[28px] px-1.5 py-0.5 rounded text-xs font-medium tabular-nums ${cls}`}>
       {score}
     </span>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ILLUSTRATIVE_MATRIX, resolveBand } from '../../lib/riskMatrix';
 import { cn } from '../ui/utils';
 
 export interface HeatmapCellDatum {
@@ -15,11 +16,15 @@ export interface HeatmapCellDatum {
  * library, per the chart abstraction decision). Cell tone follows the
  * severity banding convention: score = likelihood × impact.
  */
+const CELL_TONE = {
+  red: 'bg-red-500/85 text-white',
+  orange: 'bg-orange-400/85 text-white',
+  yellow: 'bg-yellow-300/85 text-yellow-950',
+  green: 'bg-green-400/80 text-green-950',
+} as const;
 function cellTone(score: number): string {
-  if (score >= 17) return 'bg-red-500/85 text-white';
-  if (score >= 10) return 'bg-orange-400/85 text-white';
-  if (score >= 5) return 'bg-yellow-300/85 text-yellow-950';
-  return 'bg-green-400/80 text-green-950';
+  const band = resolveBand(score);
+  return band ? CELL_TONE[band.tone] : 'bg-muted text-muted-foreground';
 }
 
 const LIKELIHOOD_LABELS = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
@@ -83,12 +88,8 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
           </div>
         </div>
         <div className="flex items-center gap-4 mt-3 pl-6">
-          {[
-            ['bg-green-400/80', 'Low (1–4)'],
-            ['bg-yellow-300/85', 'Medium (5–9)'],
-            ['bg-orange-400/85', 'High (10–16)'],
-            ['bg-red-500/85', 'Critical (17–25)'],
-          ].map(([tone, label]) => (
+          {ILLUSTRATIVE_MATRIX.bands.map((b) => [CELL_TONE[b.tone].split(' ')[0], `${b.label} (${b.min}–${b.max})`])
+          .map(([tone, label]) => (
             <span key={label} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <span className={cn('w-3 h-3 rounded-sm', tone)} /> {label}
             </span>
