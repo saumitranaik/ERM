@@ -55,3 +55,50 @@ test('risk codes follow RSK-YYYY-NNNN and increment from the highest existing se
   assert.equal(nextCode([], 'RSK'), `RSK-${year}-0001`);
   assert.equal(nextCode([{ code: `RSK-${year}-0020` }, { code: `RSK-${year}-0003` }, { code: 'XYZ-2026-0099' }], 'RSK'), `RSK-${year}-0021`);
 });
+
+// ---- Decision eligibility: maker-checker and risk-owner restriction ----
+import { decisionBlockReason } from '../../src/lib/decisionPolicy.ts';
+
+const riskAction = { module: 'RISK', collection: 'risks', createdBy: 'p-riskmgr' };
+const ctx = (over = {}) => ({
+  action: riskAction,
+  entity: { id: 'r-x', ownerId: 'u-sanjay' },
+  personaId: 'p-cro',
+  userId: 'u-priya',
+  hasApprovePermission: true,
+  ...over,
+});
+
+test('independent authorised checker (not owner) can approve and reject', () => {
+  assert.equal(decisionBlockReason(ctx(), 'approve'), null);
+  assert.equal(decisionBlockReason(ctx(), 'reject'), null);
+});
+
+test('risk owner cannot approve or reject, even as authorised checker and not the submitter', () => {
+  const owner = ctx({ entity: { id: 'r-x', ownerId: 'u-priya' } });
+  assert.match(decisionBlockReason(owner, 'approve'), /Owner restriction/);
+  assert.match(decisionBlockReason(owner, 'reject'), /Owner restriction/);
+});
+
+test('creator == owner: owner (who is also maker) is blocked by separation of duties', () => {
+  const same = ctx({ action: { ...riskAction, createdBy: 'p-cro' }, entity: { id: 'r-x', ownerId: 'u-priya' } });
+  assert.match(decisionBlockReason(same, 'approve'), /Separation of duties/);
+  assert.match(decisionBlockReason(same, 'reject'), /Separation of duties/);
+});
+
+test('maker cannot decide own submission', () => {
+  const maker = ctx({ personaId: 'p-riskmgr', userId: 'u-arjun' });
+  assert.match(decisionBlockReason(maker, 'approve'), /Separation of duties/);
+});
+
+test('persona without the approve permission cannot decide', () => {
+  assert.match(decisionBlockReason(ctx({ hasApprovePermission: false }), 'approve'), /RISK_CHECKER/);
+  assert.match(decisionBlockReason(ctx({ hasApprovePermission: false }), 'reject'), /RISK_CHECKER/);
+});
+
+test('owner restriction is not extended to other collections or to "return"', () => {
+  const owner = ctx({ entity: { id: 'r-x', ownerId: 'u-priya' } });
+  assert.equal(decisionBlockReason(owner, 'return'), null);
+  const other = ctx({ action: { module: 'CONTROLS', collection: 'controls', createdBy: 'p-controlowner' }, entity: { ownerId: 'u-priya' } });
+  assert.equal(decisionBlockReason(other, 'approve'), null);
+});

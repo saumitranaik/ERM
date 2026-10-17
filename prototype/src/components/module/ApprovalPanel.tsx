@@ -7,6 +7,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { decidePendingAction, type Decision } from '../../lib/governance';
+import { decisionBlockReason } from '../../lib/decisionPolicy';
 import { useDb } from '../../lib/store';
 import { useSession } from '../../lib/session';
 import { formatDateTime, humanize } from '../../lib/format';
@@ -40,8 +41,19 @@ export function ApprovalDecision({
 
   if (!session) return null;
 
-  const isMaker = action.createdBy === session.persona.id;
-  const canDecide = session.has(`${action.module}_APPROVE`) && !isMaker;
+  const entity = (db[action.collection] as Record<string, unknown>[] | undefined)?.find((e) => e.id === action.entityId);
+  const ctx = {
+    action,
+    entity,
+    personaId: session.persona.id,
+    userId: session.user.id,
+    hasApprovePermission: session.has(`${action.module}_APPROVE`),
+  };
+  // Approve/Reject share one rule set; Return is gated separately (owner restriction does not apply to it).
+  const blockApprove = decisionBlockReason(ctx, 'approve');
+  const blockReject = decisionBlockReason(ctx, 'reject');
+  const blockReturn = decisionBlockReason(ctx, 'return');
+  const canDecide = !blockApprove || !blockReject || !blockReturn;
 
   const confirm = () => {
     if (!decision) return;
@@ -75,22 +87,34 @@ export function ApprovalDecision({
 
       {canDecide ? (
         <div className="flex items-center gap-2 flex-wrap">
-          <Button size="sm" onClick={() => setDecision('approve')}>
-            <CheckCircle /> Approve
-          </Button>
-          <Button size="sm" variant="destructive" onClick={() => setDecision('reject')}>
-            <XCircle /> Reject
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => setDecision('return')}>
-            <RotateCcw /> Return for rework
-          </Button>
+          {!blockApprove && (
+            <Button size="sm" onClick={() => setDecision('approve')}>
+              <CheckCircle /> Approve
+            </Button>
+          )}
+          {!blockReject && (
+            <Button size="sm" variant="destructive" onClick={() => setDecision('reject')}>
+              <XCircle /> Reject
+            </Button>
+          )}
+          {!blockReturn && (
+            <Button size="sm" variant="outline" onClick={() => setDecision('return')}>
+              <RotateCcw /> Return for rework
+            </Button>
+          )}
+          {(blockApprove || blockReject) && (
+            <p className="flex items-center gap-2 text-xs text-muted-foreground w-full">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              {blockApprove}
+            </p>
+          )}
         </div>
       ) : (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <ShieldAlert className="w-4 h-4" />
-          {isMaker
+          {action.createdBy === session.persona.id
             ? 'You submitted this action — separation of duties requires a different checker to decide it. Switch persona to demo the decision.'
-            : `Deciding requires the ${action.module}_CHECKER role.`}
+            : blockApprove}
         </p>
       )}
 

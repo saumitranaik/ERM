@@ -33,6 +33,14 @@ switcher — no logout/login required.
    Queue**. Approve or reject the item, with an optional/mandatory comment.
 7. Return to the risk's detail page: status has updated, a new History entry
    and a notification back to Arjun Mehta both exist.
+8. **Risk-owner restriction** (prototype control): if the risk's *Risk Owner*
+   is Priya herself, she sees no Approve/Reject controls on that risk — in the
+   Approvals queue or on the risk page — only the reason
+   ("Owner restriction…"). Log a risk with Priya as owner to see it. The
+   restriction applies to Approve and Reject only, and only to the risk record
+   itself (see `defects-and-observations.md`, item A, for what is not covered).
+   In the seed there is a single `RISK_CHECKER`, so an owner-restricted risk
+   has no eligible decider until a second checker persona exists.
 
 ## 2. Control exception lifecycle (Control Owner → Head of Compliance)
 

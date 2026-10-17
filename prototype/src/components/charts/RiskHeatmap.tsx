@@ -94,6 +94,9 @@ export function RiskHeatmap({ cells, ariaLabel }: { cells: HeatmapCellDatum[]; a
             </span>
           ))}
         </div>
+        <p className="text-[10px] text-muted-foreground mt-1.5 pl-6">
+          Illustrative bands — no approved risk scoring matrix is configured in this prototype.
+        </p>
       </div>
     </div>
   );

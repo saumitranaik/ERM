@@ -121,7 +121,7 @@ try {
   await typeInto('#f-title', 'ZZ-TEST e2e risk');
   await typeInto('#f-description', 'Disposable e2e risk');
   await pick('f-category', 'Operations');
-  await pick('f-ownerId');
+  await pick('f-ownerId', 'Sanjay');
   await pick('f-departmentId');
   await pick('f-source', 'Manual');
   await setDate('#f-identifiedDate', '2026-10-01');
@@ -188,7 +188,85 @@ try {
   check('maker cannot decide own submission', !/\bApprove\b/.test(await text()));
   await setPersona('p-cro');
   await nav(`/modules/RISK/risks/${r.id}`);
-  check('checker (different persona) sees decision controls', /\bApprove\b/.test(await text()));
+  await sleep(800);
+  t = await text();
+  check('checker (different persona, not owner) sees Approve and Reject', /\bApprove\b/.test(t) && /\bReject\b/.test(t), t.replace(/\s+/g, ' ').slice(0, 400));
+
+  // Independent checker approves (owner is Sanjay, checker is Priya)
+  await clickButton('Approve');
+  await sleep(500);
+  await ev(`[...document.querySelectorAll('[role=dialog] button')].find(b=>b.textContent.trim()==='Confirm approve').click()`);
+  await sleep(1200);
+  let d2 = await getDb();
+  check('independent checker approve: risk ACTIVE, action approved, ACTION_APPROVED in history',
+    d2.risks.find((x) => x.id === r.id).status === 'ACTIVE' &&
+    d2.pendingActions.find((a) => a.entityId === r.id).status === 'approved' &&
+    d2.history.some((h) => h.entityId === r.id && h.action === 'ACTION_APPROVED' && h.actorId === 'p-cro'));
+
+  // Log + submit a risk as the Risk Manager; owner chosen by name
+  const logAndSubmit = async (title, ownerName) => {
+    await setPersona('p-riskmgr');
+    await nav('/modules/RISK/risks/new');
+    await typeInto('#f-title', title);
+    await typeInto('#f-description', 'Disposable e2e risk');
+    await pick('f-category', 'Operations');
+    await pick('f-ownerId', ownerName);
+    await pick('f-departmentId');
+    await pick('f-source', 'Manual');
+    await setDate('#f-identifiedDate', '2026-10-01');
+    await typeInto('#f-inherentLikelihood', '3');
+    await typeInto('#f-inherentImpact', '3');
+    await clickButton('Log Risk');
+    for (let i = 0; i < 40 && (await path()).endsWith('/new'); i++) await sleep(500);
+    await sleep(500);
+    await clickButton('Submit for Assessment Approval');
+    await sleep(800);
+    await ev(`(()=>{const e=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(e,'e2e');e.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+    await sleep(200);
+    await ev(`[...document.querySelectorAll('[role=dialog] button')].find(b=>b.textContent.trim()==='Submit for approval').click()`);
+    await sleep(1500);
+    const dbx = await getDb();
+    return dbx.risks.find((x) => x.title === title);
+  };
+
+  // Risk-owner restriction: Priya (CRO, the only RISK_CHECKER) owns the risk Arjun submitted
+  const owned = await logAndSubmit('ZZ-TEST e2e owner-restricted', 'Priya');
+  await setPersona('p-cro');
+  await nav(`/modules/RISK/risks/${owned.id}`);
+  t = await text();
+  check('risk owner (authorised checker, not submitter): no Approve/Reject controls, reason shown',
+    !/\bApprove\b/.test(t) && !/\bReject\b/.test(t) && t.includes('Owner restriction'), t.slice(0, 0));
+  await nav('/protected/approvals');
+  const rowText = await ev(`(()=>{const a=document.querySelector('a[href$="/risks/${owned.id}"]');const c=a&&a.closest('.space-y-3 > *');return c?c.innerText:'<card not found>'})()`);
+  check('approvals queue also withholds Approve/Reject from the owner', !/\bApprove\b/.test(rowText) && !/\bReject\b/.test(rowText) && rowText.includes('Owner restriction'), rowText.slice(0, 200));
+  const d3 = await getDb();
+  check('owner-restricted risk remains UNDER_REVIEW with its action pending',
+    d3.risks.find((x) => x.id === owned.id).status === 'UNDER_REVIEW' && d3.pendingActions.find((a) => a.entityId === owned.id).status === 'pending');
+  await setPersona('p-riskmgr');
+  await nav(`/modules/RISK/risks/${owned.id}`);
+  check('the maker still cannot approve/reject (separation of duties)', !/\bApprove\b/.test(await text()) && !/\bReject\b/.test(await text()));
+
+  // Independent checker rejects
+  const rej = await logAndSubmit('ZZ-TEST e2e reject', 'Sanjay');
+  await setPersona('p-cro');
+  await nav(`/modules/RISK/risks/${rej.id}`);
+  await clickButton('Reject');
+  await sleep(500);
+  await ev(`(()=>{const e=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(e,'e2e reason');e.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+  await sleep(200);
+  await ev(`[...document.querySelectorAll('[role=dialog] button')].find(b=>b.textContent.trim()==='Confirm reject').click()`);
+  await sleep(1200);
+  const d4 = await getDb();
+  check('independent checker reject: risk back to DRAFT, action rejected, ACTION_REJECTED in history',
+    d4.risks.find((x) => x.id === rej.id).status === 'DRAFT' &&
+    d4.pendingActions.find((a) => a.entityId === rej.id).status === 'rejected' &&
+    d4.history.some((h) => h.entityId === rej.id && h.action === 'ACTION_REJECTED'));
+
+  // Unauthorised persona (no RISK_CHECKER) sees no decision controls on a pending risk
+  await setPersona('p-hoc');
+  await nav(`/modules/RISK/risks/${owned.id}`);
+  t = await text();
+  check('persona without RISK_CHECKER cannot decide (no controls, role message)', !/\bApprove\b/.test(t) && !/\bReject\b/.test(t) && t.includes('RISK_CHECKER'));
 
   // Permissions: every persona without RISK_MAKER
   const noCreate = db.personas.filter((x) => !x.roles.includes('RISK_MAKER')).map((x) => x.id);

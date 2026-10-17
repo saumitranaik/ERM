@@ -70,7 +70,7 @@ schema-level naming to `06-data-model/`, which does not exist yet.
 
 ## Open governance gaps found while verifying risk logging (decisions required)
 
-### A. Risk Owner may also be the approving Checker — spec is internally inconsistent
+### A. Risk Owner may also be the approving Checker — spec is internally inconsistent (prototype control added)
 
 **What the specs say.** `docs/10-risk/01-enterprise-risk-management.md` Assumption 6
 states "Risk Owner and Checker are always distinct individuals", and the Security
@@ -93,11 +93,36 @@ it is enforced at decision time (block the owner from deciding), at owner select
 it is a new PRSMTD platform capability (a decide-time guard keyed on a module-supplied
 "subject user"), since the spec forbids bespoke module SoD logic.
 
-**Not implemented.** No governance policy was invented. Decision needed from the owner:
-*"Must the Risk Owner be barred from deciding the approval of their own risk, and if so is
-that a PRSMTD platform guard (preferred, reusable across modules that name an owner) or a
-RISK-module rule?"* Once answered, the prototype change is small (extend the `canDecide`
-check in `ApprovalPanel.tsx` with an owner comparison, plus one E2E/unit case).
+**Resolved at prototype level (decision received).** The accountable owner decided: *a Risk Owner
+must not approve or reject their own risk, even if someone else created or submitted it.*
+Implemented in `prototype/src/lib/decisionPolicy.ts` (`decisionBlockReason`), enforced in
+`decidePendingAction` (`src/lib/governance.ts`) and mirrored by `ApprovalDecision`
+(`src/components/module/ApprovalPanel.tsx`), which hides Approve/Reject and shows the reason. The
+rule is separate from, and evaluated after, the maker≠checker and `RISK_CHECKER` checks. Verified by
+unit tests (`tests/unit/risk-logging.test.mjs`) and the E2E run (`tests/e2e/risk-logging.e2e.mjs`).
+
+**Limits of this control — not claimed as platform enforcement.**
+- Prototype only. It is **not** a PRSMTD capability; the PRSMTD `approved_by <> created_by`
+  constraint is unchanged and still does not compare against the risk owner. A platform-wide guard
+  (decide-time check keyed on a module-supplied subject user) remains an unimplemented, separate
+  PRSMTD proposal, and `docs/10-risk` Assumption 6 / the Security note have not been amended.
+- Applies to Approve and Reject on governed actions whose target is the `risks` record. **Return for
+  rework is deliberately not restricted** (not in the decision); governed actions on child records
+  (assessments, treatment plans, acceptances) and the direct `ESCALATION_ACK` action are not covered.
+  Whether an owner may decide those is an open decision.
+- Ownership is read from the risk's current `ownerId` at decision time (re-assigning the owner after
+  submission changes eligibility). Comparison is by user, so any persona of the owner is blocked.
+- Consequence in the seed data: only one persona holds `RISK_CHECKER` (the CRO), so a risk owned by
+  the CRO has no eligible decider. Whether to add a second checker (e.g. a deputy) or to forbid
+  nominating the sole checker as owner is a business decision, not made here.
+  `docs/10-risk/01-enterprise-risk-management.md` FR-17 says `RISK_CHECKER` may be assigned to a
+  Compliance Officer, Risk Management Committee member or external agency user, but no seeded persona
+  other than the CRO holds it and the specs name no designated alternate; granting it to an existing
+  persona would change the prototype's security model, so none was granted. Decision required: which
+  persona (if any) the AMC designates as alternate checker.
+- Direct-invocation coverage: the shared pure rule is unit-tested, and the ledger function calls it;
+  the ledger function itself is not exercised in isolation (it depends on browser storage) — the E2E
+  test confirms only UI outcomes and resulting database state.
 
 ### B. `RiskScoringMatrix` bands are not specified; prototype bands are invented
 
@@ -117,6 +142,20 @@ matrix. `matrix_definition` is described only as "band labels/thresholds".
 specified values. Score arithmetic (likelihood × impact) is specified; band labels and
 thresholds are not. The legend is therefore labelled output of an unmodelled matrix, not a
 conflict with a specified one.
+
+**Investigation summary (re-checked against `docs/` for this pass).** Explicitly specified:
+score = likelihood × impact (FR-03, numeric score plus band label); matrix is tenant-editable
+reference data with `likelihood_levels`/`impact_levels`/`matrix_definition`/`is_default`
+(`docs/10-risk/01-enterprise-risk-management.md`, data model; Configurability NFR); heat-map and
+risk-register report exist as requirements (FR-15). **Unresolved (no source anywhere):** grid
+dimensions, level ranges (1–5 is a prototype choice), band names beyond "e.g.", thresholds,
+SEBI_AMC seed values, who owns/approves matrix changes (not stated as governed), and how
+inherent vs. residual use the matrix (the spec has one matrix per risk via `scoring_matrix_id`, and
+a separate `methodology_matrix_id` on assessments). Residual scores are specified to come from an
+approved `RiskAssessment` (`RISK_ASSESSMENT_APPROVAL` updates `Risk.residual_*`); the prototype's
+risk form accepts residual L×I directly, unapproved. Mitigation made in this pass: the heat-map
+legend now states that the bands are illustrative and that no approved matrix is configured; no
+threshold or label was changed.
 
 **Not implemented.** Decision needed: the tenant's default matrix (levels and band
 thresholds/labels for the SEBI_AMC profile), ideally supplied by the AMC's risk function.

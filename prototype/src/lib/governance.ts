@@ -14,6 +14,7 @@ import type { Db, EntityBase, HistoryEvent, AppNotification, PendingAction } fro
 import { getDb, mutate } from './store';
 import { newId, nowIso } from './id';
 import { getSession } from './session';
+import { decisionBlockReason } from './decisionPolicy';
 
 export interface SubmitOptions {
   module: string;
@@ -117,12 +118,18 @@ export function decidePendingAction(actionId: string, decision: Decision, commen
   const db = getDb();
   const action = db.pendingActions.find((a) => a.id === actionId);
   if (!action || action.status !== 'pending') return 'Pending action not found or already decided';
-  if (action.createdBy === session.persona.id) {
-    return 'Separation of duties: the maker of an action cannot also decide it.';
-  }
-  if (!session.has(`${action.module}_APPROVE`)) {
-    return `Your persona does not hold the ${action.module}_CHECKER role.`;
-  }
+  const target = rows(db, action.collection).find((e) => e.id === action.entityId);
+  const blocked = decisionBlockReason(
+    {
+      action,
+      entity: target,
+      personaId: session.persona.id,
+      userId: session.user.id,
+      hasApprovePermission: session.has(`${action.module}_APPROVE`),
+    },
+    decision,
+  );
+  if (blocked) return blocked;
 
   mutate((d) => {
     const a = d.pendingActions.find((x) => x.id === actionId);
