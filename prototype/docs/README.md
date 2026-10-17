@@ -49,6 +49,10 @@ persona, decide the item).
 Next.js build if you want to sanity-check the whole app compiles for deployment
 to a static host or preview environment.
 
+`npm test` runs the unit tests (validation, risk scoring, code sequence) with Node's built-in
+runner. `npm run test:e2e` drives the Log Risk journey in a headless Edge/Chrome against the
+running prototype (start `npm run dev` first); it uses a throwaway browser profile.
+
 ### Resetting demo data
 
 Open the persona switcher menu → **Reset demo data**. This restores every

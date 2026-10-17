@@ -102,6 +102,10 @@ export interface EntityConfig {
   hasEvidence: boolean;
   /** Hide the "New" button (records created only through other flows). */
   noCreate?: boolean;
+  /** Label for the create action (default: "New <singular>"). */
+  createLabel?: string;
+  /** Fields computed from form values on save (e.g. likelihood × impact scores). */
+  deriveFields?: (values: Record<string, unknown>) => Record<string, unknown>;
 }
 
 export function entityHref(cfg: Pick<EntityConfig, 'module' | 'slug'>, id?: string): string {

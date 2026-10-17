@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Gauge, AlertTriangle, Activity, CalendarClock } from 'lucide-react';
+import { Plus, Gauge, AlertTriangle, Activity, CalendarClock } from 'lucide-react';
 import { PageHeader } from '../../components/common/PageHeader';
 import { StatCard } from '../../components/charts/MetricTile';
 import { RiskHeatmap, type HeatmapCellDatum } from '../../components/charts/RiskHeatmap';
@@ -11,11 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { ScoreChip, SeverityBadge, StatusBadge } from '../../components/common/StatusBadge';
 import { Button } from '../../components/ui/button';
 import { useDb } from '../../lib/store';
+import { useSession } from '../../lib/session';
 import { humanize, formatDate } from '../../lib/format';
 import type { EntityBase } from '../../types/core';
 
 export function RiskDashboard() {
   const db = useDb();
+  const session = useSession();
   const risks = db.risks as EntityBase[];
   const kris = db.kris as EntityBase[];
   const measurements = db.kriMeasurements as EntityBase[];
@@ -59,9 +61,16 @@ export function RiskDashboard() {
         description="Enterprise and operational risk register, assessments, treatment, acceptance and KRIs — SEBI_AMC regulatory profile."
         crumbs={[{ label: 'Risk Management' }]}
         actions={
-          <Button asChild size="sm">
-            <Link href="/modules/RISK/risks">Open Risk Register</Link>
-          </Button>
+          <>
+            {session?.has('RISK_CREATE') && (
+              <Button asChild size="sm">
+                <Link href="/modules/RISK/risks/new"><Plus /> Log Risk</Link>
+              </Button>
+            )}
+            <Button asChild size="sm" variant="outline">
+              <Link href="/modules/RISK/risks">Open Risk Register</Link>
+            </Button>
+          </>
         }
       />
 

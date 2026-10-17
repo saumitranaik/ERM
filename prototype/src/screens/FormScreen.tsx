@@ -17,6 +17,7 @@ import { createRecord, updateRecord } from '../lib/governance';
 import { moduleByCode } from '../lib/moduleCatalog';
 import { entityHref, rowsFor, entityTitle, type EntityConfig, type FieldDef } from '../lib/registry';
 import { newId, nextCode } from '../lib/id';
+import { validateFields } from '../lib/validation';
 import { humanize } from '../lib/format';
 import type { EntityBase } from '../types/core';
 
@@ -125,14 +126,9 @@ export function FormScreen({ cfg, id }: { cfg: EntityConfig; id?: string }) {
     return init;
   });
   const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
-  const missingRequired = useMemo(
-    () =>
-      cfg.formFields
-        .filter((f) => f.required && (values[f.key] === undefined || values[f.key] === '' || values[f.key] === null))
-        .map((f) => f.label),
-    [cfg.formFields, values],
-  );
+  const fieldErrors = useMemo(() => validateFields(cfg.formFields, values), [cfg.formFields, values]);
 
   if (!session?.has(`${cfg.module}_CREATE`)) {
     return (
@@ -155,15 +151,19 @@ export function FormScreen({ cfg, id }: { cfg: EntityConfig; id?: string }) {
   }
 
   const save = () => {
-    if (missingRequired.length > 0) {
-      setError(`Please complete required fields: ${missingRequired.join(', ')}`);
+    const invalid = cfg.formFields.filter((f) => fieldErrors[f.key]);
+    if (invalid.length > 0) {
+      setSubmitted(true);
+      setError(`Nothing has been saved. Please correct: ${invalid.map((f) => f.label).join(', ')}.`);
       return;
     }
+    const derived = cfg.deriveFields ? cfg.deriveFields(values) : {};
     if (editing && existing) {
       const set: Record<string, unknown> = {};
       for (const f of cfg.formFields) {
         if (f.type !== 'readonly') set[f.key] = values[f.key];
       }
+      Object.assign(set, derived);
       updateRecord({ module: cfg.module, collection: cfg.collection, entityId: existing.id, set });
       router.push(entityHref(cfg, existing.id));
     } else {
@@ -172,9 +172,10 @@ export function FormScreen({ cfg, id }: { cfg: EntityConfig; id?: string }) {
         code: nextCode(rowsFor(db, cfg.collection), cfg.codePrefix),
         status: cfg.initialStatus,
         ...values,
+        ...derived,
       } as EntityBase;
       createRecord({ module: cfg.module, collection: cfg.collection, record });
-      router.push(entityHref(cfg, record.id));
+      router.push(`${entityHref(cfg, record.id)}?created=1`);
     }
   };
 
@@ -185,7 +186,7 @@ export function FormScreen({ cfg, id }: { cfg: EntityConfig; id?: string }) {
         description={
           editing
             ? `Update the ${cfg.labelSingular.toLowerCase()} details. Changes are recorded in the activity history.`
-            : `Create a draft ${cfg.labelSingular.toLowerCase()}. It can be edited until submitted for approval.`
+            : `Record a new ${cfg.labelSingular.toLowerCase()} as a draft. Logging is not approval: it stays editable and is only reviewed once you submit it for approval. Fields marked * are required.`
         }
         crumbs={[
           { label: mod?.displayName ?? cfg.module, href: `/modules/${cfg.module}` },
@@ -212,13 +213,17 @@ export function FormScreen({ cfg, id }: { cfg: EntityConfig; id?: string }) {
                   {f.required && <span className="text-destructive ml-0.5">*</span>}
                 </Label>
                 <FieldInput field={f} value={values[f.key]} onChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))} />
-                {f.help && <p className="text-xs text-muted-foreground">{f.help}</p>}
+                {submitted && fieldErrors[f.key] ? (
+                  <p className="text-xs text-destructive" role="alert">{fieldErrors[f.key]}</p>
+                ) : f.help ? (
+                  <p className="text-xs text-muted-foreground">{f.help}</p>
+                ) : null}
               </div>
             ))}
           </div>
           <div className="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-border">
             <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
-            <Button onClick={save}>{editing ? 'Save changes' : `Create ${cfg.labelSingular}`}</Button>
+            <Button onClick={save}>{editing ? 'Save changes' : cfg.createLabel ?? `Create ${cfg.labelSingular}`}</Button>
           </div>
         </CardContent>
       </Card>

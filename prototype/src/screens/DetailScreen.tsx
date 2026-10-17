@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Pencil } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Pencil, CheckCircle2, X } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { CellValue, DataTable } from '../components/common/DataTable';
@@ -26,6 +27,13 @@ export function DetailScreen({ cfg, id }: { cfg: EntityConfig; id: string }) {
   const db = useDb();
   const session = useSession();
   const [error, setError] = useState('');
+  const createdParam = useSearchParams().get('created') === '1';
+  // Capture once, then drop the flag from the URL so a refresh or shared link does not replay the banner.
+  const [justCreated] = useState(createdParam);
+  useEffect(() => {
+    if (createdParam) window.history.replaceState(null, '', window.location.pathname);
+  }, [createdParam]);
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
   const mod = moduleByCode(cfg.module);
   const entity = rowsFor(db, cfg.collection).find((e) => e.id === id);
 
@@ -85,6 +93,19 @@ export function DetailScreen({ cfg, id }: { cfg: EntityConfig; id: string }) {
       />
 
       <ErrorBanner message={error} onDismiss={() => setError('')} />
+
+      {justCreated && !noticeDismissed && entity.status === cfg.initialStatus && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-200 rounded flex items-start gap-2 text-sm text-green-900 dark:border-green-800" role="status">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+          <span className="flex-1">
+            {cfg.labelSingular} {String(entity.code ?? '')} logged as {humanize(entity.status)}. It has not been submitted
+            for approval. Prototype data is stored in this browser only; use “Reset demo data” to clear it.
+          </span>
+          <button type="button" onClick={() => setNoticeDismissed(true)} aria-label="Dismiss" className="p-0.5 hover:opacity-70">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {pending && (
         <div className="mb-4">

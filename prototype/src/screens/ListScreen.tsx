@@ -30,7 +30,7 @@ export function ListScreen({ cfg }: { cfg: EntityConfig }) {
           canCreate ? (
             <Button asChild size="sm">
               <Link href={`${entityHref(cfg)}/new`}>
-                <Plus /> New {cfg.labelSingular}
+                <Plus /> {cfg.createLabel ?? `New ${cfg.labelSingular}`}
               </Link>
             </Button>
           ) : undefined

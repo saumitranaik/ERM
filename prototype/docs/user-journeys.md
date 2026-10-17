@@ -4,6 +4,19 @@ Guided walkthroughs a stakeholder can follow in the running prototype. Each
 journey demonstrates the maker-checker pattern end to end using the persona
 switcher — no logout/login required.
 
+## 0. Log a new risk (Risk Manager)
+
+1. Log in as **Arjun Mehta (Risk Manager)** (`RISK_MAKER`).
+2. **Risk Management** dashboard → **Log Risk** (or **Risk Register → Log Risk**).
+3. Click **Log Risk** with the form empty: nothing is saved and each missing
+   required field is flagged. Enter likelihood/impact outside 1–5 to see the range error.
+4. Complete the form and save. You land on the risk's detail page with a
+   confirmation: the risk is `DRAFT`, scores are computed (likelihood × impact),
+   and it has **not** been submitted for approval.
+5. Refresh the page, or return to **Risk Register** — the risk persists (browser
+   localStorage) and appears in the list. **Reset demo data** removes it.
+6. Continue with journey 1: **Submit for Assessment Approval** → checker decision.
+
 ## 1. Risk assessment approval (Risk Manager → Chief Risk Officer)
 
 1. Log in as **Arjun Mehta (Risk Manager)**.

@@ -4,6 +4,7 @@
  * taxonomy, governed action types, permissions).
  */
 import type { EntityConfig } from '../lib/registry';
+import { deriveRiskScores } from '../lib/riskScoring';
 
 export const RISK_CATEGORIES = [
   'FUND_MANAGEMENT', 'OPERATIONS', 'CUSTOMER_SERVICE', 'MARKETING_DISTRIBUTION', 'OTHER_BUSINESS',
@@ -30,6 +31,8 @@ export const riskEntities: EntityConfig[] = [
     codePrefix: 'RSK',
     titleField: 'title',
     description: 'Identified sources of uncertainty to the AMC’s objectives, with inherent and residual scoring against the SEBI_AMC taxonomy.',
+    createLabel: 'Log Risk',
+    deriveFields: deriveRiskScores,
     initialStatus: 'DRAFT',
     editableStatuses: ['DRAFT'],
     columns: riskColumns,
