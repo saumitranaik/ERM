@@ -37,6 +37,8 @@ Both deliverables cover the same catalogue workflow
 media, produced in two separate sessions (22 and 23) — the deck first, the video second, each an
 independent capture pass against the running prototype.
 
+Machine check that the derived catalogue (`ERM_Video_Catalogue_and_Descriptions.md`) still agrees with the manifest and the files on disk: `node demos/validate-catalogue.mjs` (from the repository root; no dependencies).
+
 ## Workflow source
 
 Every deliverable here traces back to
