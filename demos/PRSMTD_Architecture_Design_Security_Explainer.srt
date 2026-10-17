@@ -1,0 +1,855 @@
+1
+00:00:13,000 --> 00:00:19,004
+PRSMTD is a multi-tenant governance platform — not a conventional line-of-business application.
+
+2
+00:00:19,154 --> 00:00:23,206
+Spring Boot and Java 21 on the backend.
+
+3
+00:00:23,206 --> 00:00:26,283
+Next.js and TypeScript on the frontend.
+
+4
+00:00:26,283 --> 00:00:28,872
+PostgreSQL under Liquibase for data.
+
+5
+00:00:29,022 --> 00:00:31,611
+One document governs everything: system.md.
+
+6
+00:00:31,611 --> 00:00:35,663
+It is declared the sole authoritative, rebuild-critical specification.
+
+7
+00:00:35,663 --> 00:00:38,252
+On any conflict, it wins.
+
+8
+00:00:38,402 --> 00:00:42,455
+The platform ships one live business module today:
+
+9
+00:00:42,455 --> 00:00:45,044
+Contacts a governed maker-checker workflow,
+
+10
+00:00:45,044 --> 00:00:49,096
+the reference implementation every future module will follow.
+
+11
+00:00:49,246 --> 00:00:54,762
+An earlier expansion added three more modules — Billing, Notifications, Admin.
+
+12
+00:00:54,762 --> 00:00:57,351
+It was later reversed, deliberately,
+
+13
+00:00:57,351 --> 00:01:01,404
+when it didn't meet the platform's own bar.
+
+14
+00:01:01,404 --> 00:01:04,968
+That reversal is recorded permanently, not erased.
+
+15
+00:01:05,118 --> 00:01:10,146
+This is a platform built to govern its own change,
+
+16
+00:01:10,146 --> 00:01:12,735
+before it governs anything else.
+
+17
+00:01:15,885 --> 00:01:18,962
+PRSMTD describes itself in constitutional terms.
+
+18
+00:01:18,962 --> 00:01:21,551
+system.md is “authoritative and rebuild-critical”
+
+19
+00:01:21,551 --> 00:01:27,067
+every governance process built on top of it holds derived authority,
+
+20
+00:01:27,067 --> 00:01:28,680
+never equal authority.
+
+21
+00:01:28,830 --> 00:01:33,859
+Six invariants sit above every other rule in the system
+
+22
+00:01:33,859 --> 00:01:37,423
+a closed set, numbered I1 through I6.
+
+23
+00:01:37,573 --> 00:01:39,187
+I1: closed-world routing.
+
+24
+00:01:39,187 --> 00:01:42,751
+Any route not explicitly enumerated is forbidden.
+
+25
+00:01:42,901 --> 00:01:44,515
+I2: maker-checker governance.
+
+26
+00:01:44,515 --> 00:01:46,616
+No direct lifecycle mutation.
+
+27
+00:01:46,616 --> 00:01:50,668
+A maker can never be their own checker.
+
+28
+00:01:50,818 --> 00:01:58,773
+I3: plane separation a hard boundary between the platform control plane and the tenant data plane.
+
+29
+00:01:58,923 --> 00:02:04,439
+I4: tenant isolation, enforced by the database itself through row-level security,
+
+30
+00:02:04,439 --> 00:02:08,979
+anchored on session variables the application never sets directly.
+
+31
+00:02:09,129 --> 00:02:14,645
+I5: deterministic rebuild — pinned images, sealed snapshot hashes, byte-sensitive inputs.
+
+32
+00:02:14,645 --> 00:02:19,673
+I6: one closed, exhaustive set of governed action types, system-wide.
+
+33
+00:02:19,823 --> 00:02:25,339
+The Liquibase schema baseline locks immutable from a fixed release tag.
+
+34
+00:02:25,339 --> 00:02:30,855
+New change is additive only — never a rewrite of history.
+
+35
+00:02:31,005 --> 00:02:35,057
+Every structural change moves through six ordered phases:
+
+36
+00:02:35,057 --> 00:02:37,646
+Charter, Schema, Runtime, Graph, Validator,
+
+37
+00:02:37,646 --> 00:02:38,996
+Capstone.
+
+38
+00:02:38,996 --> 00:02:41,585
+Skipping ahead is explicitly forbidden.
+
+39
+00:02:41,735 --> 00:02:44,812
+The Runtime Validator Harness is named,
+
+40
+00:02:44,812 --> 00:02:47,401
+explicitly, a constitutional control surface
+
+41
+00:02:47,401 --> 00:02:53,405
+the same enforcement class as row-level security and the ExecutionContext binding itself.
+
+42
+00:02:56,555 --> 00:02:59,632
+The backend enforces its own layering
+
+43
+00:02:59,632 --> 00:03:06,611
+not by convention, but by an ArchUnit test that fails the build on violation.
+
+44
+00:03:06,761 --> 00:03:08,862
+API depends on service.
+
+45
+00:03:08,862 --> 00:03:10,963
+Service depends on persistence.
+
+46
+00:03:10,963 --> 00:03:14,040
+Persistence depends on nothing above it.
+
+47
+00:03:14,040 --> 00:03:19,068
+A controller package is not permitted to exist at all.
+
+48
+00:03:19,218 --> 00:03:22,295
+Every business capability is a module:
+
+49
+00:03:22,295 --> 00:03:25,372
+a manifest file declaring its code,
+
+50
+00:03:25,372 --> 00:03:28,449
+its roles, its permissions, its workflows.
+
+51
+00:03:28,599 --> 00:03:32,651
+A module's lifecycle runs through one canonical flow:
+
+52
+00:03:32,651 --> 00:03:37,191
+manifest, to startup scanner, to a modules catalog table,
+
+53
+00:03:37,191 --> 00:03:41,244
+to the governance ledger, to a projection trigger,
+
+54
+00:03:41,244 --> 00:03:44,321
+to the tenant's own module state
+
+55
+00:03:44,321 --> 00:03:46,422
+read-only from there on.
+
+56
+00:03:46,572 --> 00:03:49,649
+Contacts, the platform's one live module,
+
+57
+00:03:49,649 --> 00:03:52,238
+declares three roles Maker, Checker,
+
+58
+00:03:52,238 --> 00:03:57,266
+Viewer and one workflow requiring approval before it takes effect.
+
+59
+00:03:57,416 --> 00:04:00,980
+Modules cannot modify tables they don't own.
+
+60
+00:04:00,980 --> 00:04:04,545
+A destructive schema change requires an explicit,
+
+61
+00:04:04,545 --> 00:04:08,598
+named approval marker before it can even merge.
+
+62
+00:04:08,748 --> 00:04:12,312
+The frontend never hardcodes which modules exist.
+
+63
+00:04:12,312 --> 00:04:15,389
+It asks the platform, at runtime,
+
+64
+00:04:15,389 --> 00:04:19,441
+and builds its own navigation from the answer.
+
+65
+00:04:19,591 --> 00:04:23,156
+Every request crosses the same eight-component pipeline,
+
+66
+00:04:23,156 --> 00:04:25,745
+in the same fixed order
+
+67
+00:04:25,745 --> 00:04:28,822
+from trace initialization, through identity resolution,
+
+68
+00:04:28,822 --> 00:04:34,826
+to the moment a database connection is finally handed to business logic.
+
+69
+00:04:34,976 --> 00:04:40,979
+Modules are forbidden from seeding their own catalog rows through a migration.
+
+70
+00:04:40,979 --> 00:04:45,520
+They register themselves, at runtime, or not at all.
+
+71
+00:04:48,670 --> 00:04:54,673
+At the center of tenant isolation sits one small Java class: ExecutionContext.
+
+72
+00:04:54,673 --> 00:05:00,677
+Its constructor is where the rule is enforced — not documented, enforced.
+
+73
+00:05:00,677 --> 00:05:04,729
+A platform-plane context must carry no tenant id.
+
+74
+00:05:04,729 --> 00:05:07,806
+A tenant-plane context must carry one.
+
+75
+00:05:07,956 --> 00:05:12,496
+Tenant identity is never taken from the token directly.
+
+76
+00:05:12,496 --> 00:05:18,988
+It's derived: the token's issuer is looked up against a registered identity provider,
+
+77
+00:05:18,988 --> 00:05:23,040
+and only then resolved to a tenant id.
+
+78
+00:05:23,190 --> 00:05:29,682
+One component alone may set the database session variables row-level security depends on:
+
+79
+00:05:29,682 --> 00:05:31,032
+TenantAwareDataSource.
+
+80
+00:05:31,032 --> 00:05:34,596
+Every borrowed connection resets those variables first,
+
+81
+00:05:34,596 --> 00:05:39,624
+then binds them fresh, scoped to the current transaction only.
+
+82
+00:05:39,774 --> 00:05:44,802
+Application code is explicitly forbidden from setting these variables itself.
+
+83
+00:05:44,952 --> 00:05:47,541
+Isolation extends past the database.
+
+84
+00:05:47,541 --> 00:05:51,594
+Each tenant is provisioned its own Keycloak realm.
+
+85
+00:05:51,594 --> 00:05:56,622
+A platform administrator's account exists only in the platform realm
+
+86
+00:05:56,622 --> 00:05:58,723
+never in a tenant's.
+
+87
+00:05:58,873 --> 00:06:02,926
+A tenant's lifecycle is a closed state machine:
+
+88
+00:06:02,926 --> 00:06:06,490
+pending, to active, to suspended and back,
+
+89
+00:06:06,490 --> 00:06:11,518
+or to archived a terminal state with no path back.
+
+90
+00:06:14,668 --> 00:06:20,672
+Authorization is split into three domains that are never allowed to cross:
+
+91
+00:06:20,672 --> 00:06:24,237
+platform RBAC, tenant RBAC, and module RBAC.
+
+92
+00:06:24,237 --> 00:06:27,313
+Each has its own role table,
+
+93
+00:06:27,313 --> 00:06:30,878
+its own permission table, its own audience.
+
+94
+00:06:31,028 --> 00:06:34,105
+Maker-checker isn't only an application rule.
+
+95
+00:06:34,105 --> 00:06:42,548
+It's a database constraint: the account that approves an action cannot be the account that proposed it.
+
+96
+00:06:42,548 --> 00:06:45,624
+The database itself rejects the alternative.
+
+97
+00:06:45,774 --> 00:06:50,315
+Every governed action is a row in one table
+
+98
+00:06:50,315 --> 00:06:52,904
+pending_action constrained to a closed,
+
+99
+00:06:52,904 --> 00:06:55,980
+exhaustive set of nineteen action types,
+
+100
+00:06:55,980 --> 00:07:01,009
+and protected by forced row-level security at the database engine.
+
+101
+00:07:01,159 --> 00:07:04,723
+The platform maintains its own threat model:
+
+102
+00:07:04,723 --> 00:07:07,800
+twelve trust boundaries, seven security domains,
+
+103
+00:07:07,800 --> 00:07:14,779
+seventeen STRIDE-classified threat scenarios, each with a named mitigation and a documented residual risk.
+
+104
+00:07:14,929 --> 00:07:18,494
+One of those residual risks is disclosed,
+
+105
+00:07:18,494 --> 00:07:25,961
+not hidden: two platform tables carry row-level security policies but not the strongest enforcement mode.
+
+106
+00:07:25,961 --> 00:07:29,038
+The exposure was assessed as low,
+
+107
+00:07:29,038 --> 00:07:32,115
+and logged as a hardening item
+
+108
+00:07:32,115 --> 00:07:34,216
+not a passed inspection.
+
+109
+00:07:34,366 --> 00:07:37,930
+An old enforcement script was found orphaned,
+
+110
+00:07:37,930 --> 00:07:42,959
+never wired into the pipeline it was meant to guard,
+
+111
+00:07:42,959 --> 00:07:46,035
+unable to even complete a run.
+
+112
+00:07:46,035 --> 00:07:51,551
+It was retired because the invariant it targeted was already enforced,
+
+113
+00:07:51,551 --> 00:07:56,091
+independently, by row-level security and the centralized session-variable boundary.
+
+114
+00:07:56,241 --> 00:08:00,782
+That is the standard this platform holds itself to:
+
+115
+00:08:00,782 --> 00:08:03,371
+find the gap, disclose it,
+
+116
+00:08:03,371 --> 00:08:08,887
+and only remove a control once something else already covers it.
+
+117
+00:08:12,037 --> 00:08:15,113
+Every request carries a signed token.
+
+118
+00:08:15,113 --> 00:08:17,215
+Its signature is verified.
+
+119
+00:08:17,215 --> 00:08:21,267
+Its issuer must match a registered value exactly.
+
+120
+00:08:21,267 --> 00:08:23,856
+Its audience must match too.
+
+121
+00:08:23,856 --> 00:08:26,933
+No fallback issuer, and no exceptions.
+
+122
+00:08:27,083 --> 00:08:32,599
+The token's subject is an external identity — a Keycloak-assigned id.
+
+123
+00:08:32,599 --> 00:08:36,651
+It is never used directly to bind data.
+
+124
+00:08:36,651 --> 00:08:40,216
+It's looked up, through an identity-binding table,
+
+125
+00:08:40,216 --> 00:08:43,780
+to the platform's own internal user id.
+
+126
+00:08:43,930 --> 00:08:50,422
+A token issued by one tenant's realm is rejected before it's even decoded,
+
+127
+00:08:50,422 --> 00:08:55,450
+the moment its issuer fails to match a registered tenant.
+
+128
+00:08:55,450 --> 00:08:59,015
+Cross-realm access isn't caught after the fact
+
+129
+00:08:59,015 --> 00:09:02,579
+it's structurally impossible to reach that far.
+
+130
+00:09:02,729 --> 00:09:10,196
+Machine-to-machine calls authenticate differently: a service credential token carries its own permissions as signed claims,
+
+131
+00:09:10,196 --> 00:09:16,688
+so the hot path never has to query a permissions table at all.
+
+132
+00:09:16,838 --> 00:09:19,427
+Provisioning follows the same discipline:
+
+133
+00:09:19,427 --> 00:09:23,967
+every tenant realm gets its own dedicated service account.
+
+134
+00:09:23,967 --> 00:09:29,483
+One shared administrator credential across every tenant realm is explicitly forbidden.
+
+135
+00:09:32,633 --> 00:09:35,710
+Row-level security policies are not generic.
+
+136
+00:09:35,710 --> 00:09:41,713
+The policy on the audit log doesn't just check the tenant id
+
+137
+00:09:41,713 --> 00:09:50,644
+it checks that the account writing the row is the same account the row claims performed the action.
+
+138
+00:09:50,794 --> 00:09:55,334
+Six audit tables are append-only, by database trigger, unconditionally.
+
+139
+00:09:55,334 --> 00:10:03,289
+An update or a delete against any of them raises an exception and stops the transaction.
+
+140
+00:10:03,439 --> 00:10:07,491
+One rule closes the loop on duplicate approvals:
+
+141
+00:10:07,491 --> 00:10:18,373
+for any governed target, the system will not allow more than one pending action of the same type at the same time.
+
+142
+00:10:18,523 --> 00:10:25,015
+There is exactly one documented exception to routing changes through governance at all
+
+143
+00:10:25,015 --> 00:10:28,091
+bootstrapping a tenant's very first membership
+
+144
+00:10:28,091 --> 00:10:34,095
+and even that exception is itself logged to a permanent audit event,
+
+145
+00:10:34,095 --> 00:10:36,196
+every time it fires.
+
+146
+00:10:36,346 --> 00:10:41,374
+Some tables are not written by application code at all.
+
+147
+00:10:41,374 --> 00:10:43,963
+They exist only as projections
+
+148
+00:10:43,963 --> 00:10:49,967
+populated exclusively when a trigger observes a governed action move to approved.
+
+149
+00:10:50,117 --> 00:10:56,121
+The trace record kept for every request is deliberately incomplete by design:
+
+150
+00:10:56,121 --> 00:10:58,710
+no raw tokens, no claims,
+
+151
+00:10:58,710 --> 00:11:00,323
+no personal data.
+
+152
+00:11:00,323 --> 00:11:04,376
+Only opaque identifiers enough to reconstruct what happened,
+
+153
+00:11:04,376 --> 00:11:09,404
+never enough to expose who or what was in it.
+
+154
+00:11:12,554 --> 00:11:16,118
+Structural change moves through a nine-stage lifecycle:
+
+155
+00:11:16,118 --> 00:11:18,707
+proposed, chartered, scheduled, in progress,
+
+156
+00:11:18,707 --> 00:11:21,296
+landed, verified, closed or deferred.
+
+157
+00:11:21,296 --> 00:11:26,812
+Once an item is verified or closed, it is not edited.
+
+158
+00:11:26,812 --> 00:11:31,352
+A correction is a new entry, never a rewrite.
+
+159
+00:11:31,502 --> 00:11:37,506
+Three paths can insert work into that lifecycle, and they don't overlap.
+
+160
+00:11:37,506 --> 00:11:41,559
+Structural change requires a chartered specification amendment first
+
+161
+00:11:41,559 --> 00:11:44,635
+it cannot enter through the lighter,
+
+162
+00:11:44,635 --> 00:11:45,985
+operational path.
+
+163
+00:11:46,135 --> 00:11:52,139
+Every decision the governance board makes is recorded to an append-only ledger.
+
+164
+00:11:52,139 --> 00:11:55,704
+The board's own authority is explicitly bounded:
+
+165
+00:11:55,704 --> 00:11:58,293
+it cannot weaken an invariant,
+
+166
+00:11:58,293 --> 00:12:05,760
+bypass a compliance gate, or schedule schema work without an approved specification change behind it.
+
+167
+00:12:05,910 --> 00:12:10,938
+A separate, six-validator constitutional smoke set runs against a live,
+
+168
+00:12:10,938 --> 00:12:13,527
+running system in continuous integration
+
+169
+00:12:13,527 --> 00:12:18,067
+checking things like cross-tenant leakage between two live tenants.
+
+170
+00:12:18,067 --> 00:12:23,095
+The set required to run is itself fixed and drift-checked.
+
+171
+00:12:23,245 --> 00:12:27,298
+The architecture graph itself is generated from system.md,
+
+172
+00:12:27,298 --> 00:12:32,326
+and cryptographically pinned to the exact bytes of that document.
+
+173
+00:12:32,326 --> 00:12:38,329
+If the specification changes and the graph doesn't follow, the build fails.
+
+174
+00:12:41,479 --> 00:12:45,532
+Follow one request from the moment it arrives.
+
+175
+00:12:45,682 --> 00:12:51,198
+First, a trace identifier is assigned — before authentication even begins.
+
+176
+00:12:51,348 --> 00:12:58,327
+The bearer token is checked against a registered issuer before it's decoded at all.
+
+177
+00:12:58,327 --> 00:13:01,404
+An unrecognized issuer is rejected immediately,
+
+178
+00:13:01,404 --> 00:13:04,968
+without ever reaching the effort of validation.
+
+179
+00:13:05,118 --> 00:13:07,707
+Identity is resolved: token subject,
+
+180
+00:13:07,707 --> 00:13:12,248
+to an identity-binding record, to an internal user id
+
+181
+00:13:12,248 --> 00:13:15,324
+never the raw external identity itself.
+
+182
+00:13:15,474 --> 00:13:20,015
+The execution plane is determined from the route itself
+
+183
+00:13:20,015 --> 00:13:24,067
+never inferred from what memberships happen to exist.
+
+184
+00:13:24,217 --> 00:13:26,318
+An ExecutionContext is constructed.
+
+185
+00:13:26,318 --> 00:13:27,668
+Immutable.
+
+186
+00:13:27,668 --> 00:13:34,160
+Its plane and tenant id are validated for consistency the moment it's built.
+
+187
+00:13:34,310 --> 00:13:38,362
+Only now does a database connection get involved
+
+188
+00:13:38,362 --> 00:13:44,366
+and only through the one component permitted to bind its session variables.
+
+189
+00:13:44,516 --> 00:13:47,105
+The module layer checks role,
+
+190
+00:13:47,105 --> 00:13:50,182
+checks whether the action requires approval,
+
+191
+00:13:50,182 --> 00:13:55,210
+and either executes directly or opens a new pending action.
+
+192
+00:13:55,360 --> 00:14:00,876
+A second request, later, from a different account, makes the decision.
+
+193
+00:14:00,876 --> 00:14:08,343
+The database itself refuses to let that account be the same one that proposed it.
+
+194
+00:14:08,493 --> 00:14:11,082
+On approval, a trigger fires.
+
+195
+00:14:11,082 --> 00:14:13,671
+The audit record is written.
+
+196
+00:14:13,671 --> 00:14:15,284
+The projection updates.
+
+197
+00:14:15,284 --> 00:14:19,824
+And the response returns through the same context-clearing path,
+
+198
+00:14:19,824 --> 00:14:22,901
+whether the request succeeded or failed.
+
+199
+00:14:26,051 --> 00:14:31,079
+The documentation cannot silently drift from what governs the build
+
+200
+00:14:31,079 --> 00:14:37,571
+the architecture graph is generated from the specification and cryptographically tied to it.
+
+201
+00:14:37,721 --> 00:14:41,773
+Tenant isolation is not enforced in one place.
+
+202
+00:14:41,773 --> 00:14:44,362
+It's enforced four times, independently
+
+203
+00:14:44,362 --> 00:14:47,927
+in application code, in the connection layer,
+
+204
+00:14:47,927 --> 00:14:51,491
+in the database engine, and verified again,
+
+205
+00:14:51,491 --> 00:14:53,593
+live, in continuous integration.
+
+206
+00:14:53,743 --> 00:14:56,820
+Governance debt is tracked, not hidden.
+
+207
+00:14:56,820 --> 00:14:59,896
+Gaps get disclosed, dispositioned, and logged
+
+208
+00:14:59,896 --> 00:15:02,973
+not quietly patched over and forgotten.
+
+209
+00:15:03,123 --> 00:15:09,127
+And the platform has already proven it will reverse its own work
+
+210
+00:15:09,127 --> 00:15:12,691
+retiring three modules it had already built
+
+211
+00:15:12,691 --> 00:15:17,720
+rather than keep scaffolding that didn't meet its own bar.
+
+212
+00:15:17,870 --> 00:15:21,434
+PRSMTD is not merely a software platform.
+
+213
+00:15:21,434 --> 00:15:25,974
+It is a governed enterprise operating architecture where security,
+
+214
+00:15:25,974 --> 00:15:31,978
+compliance, and platform evolution are enforced as constitutional properties of the system.
