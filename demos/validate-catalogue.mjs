@@ -1,6 +1,12 @@
-// Run from the repo root: node demos/validate-catalogue.mjs   (no dependencies)
+// Run from the repo root: node demos/validate-catalogue.mjs [--strict-renders]   (no dependencies)
 // Checks the derived ERM_Video_Catalogue_and_Descriptions.md against the authoritative
-// video-production-manifest.md and the files on disk. Read-only; exits 1 on any failure.
+// video-production-manifest.md. Read-only.
+//  - Structural validation (default): catalogue/manifest/links/anchors/statuses/production packages.
+//    Passes on a clean checkout: generated MP4s are Git-ignored and are NOT required.
+//  - Render validation: local MP4 presence is reported as informational notes by default
+//    (never a failure). With --strict-renders, a manifest-'Rendered' video whose local MP4 is
+//    missing, or an MP4 present that the manifest does not mark Rendered, is a failure.
+// Exits 1 on any failure.
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,8 +16,11 @@ const dir = dirname(fileURLToPath(import.meta.url));
 const read = (f) => readFileSync(join(dir, f), 'utf8').replace(/\r\n/g, '\n');
 const cat = read('ERM_Video_Catalogue_and_Descriptions.md');
 const man = read('video-production-manifest.md');
+const strict = process.argv.includes('--strict-renders');
 const errors = [];
+const notes = [];
 const fail = (m) => errors.push(m);
+const renderIssue = (m) => (strict ? errors.push(m) : notes.push(m));
 
 // Manifest Table C rows: | NN | status x4 | `demos/<folder>/` | `<file>.mp4` | ...
 const rows = [...man.matchAll(/^\| (\d\d) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| `demos\/([^/`]+)\/` \| `([^`]+\.mp4)`/gm)]
@@ -37,6 +46,7 @@ for (const m of cat.matchAll(/\]\(#([^)]+)\)/g)) if (!anchors.includes(m[1])) fa
 // Relative file links resolve
 for (const m of cat.matchAll(/\]\((?!https?:|#)([^)#]+)(#[^)]*)?\)/g)) if (!existsSync(join(dir, m[1]))) fail(`broken link ${m[1]}`);
 
+let renderPresent = 0;
 for (const s of sections) {
   const [, n, title, wf, status, desc] = s;
   const row = rows.find((r) => r.n === n);
@@ -55,10 +65,14 @@ for (const s of sections) {
   if (rendered !== st.includes('rendered')) fail(`Video ${n}: rendered claim disagrees with manifest`);
   if (/approved|published/.test(st.replace(/not (published|approved)|approval not started/g, '')) && row.approval === 'Not Started') fail(`Video ${n}: catalogue claims approval/publication manifest does not record`);
   // Evidence on disk
-  if (rendered && !existsSync(mp4)) fail(`Video ${n}: manifest says rendered but ${row.folder}/${row.mp4} is missing`);
-  if (!rendered && existsSync(mp4)) fail(`Video ${n}: ${row.mp4} exists but manifest does not say rendered`);
+  if (rendered && !existsSync(mp4)) renderIssue(`Video ${n}: manifest says rendered but local ${row.folder}/${row.mp4} is absent (MP4s are Git-ignored)`);
+  if (!rendered && existsSync(mp4)) renderIssue(`Video ${n}: local ${row.mp4} exists but manifest does not say rendered`);
+  if (rendered && existsSync(mp4)) renderPresent++;
   if (produced && !existsSync(join(dir, row.folder, 'asset-inventory.md'))) fail(`Video ${n}: production package folder incomplete`);
 }
 
 if (errors.length) { console.error(errors.map((e) => 'FAIL  ' + e).join('\n')); console.error(`\n${errors.length} problem(s)`); process.exit(1); }
-console.log(`OK  ${sections.length} catalogue entries match manifest (${rows.filter((r) => r.pkg !== 'Not Started').length} with production activity); links, anchors, order and on-disk evidence verified`);
+const renderedCount = rows.filter((r) => r.render.startsWith('Rendered')).length;
+for (const n of notes) console.warn('NOTE  ' + n);
+console.log(`RENDER  ${renderPresent}/${renderedCount} manifest-rendered videos have a local MP4${strict ? ' (strict: enforced)' : ' (informational; use --strict-renders to enforce)'}`);
+console.log(`OK  structural: ${sections.length} catalogue entries match manifest (${rows.filter((r) => r.pkg !== 'Not Started').length} with production activity); links, anchors, order and production packages verified`);
