@@ -6,8 +6,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const cat = readFileSync(join(dir, 'ERM_Video_Catalogue_and_Descriptions.md'), 'utf8');
-const man = readFileSync(join(dir, 'video-production-manifest.md'), 'utf8');
+// Normalise CRLF (Windows checkouts with core.autocrlf) so the line-anchored patterns below match.
+const read = (f) => readFileSync(join(dir, f), 'utf8').replace(/\r\n/g, '\n');
+const cat = read('ERM_Video_Catalogue_and_Descriptions.md');
+const man = read('video-production-manifest.md');
 const errors = [];
 const fail = (m) => errors.push(m);
 
